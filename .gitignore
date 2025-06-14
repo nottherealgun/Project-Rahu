@@ -73,7 +73,8 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
 ## My Custom
-Assets/
+Assets/*
+!Assets/Custom/
 *.meta
 .vscode/
 ignore.conf
