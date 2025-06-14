@@ -1,40 +1,50 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Cinemachine;
+using UnityEngine.InputSystem;
 
-public class NewScript : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
-    float speed = 5.0f;
-    public Rigidbody rb;
-    public GameObject bullet;
-    // Start is called before the first frame update
+    public Camera mainCamera;
+    public GameObject interactingObject;
+    public GameObject followCam;
+    public bool interact = false;
     void Start()
     {
-        
+
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if(Input.GetKey(KeyCode.W))
-        {
-            transform.position += transform.forward * Time.deltaTime * speed;
-        }else if(Input.GetKey(KeyCode.S))
-        {
-            transform.position -= transform.forward * Time.deltaTime * speed;
-        }else if(Input.GetKey(KeyCode.A))
-        {
-            transform.position -= transform.right * Time.deltaTime * speed;
-        }else if(Input.GetKey(KeyCode.D)){
-            transform.position += transform.right * Time.deltaTime * speed;
-        }if(Input.GetKey(KeyCode.Space)){
-            // transform.position -= transform.up * Time.deltaTime * speed;
-            rb.AddForce(Vector3.up, ForceMode.Impulse);
-        }
 
-        if(Input.GetMouseButtonDown(0)){
-            GameObject b = Instantiate(bullet, transform.position+Vector3.forward, transform.rotation);
-            b.GetComponent<Rigidbody>().AddForce(transform.forward * 1000);
-        }
+    }
+
+    public void OnInteract(InputValue value)
+    {
+        interact = !interact;
+        if(interact) Debug.Log("Started Interacting.");
+        else Debug.Log("Stopped Interacting.");
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        interactingObject = other.gameObject;
+        TestItem _item;
+        interactingObject.TryGetComponent<TestItem>(out _item);
+        if (_item.camera != null)
+            followCam.SetActive(false);
+        _item.camera.gameObject.SetActive(true);
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        TestItem _item;
+        interactingObject.TryGetComponent<TestItem>(out _item);
+        if (interactingObject == other.gameObject)
+            if (_item.camera != null)
+                _item.camera.gameObject.SetActive(false);
+        interactingObject = null;
+        followCam.SetActive(true);
+        interact = false;
     }
 }
