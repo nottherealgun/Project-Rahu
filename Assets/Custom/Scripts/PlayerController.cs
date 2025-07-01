@@ -116,10 +116,16 @@ public class PlayerController : MonoBehaviour
     }
 
     public Camera mainCamera;
-    public GameObject interactingObject;
+    [SerializeField] public GameObject interactingObject;
     public GameObject followCam;
     public bool isInteracting = false;
     public bool isObserving = true;
+
+    [SerializeField] private InputManager _inputManager;
+    [SerializeField] bool holdingMouse = false;
+
+    private Vector3 currentRotationOffset;
+    private float rotationSpeed = 5f;
 
     private void Awake()
     {
@@ -156,6 +162,26 @@ public class PlayerController : MonoBehaviour
         JumpAndGravity();
         GroundedCheck();
         Move();
+        UpdateInteractingObject();
+    }
+
+    void UpdateInteractingObject()
+    {
+        if (interactingObject == null) return;
+        if (Input.GetMouseButtonDown(0))
+        {
+            currentRotationOffset = Vector3.zero;
+            holdingMouse = true;
+        }
+        else if (Input.GetMouseButtonUp(0)) holdingMouse = false;
+        if (holdingMouse && interactingObject.GetComponent<TestItem>().isBeingInteracted)
+        {
+            float mouseXInput = Input.GetAxis("Mouse X");
+            float mouseYInput = Input.GetAxis("Mouse Y");
+            currentRotationOffset.x += -mouseYInput * rotationSpeed;
+            currentRotationOffset.y += mouseXInput * rotationSpeed;
+            interactingObject.transform.rotation = Quaternion.Euler(Vector3.Scale(interactingObject.GetComponent<TestItem>().initialRotation , currentRotationOffset));
+        }
     }
 
     public void OnInteract(InputValue value)
@@ -167,40 +193,23 @@ public class PlayerController : MonoBehaviour
 
     private void SetIsInteracting(bool value)
     {
-        isInteracting = value;
-        if (interactingObject == null) return;
         TestItem _item;
-        interactingObject.TryGetComponent<TestItem>(out _item);
-        if (_item.interactingCamera != null)
-        {
-            _item.viewingCamera.gameObject.SetActive(!isInteracting);
-            _item.interactingCamera.gameObject.SetActive(isInteracting);
-        }
+        if (interactingObject == null || interactingObject.TryGetComponent<TestItem>(out _item) == false) return;
+        isInteracting = value;
+        // interactingObject.TryGetComponent<TestItem>(out _item);
+        _item.interactingCamera.gameObject.SetActive(isInteracting);
+        _item.interacted(value);
+        _inputManager.SetCursorState(!value);
     }
 
     private void OnTriggerEnter(Collider other)
     {
         interactingObject = other.gameObject;
-        TestItem _item;
-        interactingObject.TryGetComponent<TestItem>(out _item);
-        if (_item.viewingCamera != null)
-        {
-            followCam.SetActive(false);
-            isObserving = true;
-            _item.viewingCamera.gameObject.SetActive(true);
-        }
     }
     private void OnTriggerExit(Collider other)
     {
-        TestItem _item;
-        interactingObject.TryGetComponent<TestItem>(out _item);
         if (interactingObject == other.gameObject)
-            if (_item.viewingCamera != null)
-                _item.viewingCamera.gameObject.SetActive(false);
-        interactingObject = null;
-        followCam.SetActive(true);
-        SetIsInteracting(false);
-        isObserving = false;
+            interactingObject = null;
     }
 
     private void LateUpdate()
@@ -255,7 +264,6 @@ public class PlayerController : MonoBehaviour
 
     private void Move()
     {
-        if (isInteracting) return;
         // set target speed based on move speed, sprint speed and if sprint is pressed
         float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
 
@@ -265,11 +273,24 @@ public class PlayerController : MonoBehaviour
         // if there is no input, set the target speed to 0
         if (_input.move == Vector2.zero) targetSpeed = 0.0f;
 
+        if (isInteracting)
+        {
+            targetSpeed = 0.0f;
+            _input.move = Vector2.zero;
+        }
+
         // a reference to the players current horizontal velocity
         float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
 
         float speedOffset = 0.1f;
         float inputMagnitude = _input.analogMovement ? _input.move.magnitude : 1f;
+
+        // update animator if using character
+        if (_hasAnimator)
+        {
+            _animator.SetFloat(_animIDSpeed, _animationBlend);
+            _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
+        }
 
         // accelerate or decelerate to target speed
         if (currentHorizontalSpeed < targetSpeed - speedOffset ||
@@ -313,13 +334,6 @@ public class PlayerController : MonoBehaviour
         // move the player
         _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
                          new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
-
-        // update animator if using character
-        if (_hasAnimator)
-        {
-            _animator.SetFloat(_animIDSpeed, _animationBlend);
-            _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
-        }
     }
 
     private void JumpAndGravity()
@@ -414,6 +428,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnFootstep(AnimationEvent animationEvent)
     {
+        if (isInteracting) return;
         if (animationEvent.animatorClipInfo.weight > 0.5f)
         {
             if (FootstepAudioClips.Length > 0)
