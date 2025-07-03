@@ -6,6 +6,55 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    public class MouseRotator
+    {
+
+        public float RotationSpeed { get; set; } = 0.5f;
+        public bool InvertXRotation { get; set; } = false;
+        public bool InvertYRotation { get; set; } = false;
+        private Vector2 _lastMousePosition;
+
+        private Quaternion _currentRotation = Quaternion.identity; // Using Quaternion.identity for Unity
+
+        public MouseRotator(Vector2 initialMousePosition)
+        {
+            _lastMousePosition = initialMousePosition;
+        }
+
+        public Quaternion UpdateRotation(Vector2 currentMousePosition, bool isDragging)
+        {
+            if (isDragging)
+            {
+                // Calculate the change in mouse position since the last frame
+                Vector2 mouseDelta = currentMousePosition - _lastMousePosition;
+
+                float rotationAmountX = mouseDelta.y * RotationSpeed * (InvertXRotation ? -1f : 1f);
+                float rotationAmountY = mouseDelta.x * RotationSpeed * (InvertYRotation ? -1f : 1f);
+
+                Quaternion pitchRotation = Quaternion.AngleAxis(rotationAmountX, Vector3.right); // Rotate around object's local right
+                Quaternion yawRotation = Quaternion.AngleAxis(rotationAmountY, Vector3.up);    // Rotate around world up (for turntable)
+
+                _currentRotation = yawRotation * pitchRotation * _currentRotation;
+
+                _currentRotation = Quaternion.Normalize(_currentRotation);
+            }
+            _lastMousePosition = currentMousePosition;
+
+            return _currentRotation;
+        }
+        public void ResetRotation()
+        {
+            _currentRotation = Quaternion.identity;
+        }
+        public void SetRotation(Quaternion newRotation)
+        {
+            _currentRotation = newRotation;
+        }
+        public Quaternion GetCurrentRotation()
+        {
+            return _currentRotation;
+        }
+    }
 
     [Header("Player")]
     [Tooltip("Move speed of the character in m/s")]
@@ -116,16 +165,28 @@ public class PlayerController : MonoBehaviour
     }
 
     public Camera mainCamera;
-    [SerializeField] public GameObject interactingObject;
+    public GameObject interactingObject;
+    public GameObject interactingObjectMesh;
+    public GameObject interactingCamera;
     public GameObject followCam;
     public bool isInteracting = false;
     public bool isObserving = true;
 
-    [SerializeField] private InputManager _inputManager;
+    [SerializeField] InputManager _inputManager;
     [SerializeField] bool holdingMouse = false;
 
     private Vector3 currentRotationOffset;
     private float rotationSpeed = 5f;
+    private MouseRotator _mouseRotator;
+    private Quaternion _initialObjectRotationOnDragStart;
+
+    [Header("Object Interaction Rotation")]
+    [Tooltip("Adjusts the speed of rotation for interacting objects. Higher values mean faster rotation.")]
+    [SerializeField] private float _objectRotationSpeed = 0.5f;
+    [Tooltip("Inverts vertical mouse movement for object rotation.")]
+    [SerializeField] private bool _invertXObjectRotation = false;
+    [Tooltip("Inverts horizontal mouse movement for object rotation.")]
+    [SerializeField] private bool _invertYObjectRotation = false;
 
     private void Awake()
     {
@@ -153,6 +214,11 @@ public class PlayerController : MonoBehaviour
         // reset our timeouts on start
         _jumpTimeoutDelta = JumpTimeout;
         _fallTimeoutDelta = FallTimeout;
+
+        _mouseRotator = new MouseRotator(Input.mousePosition);
+        _mouseRotator.RotationSpeed = _objectRotationSpeed;
+        _mouseRotator.InvertXRotation = _invertXObjectRotation;
+        _mouseRotator.InvertYRotation = _invertYObjectRotation;
     }
 
     void Update()
@@ -168,20 +234,29 @@ public class PlayerController : MonoBehaviour
     void UpdateInteractingObject()
     {
         if (interactingObject == null) return;
+
+        // Start dragging when mouse button is pressed
         if (Input.GetMouseButtonDown(0))
         {
-            currentRotationOffset = Vector3.zero;
             holdingMouse = true;
+            _initialObjectRotationOnDragStart = interactingObjectMesh.transform.rotation;
+            _mouseRotator = new MouseRotator(Input.mousePosition); // Re-initialize to reset _lastMousePosition
+            _mouseRotator.RotationSpeed = _objectRotationSpeed; // Ensure properties are up-to-date
+            _mouseRotator.InvertXRotation = _invertXObjectRotation;
+            _mouseRotator.InvertYRotation = _invertYObjectRotation;
         }
-        else if (Input.GetMouseButtonUp(0)) holdingMouse = false;
+        // End dragging when mouse button is released
+        else if (Input.GetMouseButtonUp(0))
+        {
+            holdingMouse = false;
+        }
+
         if (holdingMouse && interactingObject.GetComponent<TestItem>().isBeingInteracted)
         {
-            float mouseXInput = Input.GetAxis("Mouse X");
-            float mouseYInput = Input.GetAxis("Mouse Y");
-            currentRotationOffset.x += -mouseYInput * rotationSpeed;
-            currentRotationOffset.y += mouseXInput * rotationSpeed;
-            interactingObject.transform.rotation = Quaternion.Euler(Vector3.Scale(interactingObject.GetComponent<TestItem>().initialRotation , currentRotationOffset));
+            Quaternion deltaRotation = _mouseRotator.UpdateRotation(Input.mousePosition, holdingMouse);
+            interactingObjectMesh.transform.rotation = _initialObjectRotationOnDragStart * deltaRotation;
         }
+        
     }
 
     public void OnInteract(InputValue value)
@@ -191,25 +266,39 @@ public class PlayerController : MonoBehaviour
         else Debug.Log("Stopped Interacting.");
     }
 
+    public void OnMenu(InputValue value)
+    {
+        if(isInteracting)
+            SetIsInteracting(false);
+    }
+
     private void SetIsInteracting(bool value)
     {
         TestItem _item;
         if (interactingObject == null || interactingObject.TryGetComponent<TestItem>(out _item) == false) return;
         isInteracting = value;
-        // interactingObject.TryGetComponent<TestItem>(out _item);
-        _item.interactingCamera.gameObject.SetActive(isInteracting);
+        interactingCamera.gameObject.SetActive(isInteracting);
         _item.interacted(value);
         _inputManager.SetCursorState(!value);
+
+        if (!isInteracting)
+        {
+            _mouseRotator.ResetRotation(); // Reset rotation when interaction ends
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
         interactingObject = other.gameObject;
+        interactingObjectMesh = interactingObject.GetComponent<TestItem>().itemMesh;
     }
     private void OnTriggerExit(Collider other)
     {
         if (interactingObject == other.gameObject)
+        {
             interactingObject = null;
+            interactingObjectMesh = null; 
+        }
     }
 
     private void LateUpdate()
