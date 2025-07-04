@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Cinemachine;
 using UnityEngine.InputSystem;
+using PixelCrushers.DialogueSystem;
+using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
@@ -188,6 +190,8 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Inverts horizontal mouse movement for object rotation.")]
     [SerializeField] private bool _invertYObjectRotation = false;
 
+    [SerializeField] TMP_Text _HUD;
+
     private void Awake()
     {
         // get a reference to our main camera
@@ -234,6 +238,7 @@ public class PlayerController : MonoBehaviour
     void UpdateInteractingObject()
     {
         if (interactingObject == null) return;
+        if (interactingObject.GetComponent<TestItem>() == null) return;
 
         // Start dragging when mouse button is pressed
         if (Input.GetMouseButtonDown(0))
@@ -256,26 +261,41 @@ public class PlayerController : MonoBehaviour
             Quaternion deltaRotation = _mouseRotator.UpdateRotation(Input.mousePosition, holdingMouse);
             interactingObjectMesh.transform.rotation = _initialObjectRotationOnDragStart * deltaRotation;
         }
-        
+
     }
 
     public void OnInteract(InputValue value)
     {
+        if (interactingObject && interactingObject.TryGetComponent<SodaCan>(out SodaCan can))
+        {
+            Object.Destroy(interactingObject);
+            interactingObject = null;
+        }
+
         SetIsInteracting(!isInteracting);
-        if (isInteracting) Debug.Log("Started Interacting.");
-        else Debug.Log("Stopped Interacting.");
+    }
+
+    public void OnInteract2(InputValue value)
+    {
+        if (interactingObject && interactingObject.TryGetComponent<TestItem>(out TestItem can))
+        {
+            SetIsInteracting(false);
+            Object.Destroy(interactingObject);
+            interactingObject = null;
+            _HUD.gameObject.SetActive(false);
+        }
     }
 
     public void OnMenu(InputValue value)
     {
-        if(isInteracting)
+        if (isInteracting)
             SetIsInteracting(false);
     }
 
     private void SetIsInteracting(bool value)
     {
-        TestItem _item;
-        if (interactingObject == null || interactingObject.TryGetComponent<TestItem>(out _item) == false) return;
+        if (interactingObject == null || interactingObject.TryGetComponent<TestItem>(out TestItem _item) == false) return;
+
         isInteracting = value;
         interactingCamera.gameObject.SetActive(isInteracting);
         _item.interacted(value);
@@ -285,19 +305,21 @@ public class PlayerController : MonoBehaviour
         {
             _mouseRotator.ResetRotation(); // Reset rotation when interaction ends
         }
+        _HUD.gameObject.SetActive(isInteracting);
     }
 
     private void OnTriggerEnter(Collider other)
     {
         interactingObject = other.gameObject;
-        interactingObjectMesh = interactingObject.GetComponent<TestItem>().itemMesh;
+        if (interactingObject.TryGetComponent<TestItem>(out TestItem _item))
+            interactingObjectMesh = interactingObject.GetComponent<TestItem>().itemMesh;
     }
     private void OnTriggerExit(Collider other)
     {
         if (interactingObject == other.gameObject)
         {
             interactingObject = null;
-            interactingObjectMesh = null; 
+            interactingObjectMesh = null;
         }
     }
 
@@ -534,5 +556,45 @@ public class PlayerController : MonoBehaviour
         {
             AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
         }
+    }
+    
+    [Header("Pushing Objects")]
+    [Tooltip("The force applied when pushing a Rigidbody object.")]
+    public float PushForce = 1.5f; // Adjust this value in the Inspector
+
+    // This function is called when the CharacterController hits a collider
+    void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        // Get the Rigidbody of the object we hit
+        Rigidbody body = hit.collider.attachedRigidbody;
+
+        // If the object doesn't have a Rigidbody, or if it's kinematic (not affected by physics),
+        // or if we are interacting with a specific object (to prevent accidental pushes during interaction),
+        // then do nothing.
+        if (body == null || body.isKinematic || isInteracting)
+        {
+            return;
+        }
+
+        // Don't push objects below a certain mass (optional, to prevent pushing heavy static objects)
+        // if (body.mass < 0.5f) return;
+
+        // Calculate the direction of the push
+        // This is typically the direction the player is moving, or the direction from the hit point.
+        // Vector3 pushDirection = hit.moveDirection; // Direction of the CharacterController's movement
+        // Or, if you want to push directly away from the hit point:
+        Vector3 pushDirection = (hit.gameObject.transform.position - transform.position).normalized;
+
+        // Ensure the push is primarily horizontal, unless you want to push objects upwards too
+        pushDirection.y = 0; // Zero out the Y component to only push horizontally
+        pushDirection.Normalize(); // Ensure it's a unit vector
+
+        // Apply force to the Rigidbody
+        // ForceMode.Impulse: Applies an instant force, good for pushing
+        // ForceMode.Force: Applies continuous force over time
+        body.AddForce(pushDirection * PushForce, ForceMode.Impulse);
+
+        // You might also consider applying force relative to the player's current speed for a more dynamic push
+        // body.AddForce(pushDirection * PushForce * _speed, ForceMode.Impulse);
     }
 }
