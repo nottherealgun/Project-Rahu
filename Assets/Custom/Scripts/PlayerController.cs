@@ -170,7 +170,7 @@ public class PlayerController : MonoBehaviour
     public GameObject interactingObject;
     public GameObject interactingObjectMesh;
     public GameObject interactingCamera;
-    public GameObject followCam;
+    public GameObject followCamera;
     public bool isInteracting = false;
     public bool isObserving = true;
 
@@ -196,9 +196,11 @@ public class PlayerController : MonoBehaviour
     {
         // get a reference to our main camera
         if (_mainCamera == null)
-        {
             _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
-        }
+
+        if (followCamera == null)
+            followCamera = GameObject.Find("FollowCamera");
+        
     }
     void Start()
     {
@@ -207,12 +209,7 @@ public class PlayerController : MonoBehaviour
         _hasAnimator = TryGetComponent(out _animator);
         _controller = GetComponent<CharacterController>();
         _input = GetComponent<InputManager>();
-#if ENABLE_INPUT_SYSTEM
         _playerInput = GetComponent<PlayerInput>();
-#else
-			Debug.LogError( "Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
-#endif
-
         AssignAnimationIDs();
 
         // reset our timeouts on start
@@ -295,9 +292,10 @@ public class PlayerController : MonoBehaviour
     private void SetIsInteracting(bool value)
     {
         if (interactingObject == null || interactingObject.TryGetComponent<TestItem>(out TestItem _item) == false) return;
-
         isInteracting = value;
-        interactingCamera.gameObject.SetActive(isInteracting);
+
+        UIManager.Instance.ToggleTransitionPanel();
+        
         _item.interacted(value);
         _inputManager.SetCursorState(!value);
 
@@ -308,11 +306,21 @@ public class PlayerController : MonoBehaviour
         _HUD.gameObject.SetActive(isInteracting);
     }
 
+    private void SetInteractionCam()
+    {
+        interactingCamera.gameObject.SetActive(isInteracting);
+        interactingCamera.GetComponent<CinemachineCamera>().Target.TrackingTarget = interactingObject.transform;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         interactingObject = other.gameObject;
         if (interactingObject.TryGetComponent<TestItem>(out TestItem _item))
+        {
             interactingObjectMesh = interactingObject.GetComponent<TestItem>().itemMesh;
+            UIManager.Instance.transitioned.AddListener(SetInteractionCam);
+        }
+            
     }
     private void OnTriggerExit(Collider other)
     {
@@ -320,6 +328,7 @@ public class PlayerController : MonoBehaviour
         {
             interactingObject = null;
             interactingObjectMesh = null;
+            UIManager.Instance.transitioned.RemoveListener(SetInteractionCam);
         }
     }
 
