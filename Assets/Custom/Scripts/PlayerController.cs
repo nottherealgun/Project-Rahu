@@ -5,6 +5,7 @@ using Unity.Cinemachine;
 using UnityEngine.InputSystem;
 using PixelCrushers.DialogueSystem;
 using TMPro;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
@@ -148,7 +149,6 @@ public class PlayerController : MonoBehaviour
     private Animator _animator;
     private CharacterController _controller;
     private InputManager _input;
-    private GameObject _mainCamera;
 
     private const float _threshold = 0.01f;
 
@@ -166,13 +166,13 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public Camera mainCamera;
-    public GameObject interactingObject;
-    public GameObject interactingObjectMesh;
+    [SerializeField] private GameObject _mainCamera;
+    GameObject interactingObject;
+    GameObject interactingObjectMesh;
     public GameObject interactingCamera;
     public GameObject followCamera;
-    public bool isInteracting = false;
-    public bool isObserving = true;
+    bool isInteracting = false;
+    bool isObserving = true;
 
     [SerializeField] InputManager _inputManager;
     [SerializeField] bool holdingMouse = false;
@@ -190,7 +190,7 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Inverts horizontal mouse movement for object rotation.")]
     [SerializeField] private bool _invertYObjectRotation = false;
 
-    [SerializeField] TMP_Text _HUD;
+    public event Action<bool> onInteracted;
 
     private void Awake()
     {
@@ -200,7 +200,7 @@ public class PlayerController : MonoBehaviour
 
         if (followCamera == null)
             followCamera = GameObject.Find("FollowCamera");
-        
+
     }
     void Start()
     {
@@ -220,6 +220,8 @@ public class PlayerController : MonoBehaviour
         _mouseRotator.RotationSpeed = _objectRotationSpeed;
         _mouseRotator.InvertXRotation = _invertXObjectRotation;
         _mouseRotator.InvertYRotation = _invertYObjectRotation;
+
+        UIManager.Instance.playerController = this;
     }
 
     void Update()
@@ -261,26 +263,21 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    public void OnInteract(InputValue value)
+    public void OnPrimaryInteract(InputValue value)
     {
-        if (interactingObject && interactingObject.TryGetComponent<SodaCan>(out SodaCan can))
-        {
-            Object.Destroy(interactingObject);
-            interactingObject = null;
-        }
-
         SetIsInteracting(!isInteracting);
+        onInteracted.Invoke(isInteracting);
     }
 
-    public void OnInteract2(InputValue value)
+    public void OnSecondaryInteract(InputValue value)
     {
         if (interactingObject && interactingObject.TryGetComponent<TestItem>(out TestItem can))
         {
             SetIsInteracting(false);
-            Object.Destroy(interactingObject);
+            UnityEngine.Object.Destroy(interactingObject);
             interactingObject = null;
-            _HUD.gameObject.SetActive(false);
         }
+        onInteracted.Invoke(isInteracting);
     }
 
     public void OnMenu(InputValue value)
@@ -293,8 +290,6 @@ public class PlayerController : MonoBehaviour
     {
         if (interactingObject == null || interactingObject.TryGetComponent<TestItem>(out TestItem _item) == false) return;
         isInteracting = value;
-
-        UIManager.Instance.ToggleTransitionPanel();
         
         _item.interacted(value);
         _inputManager.SetCursorState(!value);
@@ -303,7 +298,6 @@ public class PlayerController : MonoBehaviour
         {
             _mouseRotator.ResetRotation(); // Reset rotation when interaction ends
         }
-        _HUD.gameObject.SetActive(isInteracting);
     }
 
     private void SetInteractionCam()
@@ -318,7 +312,7 @@ public class PlayerController : MonoBehaviour
         if (interactingObject.TryGetComponent<TestItem>(out TestItem _item))
         {
             interactingObjectMesh = interactingObject.GetComponent<TestItem>().itemMesh;
-            UIManager.Instance.transitioned.AddListener(SetInteractionCam);
+            UIManager.Instance.onTransitioned += SetInteractionCam;
         }
             
     }
@@ -328,7 +322,7 @@ public class PlayerController : MonoBehaviour
         {
             interactingObject = null;
             interactingObjectMesh = null;
-            UIManager.Instance.transitioned.RemoveListener(SetInteractionCam);
+            UIManager.Instance.onTransitioned -= SetInteractionCam;
         }
     }
 
@@ -477,23 +471,23 @@ public class PlayerController : MonoBehaviour
             }
 
             // Jump
-            if (_input.jump && _jumpTimeoutDelta <= 0.0f)
-            {
-                // the square root of H * -2 * G = how much velocity needed to reach desired height
-                _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
+            // if (_input.jump && _jumpTimeoutDelta <= 0.0f)
+            // {
+            //     // the square root of H * -2 * G = how much velocity needed to reach desired height
+            //     _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
 
-                // update animator if using character
-                if (_hasAnimator)
-                {
-                    _animator.SetBool(_animIDJump, true);
-                }
-            }
+            //     // update animator if using character
+            //     if (_hasAnimator)
+            //     {
+            //         _animator.SetBool(_animIDJump, true);
+            //     }
+            // }
 
-            // jump timeout
-            if (_jumpTimeoutDelta >= 0.0f)
-            {
-                _jumpTimeoutDelta -= Time.deltaTime;
-            }
+            // // jump timeout
+            // if (_jumpTimeoutDelta >= 0.0f)
+            // {
+            //     _jumpTimeoutDelta -= Time.deltaTime;
+            // }
         }
         else
         {
@@ -553,7 +547,7 @@ public class PlayerController : MonoBehaviour
         {
             if (FootstepAudioClips.Length > 0)
             {
-                var index = Random.Range(0, FootstepAudioClips.Length);
+                var index = UnityEngine.Random.Range(0, FootstepAudioClips.Length);
                 AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(_controller.center), FootstepAudioVolume);
             }
         }
