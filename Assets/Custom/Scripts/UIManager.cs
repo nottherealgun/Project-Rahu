@@ -9,16 +9,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject _HUD;
     [SerializeField] GameObject _transitionPanel;
     [SerializeField] Image _transitionPanelImage;
-    private PlayerController _playerController;
-    public PlayerController playerController
-    {
-        get { return _playerController; }
-        set
-        {
-            _playerController = value;
-            _playerController.onInteracted += ToggleTransitionPanel;
-        }
-    }
+    private PlayerController playerController;
     public static UIManager Instance { get; private set; }
     // public UnityEvent transitioned;
     public event Action onTransitioned;
@@ -37,6 +28,15 @@ public class UIManager : MonoBehaviour
         _transitionPanelImage = _transitionPanel.GetComponent<Image>();
     }
 
+    private void Start() {
+        PersistentDataManager.Instance.onPlayerSearchStatus += OnPlayerSearchStatus;
+    }
+
+    void OnPlayerSearchStatus(bool found)
+    {
+        if (found) playerController = PersistentDataManager.Player.GetComponent<PlayerController>();
+    }
+
     public void ToggleTransitionPanel(bool isInteracting = false)
     {
         _transitionPanelImage.raycastTarget = true;
@@ -49,5 +49,15 @@ public class UIManager : MonoBehaviour
                     _transitionPanelImage.raycastTarget = false;
                     _HUD.SetActive(isInteracting);
                 });
+    }
+
+    public Tween ManualFadeOut()
+    {
+        return Tween.Custom(Color.black, Color.clear, duration: 0.5f, onValueChange: newVal => _transitionPanelImage.color = newVal);
+    }
+
+    public Tween ManualFadeIn()
+    {
+        return Tween.Custom(Color.clear, Color.black, duration: 0.5f, onValueChange: newVal => _transitionPanelImage.color = newVal);
     }
 }

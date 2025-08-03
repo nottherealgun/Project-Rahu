@@ -4,8 +4,14 @@ using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
-    [SerializeField] SceneSO StartScene;
-    [SerializeField] SceneSO Settings;
+    [SerializeField] SceneData StartScene;
+    [SerializeField] SceneData Settings;
+
+    private void Start() {
+        EnvironmentalAudioManager.Instance.PlayMusic("Test");
+        EnvironmentalAudioManager.Instance.PlayAmbience("Test");
+    }
+
     public void ButtonPressed(string _button)
     {
         switch (_button)
@@ -13,6 +19,7 @@ public class MainMenu : MonoBehaviour
             case "continue":
                 break;
             case "new_game":
+                ScenesManager.Instance.onSceneLoaded += NarrativeManager.Instance.StartNewGame;
                 ScenesManager.Instance.LoadScene(StartScene);
                 break;
             case "settings":

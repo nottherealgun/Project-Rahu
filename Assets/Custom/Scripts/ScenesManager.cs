@@ -2,13 +2,16 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using PrimeTween;
-public class ScenesManager : MonoBehaviour
+using System;
+using Sirenix.OdinInspector;
+using Sirenix.Serialization;
+public class ScenesManager : SerializedMonoBehaviour
 {
     public static ScenesManager Instance { get; private set; }
-    public Scene currentScene;
-    [SerializeField] private float minimumLoadingTime = 3f;
+    Scene currentScene;
+    [HideInInspector] public Action onSceneLoaded;
+    float minimumLoadingTime = 3f;
 
-    [SerializeField]
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -22,7 +25,7 @@ public class ScenesManager : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
-    public void LoadScene(SceneSO sceneSO)
+    public void LoadScene(SceneData sceneSO)
     {
         currentScene = SceneManager.GetActiveScene();
         SceneManager.LoadScene("Loading Screen", LoadSceneMode.Additive);
@@ -36,7 +39,7 @@ public class ScenesManager : MonoBehaviour
         AsyncOperation loadOperation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
         loadOperation.allowSceneActivation = false;
 
-        while (!loadOperation.isDone)
+        while (!loadOperation.isDone && UIManager.Instance.ManualFadeIn().isAlive)
         {
             yield return null;
         }
@@ -60,5 +63,12 @@ public class ScenesManager : MonoBehaviour
         Debug.Log("Loaded scene: " + sceneName);
         SceneManager.UnloadSceneAsync(currentScene.buildIndex);
         SceneManager.UnloadSceneAsync("Loading Screen");
+
+        EnvironmentalAudioManager.Instance.StopMusic();
+
+        yield return UIManager.Instance.ManualFadeOut();
+
+        onSceneLoaded.Invoke();
+        onSceneLoaded = null;
     }
 }

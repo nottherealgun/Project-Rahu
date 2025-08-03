@@ -6,10 +6,13 @@ using UnityEngine.InputSystem;
 using PixelCrushers.DialogueSystem;
 using TMPro;
 using System;
+using Sirenix.OdinInspector;
+using Sirenix.Serialization;
+using UnityEngine.UI;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : SerializedMonoBehaviour
 {
-    public class MouseRotator
+    class MouseRotator
     {
 
         public float RotationSpeed { get; set; } = 0.5f;
@@ -59,68 +62,80 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    [Header("Player")]
+    GameObject interactingObject;
+    GameObject interactingObjectMesh;
+    [TabGroup("Character")]
+    [OdinSerialize] private GameObject _mainCamera;
+    [TabGroup("Character")]
+    public GameObject interactingCamera;
+    [TabGroup("Character")]
+    public GameObject followCamera;
+    bool isInteracting = false;
+    bool isObserving = true;
+
+    [TabGroup("Character")]
+    [OdinSerialize] InputManager _inputManager;
+    [TabGroup("Character")]
+    [OdinSerialize] bool holdingMouse = false;
+
+    [TabGroup("Physics")]
     [Tooltip("Move speed of the character in m/s")]
     public float MoveSpeed = 2.0f;
-
+    [TabGroup("Physics")]
     [Tooltip("Sprint speed of the character in m/s")]
     public float SprintSpeed = 5.335f;
-
+    [TabGroup("Physics")]
     [Tooltip("How fast the character turns to face movement direction")]
     [Range(0.0f, 0.3f)]
     public float RotationSmoothTime = 0.12f;
-
+    [TabGroup("Physics")]
     [Tooltip("Acceleration and deceleration")]
     public float SpeedChangeRate = 10.0f;
 
-    public AudioClip LandingAudioClip;
-    public AudioClip[] FootstepAudioClips;
-    [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
-
     [Space(10)]
+    [TabGroup("Physics")]
     [Tooltip("The height the player can jump")]
     public float JumpHeight = 1.2f;
-
+    [TabGroup("Physics")]
     [Tooltip("The character uses its own gravity value. The engine default is -9.81f")]
     public float Gravity = -15.0f;
-
+    [TabGroup("Physics")]
     [Space(10)]
     [Tooltip("Time required to pass before being able to jump again. Set to 0f to instantly jump again")]
     public float JumpTimeout = 0.50f;
-
+    [TabGroup("Physics")]
     [Tooltip("Time required to pass before entering the fall state. Useful for walking down stairs")]
     public float FallTimeout = 0.15f;
 
-    [Header("Player Grounded")]
+    [TabGroup("Player Grounded")]
     [Tooltip("If the character is grounded or not. Not part of the CharacterController built in grounded check")]
     public bool Grounded = true;
-
+    [TabGroup("Player Grounded")]
     [Tooltip("Useful for rough ground")]
     public float GroundedOffset = -0.14f;
-
+    [TabGroup("Player Grounded")]
     [Tooltip("The radius of the grounded check. Should match the radius of the CharacterController")]
     public float GroundedRadius = 0.28f;
-
+    [TabGroup("Player Grounded")]
     [Tooltip("What layers the character uses as ground")]
     public LayerMask GroundLayers;
-
-    [Header("Cinemachine")]
+    
+    [TabGroup("Cinemachine")]
     [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
     public GameObject CinemachineCameraTarget;
-
+    [TabGroup("Cinemachine")]
     [Tooltip("How far in degrees can you move the camera up")]
     public float TopClamp = 70.0f;
-
+    [TabGroup("Cinemachine")]
     [Tooltip("How far in degrees can you move the camera down")]
     public float BottomClamp = -30.0f;
-
+    [TabGroup("Cinemachine")]
     [Tooltip("Additional degress to override the camera. Useful for fine tuning camera position when locked")]
     public float CameraAngleOverride = 0.0f;
-
+    [TabGroup("Cinemachine")]
     [Tooltip("For locking the camera position on all axis")]
     public bool LockCameraPosition = false;
 
-    // cinemachine
     private float _cinemachineTargetYaw;
     private float _cinemachineTargetPitch;
 
@@ -166,32 +181,27 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    [SerializeField] private GameObject _mainCamera;
-    GameObject interactingObject;
-    GameObject interactingObjectMesh;
-    public GameObject interactingCamera;
-    public GameObject followCamera;
-    bool isInteracting = false;
-    bool isObserving = true;
-
-    [SerializeField] InputManager _inputManager;
-    [SerializeField] bool holdingMouse = false;
-
     private Vector3 currentRotationOffset;
     private float rotationSpeed = 5f;
     private MouseRotator _mouseRotator;
     private Quaternion _initialObjectRotationOnDragStart;
 
-    [Header("Object Interaction Rotation")]
     [Tooltip("Adjusts the speed of rotation for interacting objects. Higher values mean faster rotation.")]
-    [SerializeField] private float _objectRotationSpeed = 0.5f;
+    private float _objectRotationSpeed = 0.5f;
     [Tooltip("Inverts vertical mouse movement for object rotation.")]
-    [SerializeField] private bool _invertXObjectRotation = false;
+    private bool _invertXObjectRotation = false;
     [Tooltip("Inverts horizontal mouse movement for object rotation.")]
-    [SerializeField] private bool _invertYObjectRotation = false;
+    private bool _invertYObjectRotation = false;
 
+    [FoldoutGroup("Audio")]
+    [OdinSerialize] AudioSource voiceSource;
+    [FoldoutGroup("Audio")]
+    [OdinSerialize] bool speaking = false;
+    [FoldoutGroup("Audio")]
+    [OdinSerialize] AudioDataStore.DialogueLine? currentDialogueLine;
+
+    [TabGroup("Events")]
     public event Action<bool> onInteracted;
-
     private void Awake()
     {
         // get a reference to our main camera
@@ -220,8 +230,6 @@ public class PlayerController : MonoBehaviour
         _mouseRotator.RotationSpeed = _objectRotationSpeed;
         _mouseRotator.InvertXRotation = _invertXObjectRotation;
         _mouseRotator.InvertYRotation = _invertYObjectRotation;
-
-        UIManager.Instance.playerController = this;
     }
 
     void Update()
@@ -237,7 +245,7 @@ public class PlayerController : MonoBehaviour
     void UpdateInteractingObject()
     {
         if (interactingObject == null) return;
-        if (interactingObject.GetComponent<TestItem>() == null) return;
+        if (interactingObject.GetComponent<InteractableObject>() == null) return;
 
         // Start dragging when mouse button is pressed
         if (Input.GetMouseButtonDown(0))
@@ -255,7 +263,7 @@ public class PlayerController : MonoBehaviour
             holdingMouse = false;
         }
 
-        if (holdingMouse && interactingObject.GetComponent<TestItem>().isBeingInteracted)
+        if (holdingMouse && interactingObject.GetComponent<InteractableObject>().isBeingInteracted)
         {
             Quaternion deltaRotation = _mouseRotator.UpdateRotation(Input.mousePosition, holdingMouse);
             interactingObjectMesh.transform.rotation = _initialObjectRotationOnDragStart * deltaRotation;
@@ -271,7 +279,7 @@ public class PlayerController : MonoBehaviour
 
     public void OnSecondaryInteract(InputValue value)
     {
-        if (interactingObject && interactingObject.TryGetComponent<TestItem>(out TestItem can))
+        if (interactingObject && interactingObject.TryGetComponent<InteractableObject>(out InteractableObject can))
         {
             SetIsInteracting(false);
             UnityEngine.Object.Destroy(interactingObject);
@@ -288,9 +296,9 @@ public class PlayerController : MonoBehaviour
 
     private void SetIsInteracting(bool value)
     {
-        if (interactingObject == null || interactingObject.TryGetComponent<TestItem>(out TestItem _item) == false) return;
+        if (interactingObject == null || interactingObject.TryGetComponent<InteractableObject>(out InteractableObject _item) == false) return;
         isInteracting = value;
-        
+
         _item.interacted(value);
         _inputManager.SetCursorState(!value);
 
@@ -309,12 +317,12 @@ public class PlayerController : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         interactingObject = other.gameObject;
-        if (interactingObject.TryGetComponent<TestItem>(out TestItem _item))
+        if (interactingObject.TryGetComponent<InteractableObject>(out InteractableObject _item))
         {
-            interactingObjectMesh = interactingObject.GetComponent<TestItem>().itemMesh;
+            interactingObjectMesh = interactingObject.GetComponent<InteractableObject>().itemMesh;
             UIManager.Instance.onTransitioned += SetInteractionCam;
         }
-            
+
     }
     private void OnTriggerExit(Collider other)
     {
@@ -380,11 +388,6 @@ public class PlayerController : MonoBehaviour
     {
         // set target speed based on move speed, sprint speed and if sprint is pressed
         float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
-
-        // a simplistic acceleration and deceleration designed to be easy to remove, replace, or iterate upon
-
-        // note: Vector2's == operator uses approximation so is not floating point error prone, and is cheaper than magnitude
-        // if there is no input, set the target speed to 0
         if (_input.move == Vector2.zero) targetSpeed = 0.0f;
 
         if (isInteracting)
@@ -410,8 +413,6 @@ public class PlayerController : MonoBehaviour
         if (currentHorizontalSpeed < targetSpeed - speedOffset ||
             currentHorizontalSpeed > targetSpeed + speedOffset)
         {
-            // creates curved result rather than a linear one giving a more organic speed change
-            // note T in Lerp is clamped, so we don't need to clamp our speed
             _speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude,
                 Time.deltaTime * SpeedChangeRate);
 
@@ -429,8 +430,6 @@ public class PlayerController : MonoBehaviour
         // normalise input direction
         Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
 
-        // note: Vector2's != operator uses approximation so is not floating point error prone, and is cheaper than magnitude
-        // if there is a move input rotate player when the player is moving
         if (_input.move != Vector2.zero)
         {
             _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
@@ -470,24 +469,6 @@ public class PlayerController : MonoBehaviour
                 _verticalVelocity = -2f;
             }
 
-            // Jump
-            // if (_input.jump && _jumpTimeoutDelta <= 0.0f)
-            // {
-            //     // the square root of H * -2 * G = how much velocity needed to reach desired height
-            //     _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
-
-            //     // update animator if using character
-            //     if (_hasAnimator)
-            //     {
-            //         _animator.SetBool(_animIDJump, true);
-            //     }
-            // }
-
-            // // jump timeout
-            // if (_jumpTimeoutDelta >= 0.0f)
-            // {
-            //     _jumpTimeoutDelta -= Time.deltaTime;
-            // }
         }
         else
         {
@@ -545,11 +526,7 @@ public class PlayerController : MonoBehaviour
         if (isInteracting) return;
         if (animationEvent.animatorClipInfo.weight > 0.5f)
         {
-            if (FootstepAudioClips.Length > 0)
-            {
-                var index = UnityEngine.Random.Range(0, FootstepAudioClips.Length);
-                AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(_controller.center), FootstepAudioVolume);
-            }
+            EnvironmentalAudioManager.Instance.PlaySFX("footstep",transform,true);
         }
     }
 
@@ -557,47 +534,60 @@ public class PlayerController : MonoBehaviour
     {
         if (animationEvent.animatorClipInfo.weight > 0.5f)
         {
-            AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
+            EnvironmentalAudioManager.Instance.PlaySFX("land",transform,false);
         }
     }
-    
-    [Header("Pushing Objects")]
-    [Tooltip("The force applied when pushing a Rigidbody object.")]
-    public float PushForce = 1.5f; // Adjust this value in the Inspector
 
+    [Tooltip("The force applied when pushing a Rigidbody object.")]
+    float PushForce = 1.5f; // Adjust this value in the Inspector
     // This function is called when the CharacterController hits a collider
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
         // Get the Rigidbody of the object we hit
         Rigidbody body = hit.collider.attachedRigidbody;
-
-        // If the object doesn't have a Rigidbody, or if it's kinematic (not affected by physics),
-        // or if we are interacting with a specific object (to prevent accidental pushes during interaction),
-        // then do nothing.
         if (body == null || body.isKinematic || isInteracting)
         {
             return;
         }
-
-        // Don't push objects below a certain mass (optional, to prevent pushing heavy static objects)
-        // if (body.mass < 0.5f) return;
-
-        // Calculate the direction of the push
-        // This is typically the direction the player is moving, or the direction from the hit point.
-        // Vector3 pushDirection = hit.moveDirection; // Direction of the CharacterController's movement
-        // Or, if you want to push directly away from the hit point:
         Vector3 pushDirection = (hit.gameObject.transform.position - transform.position).normalized;
-
         // Ensure the push is primarily horizontal, unless you want to push objects upwards too
         pushDirection.y = 0; // Zero out the Y component to only push horizontally
         pushDirection.Normalize(); // Ensure it's a unit vector
-
-        // Apply force to the Rigidbody
-        // ForceMode.Impulse: Applies an instant force, good for pushing
-        // ForceMode.Force: Applies continuous force over time
         body.AddForce(pushDirection * PushForce, ForceMode.Impulse);
+    }
 
-        // You might also consider applying force relative to the player's current speed for a more dynamic push
-        // body.AddForce(pushDirection * PushForce * _speed, ForceMode.Impulse);
+    [FoldoutGroup("Audio")]
+    [OdinSerialize] AudioDataStore.DialogueLine testDL = new AudioDataStore.DialogueLine();
+    [Button(ButtonSizes.Large)]
+    [FoldoutGroup("Audio")]
+    public void VoiceTest()
+    {
+        Speak(testDL);
+    }
+
+    public AudioDataStore.DialogueLine Speak(AudioDataStore.DialogueLine dialogueLine)
+    {
+        if (dialogueLine.audioFile == null)
+        {
+            Debug.LogError($"Dialogue line struct does NOT contain valid audio file.\n Ran on {name} object.");
+            return dialogueLine;
+        }
+        voiceSource.clip = dialogueLine.audioFile;
+        currentDialogueLine = dialogueLine;
+        StartCoroutine(PlayAndCheckDialogueCompletion());
+
+        return dialogueLine;
+    }
+
+    IEnumerator PlayAndCheckDialogueCompletion()
+    {
+        voiceSource.Play();
+        speaking = true;
+
+        while (voiceSource.isPlaying)
+            yield return null;
+
+        speaking = false;
+        currentDialogueLine = null;
     }
 }
