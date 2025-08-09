@@ -1,8 +1,7 @@
-using System.Collections.Generic;
+using System;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class EnvironmentalAudioManager : SerializedMonoBehaviour
 {
@@ -60,7 +59,7 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
 
     public void PlaySFX(string trackName, Transform transform = null, bool random = false) // transform, random
     {
-        int variant = Random.Range(0, tracks.sfx[trackName].Count);
+        int variant = UnityEngine.Random.Range(0, tracks.sfx[trackName].Count);
         AudioClip track = tracks.sfx[trackName][variant];
         if (transform == null)
         {
@@ -76,7 +75,7 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
 
     public void PlaySFX(string trackName, bool random = false) // no variant, random
     {
-        int variant = Random.Range(0, tracks.sfx[trackName].Count);
+        int variant = UnityEngine.Random.Range(0, tracks.sfx[trackName].Count);
         AudioClip track = tracks.sfx[trackName][variant];
         GameObject newSFXSource = Instantiate(nsSfxSource);
         newSFXSource.GetComponent<AudioSource>().clip = track;
@@ -87,6 +86,15 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
     public void PlaySFX(string trackName, int variant) // variant, no random
     {
         AudioClip track = tracks.sfx[trackName][variant];
+        GameObject newSFXSource = Instantiate(nsSfxSource);
+        newSFXSource.GetComponent<AudioSource>().clip = track;
+        newSFXSource.GetComponent<AudioSource>().Play();
+        newSFXSource.GetComponent<DestroyOnAudioFinish>().CheckAudioFinish();
+    }
+
+    public void PlaySFX(string trackName)
+    {
+        AudioClip track = tracks.sfx[trackName][0]; // Assuming the first variant is the UI sound
         GameObject newSFXSource = Instantiate(nsSfxSource);
         newSFXSource.GetComponent<AudioSource>().clip = track;
         newSFXSource.GetComponent<AudioSource>().Play();
