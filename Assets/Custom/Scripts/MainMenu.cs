@@ -1,12 +1,8 @@
+using Sirenix.Serialization;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
-public class MainMenu : MonoBehaviour
+public class MainMenu : Menu
 {
-    [SerializeField] SceneData StartScene;
-    [SerializeField] SceneData Settings;
-
     private void Start() {
         EnvironmentalAudioManager.Instance.PlayMusic("Test");
         EnvironmentalAudioManager.Instance.PlayAmbience("Test");
@@ -20,13 +16,13 @@ public class MainMenu : MonoBehaviour
                 break;
             case "new_game":
                 ScenesManager.Instance.onSceneLoaded += NarrativeManager.Instance.StartNewGame;
-                ScenesManager.Instance.LoadScene(StartScene);
+                ScenesManager.Instance.LoadScene("CH2_SC12");
                 break;
             case "settings":
-                ScenesManager.Instance.LoadScene(Settings);
+                ScenesManager.Instance.LoadScene("Settings");
                 break;
             case "quit":
-                UnityEngine.Application.Quit();
+                Application.Quit();
                 break;
         }
     }

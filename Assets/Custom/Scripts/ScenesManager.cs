@@ -25,11 +25,11 @@ public class ScenesManager : SerializedMonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
-    public void LoadScene(SceneData sceneSO)
+    public void LoadScene(string sceneName)
     {
         currentScene = SceneManager.GetActiveScene();
         SceneManager.LoadScene("Loading Screen", LoadSceneMode.Additive);
-        StartCoroutine(LoadLevelAsync(sceneSO.sceneName));
+        StartCoroutine(LoadLevelAsync(sceneName));
     }
 
     IEnumerator LoadLevelAsync(string sceneName)
@@ -68,7 +68,7 @@ public class ScenesManager : SerializedMonoBehaviour
 
         yield return UIManager.Instance.ManualFadeOut();
 
-        onSceneLoaded.Invoke();
+        onSceneLoaded?.Invoke();
         onSceneLoaded = null;
     }
 }
