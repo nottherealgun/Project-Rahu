@@ -76,6 +76,7 @@ crashlytics-build.properties
 Assets/*
 !Assets/Custom/
 *.meta
+!Assets/Custom/**/*.meta
 .vscode/
 ignore.conf
 Packages/

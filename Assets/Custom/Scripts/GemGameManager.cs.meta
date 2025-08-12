@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e15be994876433d47a55db9a4a4b4859
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - gemPrefab: {fileID: 1860382716378509789, guid: 9c548b443a76d174090a505014a39b55, type: 3}
+  - gemContainer: {instanceID: 0}
+  - gridMarkerPrefab: {fileID: 3699197913799821237, guid: c0cbb416363917741afa5494b8c2d975, type: 3}
+  - markerGrid: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
