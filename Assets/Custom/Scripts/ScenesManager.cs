@@ -71,4 +71,27 @@ public class ScenesManager : SerializedMonoBehaviour
         onSceneLoaded?.Invoke();
         onSceneLoaded = null;
     }
+
+    public void LoadPuzzleScene(string sceneName)
+    {
+        StartCoroutine(LoadPuzzleLevelAsync(sceneName));
+    }
+
+    IEnumerator LoadPuzzleLevelAsync(string sceneName)
+    {
+        float startTime = Time.realtimeSinceStartup;
+
+        AsyncOperation loadOperation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+        while (!loadOperation.isDone)
+        {
+            yield return null;
+        }
+        onSceneLoaded?.Invoke();
+        onSceneLoaded = null;
+    }
+
+    public void UnloadPuzzleScene(string sceneName)
+    {
+        SceneManager.UnloadSceneAsync(sceneName);
+    }
 }

@@ -119,7 +119,7 @@ public class PlayerController : SerializedMonoBehaviour
     [TabGroup("Player Grounded")]
     [Tooltip("What layers the character uses as ground")]
     public LayerMask GroundLayers;
-    
+
     [TabGroup("Cinemachine")]
     [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
     public GameObject CinemachineCameraTarget;
@@ -176,7 +176,7 @@ public class PlayerController : SerializedMonoBehaviour
 #if ENABLE_INPUT_SYSTEM
             return _playerInput.currentControlScheme == "KeyboardMouse";
 #else
-				return false;
+            return false;
 #endif
         }
     }
@@ -274,7 +274,14 @@ public class PlayerController : SerializedMonoBehaviour
     public void OnPrimaryInteract(InputValue value)
     {
         SetIsInteracting(!isInteracting);
-        onInteracted.Invoke(isInteracting);
+        onInteracted?.Invoke(isInteracting);
+    }
+
+    public void StopInteracting()
+    {
+        print("AAA");
+        SetIsInteracting(false);
+        onInteracted?.Invoke(isInteracting);
     }
 
     public void OnSecondaryInteract(InputValue value)
@@ -285,7 +292,7 @@ public class PlayerController : SerializedMonoBehaviour
             UnityEngine.Object.Destroy(interactingObject);
             interactingObject = null;
         }
-        onInteracted.Invoke(isInteracting);
+        onInteracted?.Invoke(isInteracting);
     }
 
     public void OnMenu(InputValue value)
@@ -294,18 +301,21 @@ public class PlayerController : SerializedMonoBehaviour
             SetIsInteracting(false);
     }
 
-    private void SetIsInteracting(bool value)
+    public void SetIsInteracting(bool value)
     {
         if (interactingObject == null || interactingObject.TryGetComponent<InteractableObject>(out InteractableObject _item) == false) return;
+        print("SetIsInteracting: " + value);
         isInteracting = value;
 
-        _item.interacted(value);
+        _item.OnInteracted(value);
         _inputManager.SetCursorState(!value);
 
         if (!isInteracting)
         {
             _mouseRotator.ResetRotation(); // Reset rotation when interaction ends
         }
+
+        UIManager.Instance.ToggleTransitionPanel(isInteracting);
     }
 
     private void SetInteractionCam()
@@ -317,7 +327,7 @@ public class PlayerController : SerializedMonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         interactingObject = other.gameObject;
-        if (interactingObject.TryGetComponent<InteractableObject>(out InteractableObject _item))
+        if (interactingObject.GetComponent<InteractableObject>() != null)
         {
             interactingObjectMesh = interactingObject.GetComponent<InteractableObject>().itemMesh;
             UIManager.Instance.onTransitioned += SetInteractionCam;
@@ -526,7 +536,7 @@ public class PlayerController : SerializedMonoBehaviour
         if (isInteracting) return;
         if (animationEvent.animatorClipInfo.weight > 0.5f)
         {
-            EnvironmentalAudioManager.Instance.PlaySFX("footstep",transform,true);
+            EnvironmentalAudioManager.Instance.PlaySFX("footstep", transform, true);
         }
     }
 
@@ -534,7 +544,7 @@ public class PlayerController : SerializedMonoBehaviour
     {
         if (animationEvent.animatorClipInfo.weight > 0.5f)
         {
-            EnvironmentalAudioManager.Instance.PlaySFX("land",transform,false);
+            EnvironmentalAudioManager.Instance.PlaySFX("land", transform, false);
         }
     }
 

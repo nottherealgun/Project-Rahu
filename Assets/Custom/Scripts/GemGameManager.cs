@@ -8,6 +8,8 @@ using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Events;
+using System.Threading.Tasks;
 
 public class GemGameManager : SerializedMonoBehaviour
 {
@@ -52,7 +54,7 @@ public class GemGameManager : SerializedMonoBehaviour
 
     void Setup()
     {
-        keyGemCollected += OnKeyGemCollected;
+        keyGemCollected += () => OnKeyGemCollected();
 
         // STEP 1: setup grid
         /* Initializes grid gems from matrix */
@@ -77,11 +79,11 @@ public class GemGameManager : SerializedMonoBehaviour
         UpdateGrid();
     }
 
-    private void LateUpdate()
-    {
-        /* Updates the grid every frame */
-        UpdateGrid();
-    }
+    // private void LateUpdate()
+    // {
+    //     /* Updates the grid every frame */
+    //     UpdateGrid();
+    // }
 
     void SimulateGravity()
     {
@@ -98,7 +100,7 @@ public class GemGameManager : SerializedMonoBehaviour
                         if (grid[k][j] != null & !ReferenceEquals(grid[k][j], null))
                         {
                             // move gem down
-                            Tween.StopAll(grid[k][j].transform);
+                            Tween.CompleteAll(grid[k][j].transform);
                             grid[i][j] = grid[k][j];
                             grid[k][j] = null;
                             grid[i][j].GetComponent<Gem>().gemPosition = new Vector2Int(i, j);
@@ -108,6 +110,7 @@ public class GemGameManager : SerializedMonoBehaviour
                 }
             }
         }
+        UpdateGrid();
     }
 
     void UpdateGrid()
@@ -126,8 +129,9 @@ public class GemGameManager : SerializedMonoBehaviour
             }
         }
 
-        foreach (GameObject gem in gemContainer.transform.Cast<Transform>().Select(t => t.gameObject))
+        for (int i = 0; i < gemContainer.transform.childCount; i++)
         {
+            GameObject gem = gemContainer.transform.GetChild(i).gameObject;
             Vector2Int pos = gem.GetComponent<Gem>().gemPosition;
             grid[pos.x][pos.y] = gem;
         }
@@ -217,8 +221,6 @@ public class GemGameManager : SerializedMonoBehaviour
         gem1.GetComponent<Gem>().gemPosition = pos2;
         gem2.GetComponent<Gem>().gemPosition = pos1;
 
-        barrier.SetActive(true);
-
         Sequence.Create()
             .ChainCallback(() =>
             {
@@ -228,10 +230,9 @@ public class GemGameManager : SerializedMonoBehaviour
             })
             .OnComplete(() =>
             {
-                barrier.SetActive(false);
                 // check for matches after swap
-                if (recursive)
-                    CheckForMatches(true);
+                UpdateGrid();
+                if (recursive) CheckForMatches(true);
             });
     }
 
@@ -313,11 +314,19 @@ public class GemGameManager : SerializedMonoBehaviour
 
     List<GameObject> FindMatches()
     {
-        List<GameObject> Matches = FindHorizontalMatches();
-        Matches.AddRange(FindVerticalMatches());
-        Matches = Matches.Distinct().ToList();
-        // Remove gems that their references are null
-        Matches.RemoveAll(gem => gem == null || gem.GetComponent<Gem>().gemType == Gem.GemTypes.TYPE5);
+        List<GameObject> Matches = new List<GameObject>();
+        var set = new HashSet<GameObject>();
+        foreach (var gem in FindHorizontalMatches()) set.Add(gem);
+        foreach (var gem in FindVerticalMatches()) set.Add(gem);
+        Matches = set.ToList();
+
+        Matches.RemoveAll(gem =>
+            gem == null ||
+            ReferenceEquals(gem, null) ||
+            gem.GetComponent<Gem>() == null ||
+            gem.GetComponent<Gem>().gemType == Gem.GemTypes.TYPE5
+        );
+
 
         return Matches;
     }
@@ -328,29 +337,31 @@ public class GemGameManager : SerializedMonoBehaviour
         List<GameObject> matchedGems = FindMatches();
         if (matchedGems.Count == 0)
         {
-            if (checkFromSwap)
-            {
-                // print("No matches found after swap, reverting gems.");
-                Tween.CompleteAll(selectedGems[0].transform);
-                Tween.CompleteAll(selectedGems[1].transform);
-                SwapGems(false);
-            }
+            // if (checkFromSwap)
+            // {
+            //     // print("No matches found after swap, reverting gems.");
+            //     Tween.CompleteAll(selectedGems[0].transform);
+            //     Tween.CompleteAll(selectedGems[1].transform);
+            //     SwapGems(false);
+            // }
             return;
         }
 
         barrier.SetActive(true);
 
         // destroy matched gems
-        foreach (GameObject gem in FindMatches())
+        foreach (GameObject gem in matchedGems)
         {
             if (gem.GetComponent<Gem>().gemType == Gem.GemTypes.TYPE5)
             {
                 continue;
             }
             gem.GetComponent<Gem>().MarkForDestroy();
-            Tween.StopAll(gem.transform);
+            Tween.CompleteAll(gem.transform);
             Destroy(gem);
         }
+
+        UpdateGrid();
 
         Sequence.Create()
             .ChainDelay(swapSpeed)
@@ -389,6 +400,7 @@ public class GemGameManager : SerializedMonoBehaviour
                 }
             }
         }
+        UpdateGrid();
     }
 
     void AnimateVisuals()
@@ -408,7 +420,7 @@ public class GemGameManager : SerializedMonoBehaviour
         }
         sequence
             .ChainDelay(swapSpeed)
-            .ChainCallback(() =>
+            .OnComplete(() =>
             {
                 barrier.SetActive(false);
             });
@@ -423,8 +435,9 @@ public class GemGameManager : SerializedMonoBehaviour
         gemDestroy = null;
 
         /* checks for key gems in the grid */
-        foreach (GameObject gem in gemContainer.transform.Cast<Transform>().Select(t => t.gameObject))
+        for (int i = 0; i < gemContainer.transform.childCount; i++)
         {
+            GameObject gem = gemContainer.transform.GetChild(i).gameObject;
             // fall off grid + destroy
             Vector2Int gemPosition = gem.GetComponent<Gem>().gemPosition;
             if (gem.GetComponent<Gem>().gemType == Gem.GemTypes.TYPE5 && gemPosition.x == rows - 1)
@@ -433,6 +446,7 @@ public class GemGameManager : SerializedMonoBehaviour
                 gemDestroy += () =>
                 {
                     keyGemCollected?.Invoke();
+                    Tween.CompleteAll(gem.transform);
                     DestroyImmediate(gem);
                 };
                 Tween.PositionY(gem.transform, -100f, swapSpeed, Ease.OutCubic);
@@ -446,13 +460,14 @@ public class GemGameManager : SerializedMonoBehaviour
                 .ChainCallback(() =>
                 {
                     gemDestroy?.Invoke();
-                    UpdateGrid();
+                    // UpdateGrid();
                     SimulateGravity();
                     RefillGrid();
                     AnimateVisuals();
                     CheckForKeyGems();
                 });
         }
+        UpdateGrid();
     }
 
     // helper functions
@@ -460,10 +475,24 @@ public class GemGameManager : SerializedMonoBehaviour
     {
         return gem.GetComponent<Gem>().gemPosition;
     }
-    
-    void OnKeyGemCollected()
+
+    async Task OnKeyGemCollected()
     {
         collectedKeyGems++;
         keyGemAmntDisplay.text = $"{collectedKeyGems}/5";
+        if (collectedKeyGems >= 5)
+        {
+            for (int i = 0; i < gemContainer.transform.childCount; i++)
+            {
+                GameObject gem = gemContainer.transform.GetChild(i).gameObject;
+                Tween.CompleteAll(gem.transform);
+            }
+            await Tween.Delay(0.5f);
+            gameObject.GetComponent<PuzzleCompletionEmitter>().onPuzzleCompleted?.Invoke();
+        }
+    }
+    
+    private void OnDestroy() {
+        
     }
 }
