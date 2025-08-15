@@ -13,21 +13,19 @@ using System.Threading.Tasks;
 
 class GemGameGrid : SerializedMonoBehaviour
 {
+    public static Vector2 CellSize = Vector2.one * 49.55f;
     GameObject gemPrefab;
     public GameObject gemContainer;
-    GameObject gridMarkerPrefab;
     public GameObject markerGrid;
     public GameObject barrier;
     public Action keyGemCollected;
 
-    public GemGameGrid(GameObject gemPrefab, GameObject gemContainer, GameObject gridMarkerPrefab, GameObject markerGrid, GameObject barrier, ref Action keyGemCollected)
+    public GemGameGrid(GameObject gemPrefab, GameObject gemContainer, GameObject markerGrid, GameObject barrier)
     {
         this.gemPrefab = gemPrefab;
         this.gemContainer = gemContainer;
-        this.gridMarkerPrefab = gridMarkerPrefab;
         this.markerGrid = markerGrid;
         this.barrier = barrier;
-        this.keyGemCollected = keyGemCollected;
 
         Setup();
     }
@@ -40,7 +38,9 @@ class GemGameGrid : SerializedMonoBehaviour
 
     int rows = 9;
     int columns = 5;
-    float swapSpeed = 0.2f;
+    float swapSpeed = 0.5f;
+    public int keyGemAmntLimit = 10;
+    int generatedKeyGems = 0;
     bool[,] initialGemMatrix = new bool[9, 5]
     {
         { false, false, false, false, false },
@@ -67,14 +67,15 @@ class GemGameGrid : SerializedMonoBehaviour
             {
                 Vector2Int gridPos = new Vector2Int(i, j);
                 GameObject newGemObj;
-                if (initialGemMatrix[i, j] == true)
-                {
-                    newGemObj = CreateGem(gridPos, 4);
-                }
-                else
-                {
-                    newGemObj = CreateGem(gridPos);
-                }
+                // if (initialGemMatrix[i, j] == true)
+                // {
+                //     newGemObj = CreateGem(gridPos, 4);
+                // }
+                // else
+                // {
+                //     newGemObj = CreateGem(gridPos, Gem.GetRandomGemType());
+                // }
+                newGemObj = CreateGem(gridPos, Gem.GetRandomGemType());
                 newGemObj.GetComponent<Gem>().gemPosition = gridPos;
                 row.Add(newGemObj);
             }
@@ -87,22 +88,25 @@ class GemGameGrid : SerializedMonoBehaviour
         // creates gem instance at {position} with {gemType} gem type
         Vector3 position = markerGrid.transform.GetChild((gridPos.x * columns) + gridPos.y).transform.position;
         GameObject _gemPrefab = Instantiate(gemPrefab, position, Quaternion.identity, gemContainer.transform);
-        _gemPrefab.GetComponent<Gem>().SetGemType(gemType);
+
         _gemPrefab.transform.SetAsFirstSibling();
+        _gemPrefab.GetComponent<Gem>().SetGemType(gemType);
         _gemPrefab.GetComponent<Button>().onClick.AddListener(() => HandleGemClick(_gemPrefab));
+
+        if (gemType == Gem.gemTypeAmnt - 1)
+        {
+            generatedKeyGems++;
+        }
+            
+
         return _gemPrefab;
     }
 
     GameObject CreateGem(Vector2Int gridPos)
     {
         // creates gem instance at {position} with {gemType} gem type
-        int gemType = Gem.GetRandomGemType();
-        Vector3 position = markerGrid.transform.GetChild((gridPos.x * columns) + gridPos.y).transform.position;
-        GameObject _gemPrefab = Instantiate(gemPrefab, position, Quaternion.identity, gemContainer.transform);
-        _gemPrefab.GetComponent<Gem>().SetGemType(gemType);
-        _gemPrefab.transform.SetAsFirstSibling();
-        _gemPrefab.GetComponent<Button>().onClick.AddListener(() => HandleGemClick(_gemPrefab));
-        return _gemPrefab;
+        int gemType = Gem.GetRandomGemType((generatedKeyGems < keyGemAmntLimit) ? true : false);
+        return CreateGem(gridPos, gemType);
     }
 
     void SimulateGravity()
@@ -136,25 +140,33 @@ class GemGameGrid : SerializedMonoBehaviour
     {
         gridIsProcessing = true;
         barrier.SetActive(true);
-        hasMatches = true;
+        hasMatches = FoundMatches();
         while (hasMatches)
         {
-            hasMatches = FoundMatches();
-            DestroyMatches();
+            if (hasMatches) DestroyMatches();
+            else
+            {
+                await SwapGems();
+            }
             SimulateGravity();
             while (hasMatches)
             {
-                hasMatches = RefillGrid();
+                if (RefillGrid() == false) break;
                 SimulateGravity();
                 await AnimateVisuals();
+                if (CheckForKeyGems())
+                {
+                    SimulateGravity();
+                    await AnimateVisuals();
+                }
             }
-            await CheckForKeyGems();
+            hasMatches = FoundMatches();
         }
         gridIsProcessing = false;
         barrier.SetActive(false);
     }
 
-    public async Task HandleGemClick(GameObject gem)
+    public async void HandleGemClick(GameObject gem)
     {
         if (gridIsProcessing) return;
         /* handles gem click event */
@@ -184,13 +196,14 @@ class GemGameGrid : SerializedMonoBehaviour
         return pos1.x == pos2.x || pos1.y == pos2.y;
     }
 
-    Sequence SwapGems(bool recursive = true)
+    Sequence SwapGems()
     {
         /* swaps the selected gems */
         if (selectedGems.Count != 2)
         {
             return Sequence.Create(); ;
-        };
+        }
+        ;
 
         Vector2Int pos1 = GetGemPosition(selectedGems[0]);
         Vector2Int pos2 = GetGemPosition(selectedGems[1]);
@@ -198,7 +211,8 @@ class GemGameGrid : SerializedMonoBehaviour
         if (pos1 == pos2)
         {
             return Sequence.Create();
-        };
+        }
+        ;
 
         GameObject gem1 = selectedGems[0];
         GameObject gem2 = selectedGems[1];
@@ -214,12 +228,8 @@ class GemGameGrid : SerializedMonoBehaviour
         gem2.GetComponent<Gem>().gemPosition = pos1;
 
         return Sequence.Create()
-            .ChainCallback(() =>
-            {
-                // print($"{gem1Pos} and {gem2Pos}");
-                Tween.Position(gem1.transform, gem2Pos, swapSpeed, Ease.OutCubic);
-                Tween.Position(gem2.transform, gem1Pos, swapSpeed, Ease.OutCubic);
-            });
+            .Group(Tween.Position(gem1.transform, gem2Pos, swapSpeed, Ease.OutCubic))
+            .Group(Tween.Position(gem2.transform, gem1Pos, swapSpeed, Ease.OutCubic));
     }
 
     List<(GameObject, Vector2Int)> FindHorizontalMatches() // returns indices of Matches in the hierarchy (1 to rows*columns)
@@ -302,8 +312,8 @@ class GemGameGrid : SerializedMonoBehaviour
     {
         List<(GameObject, Vector2Int)> Matches = new List<(GameObject, Vector2Int)>();
         var set = new HashSet<(GameObject, Vector2Int)>();
-        foreach (var gem in FindHorizontalMatches())    set.Add(gem);
-        foreach (var gem in FindVerticalMatches())      set.Add(gem);
+        foreach (var gem in FindHorizontalMatches()) set.Add(gem);
+        foreach (var gem in FindVerticalMatches()) set.Add(gem);
         Matches = set.ToList();
         return Matches;
     }
@@ -314,20 +324,9 @@ class GemGameGrid : SerializedMonoBehaviour
         return matchedGems.Count > 0;
     }
 
-    void DestroyMatches(bool checkFromSwap = false)
+    void DestroyMatches()
     {
         List<(GameObject, Vector2Int)> matchedGems = FindMatches();
-        if (matchedGems.Count == 0)
-        {
-            // if (checkFromSwap)
-            // {
-            //     // print("No matches found after swap, reverting gems.");
-            //     Tween.CompleteAll(selectedGems[0].transform);
-            //     Tween.CompleteAll(selectedGems[1].transform);
-            //     SwapGems(false);
-            // }
-        }
-
         // destroy matched gems
         foreach ((GameObject gem, Vector2Int gemPos) in matchedGems)
         {
@@ -340,22 +339,6 @@ class GemGameGrid : SerializedMonoBehaviour
             grid[gemPos.x][gemPos.y] = null;
             Destroy(gem);
         }
-
-        // Sequence.Create()
-        //     .ChainDelay(swapSpeed)
-        //     .ChainCallback(() =>
-        //     {
-        //         SimulateGravity();
-        //         RefillGrid();
-        //         AnimateVisuals();
-        //     })
-        //     .ChainDelay(swapSpeed)
-        //     .ChainCallback(() =>
-        //     {
-        //         // check for matches again after gravity and refill
-        //         CheckForMatches();
-        //         CheckForKeyGems();
-        //     });
     }
 
     bool RefillGrid()
@@ -387,42 +370,42 @@ class GemGameGrid : SerializedMonoBehaviour
         {
             for (int j = 0; j < columns; j++)
             {
-                if (grid[i][j] != null && ReferenceEquals(grid[i][j], null) == false)
+                GameObject gem = grid[i][j];
+                Vector3 targetPosition = markerGrid.transform.GetChild((i * columns) + j).transform.position;
+                if (gem == null) continue;
+                
+                if (i == rows - 1 && gem.GetComponent<Gem>().gemType == Gem.GemTypes.TYPE5)
                 {
-                    Vector3 targetPosition = markerGrid.transform.GetChild((i * columns) + j).transform.position;
-                    sequence
-                        .Group(Tween.Position(grid[i][j].transform, targetPosition, swapSpeed, Ease.OutCubic));
+                    sequence.Group(Tween.Position(grid[i][j].transform, targetPosition - new Vector3(0, CellSize.y*1.5f, 0), swapSpeed, Ease.OutCubic));
+                }
+                else if(grid[i][j].transform.position != targetPosition)
+                {
+                    sequence.Group(Tween.Position(grid[i][j].transform, targetPosition, swapSpeed, Ease.OutCubic));
                 }
             }
         }
         return sequence;
     }
 
-    Sequence CheckForKeyGems()
+    bool CheckForKeyGems()
     {
-        Sequence sequence = Sequence.Create();
-        gemDestroy = null;
-
-        /* checks for key gems in the grid */
-        for (int i = 0; i < gemContainer.transform.childCount; i++)
+        bool continueRefill = false;
+        for (int i = 0; i < rows; i++)
         {
-            GameObject gem = gemContainer.transform.GetChild(i).gameObject;
-            // fall off grid + destroy
-            Vector2Int gemPosition = gem.GetComponent<Gem>().gemPosition;
-            if (gem.GetComponent<Gem>().gemType == Gem.GemTypes.TYPE5 && gemPosition.x == rows - 1)
+            for (int j = 0; j < columns; j++)
             {
-                gemDestroy += () =>
+                GameObject gem = grid[i][j];
+                if (gem == null) continue;
+                if (i == rows - 1 && gem.GetComponent<Gem>().gemType == Gem.GemTypes.TYPE5)
                 {
+                    grid[i][j] = null;
+                    Destroy(gem);
                     keyGemCollected?.Invoke();
-                    Tween.CompleteAll(gem.transform);
-                    DestroyImmediate(gem);
-                };
-                sequence
-                    .Group(Tween.PositionY(gem.transform, -100f, swapSpeed, Ease.OutCubic));
+                    continueRefill = true;
+                }
             }
         }
-
-        return sequence;
+        return continueRefill;
     }
 
     // helper functions
@@ -440,22 +423,25 @@ public class GemGameManager : SerializedMonoBehaviour
     [OdinSerialize, SceneObjectsOnly] GameObject markerGrid;
     [OdinSerialize, SceneObjectsOnly] GameObject barrier;
     [OdinSerialize] TMP_Text keyGemAmntDisplay;
+    [OdinSerialize]
     [HideInInspector] public int collectedKeyGems = 0;
-    [HideInInspector] public Action keyGemCollected;
+    [OdinSerialize] int keyGemAmntLimit = 10;
 
     GemGameGrid grid;
 
     private void Start()
     {
-        grid = new GemGameGrid(gemPrefab, gemContainer, gridMarkerPrefab, markerGrid, barrier, ref keyGemCollected);
-        keyGemCollected += OnKeyGemCollected;
+        grid = new GemGameGrid(gemPrefab, gemContainer, markerGrid, barrier);
+        grid.keyGemCollected += OnKeyGemCollected;
+        grid.keyGemAmntLimit = keyGemAmntLimit;
+        keyGemAmntDisplay.text = $"0/{keyGemAmntLimit}";
     }
 
     void OnKeyGemCollected()
     {
         collectedKeyGems++;
-        keyGemAmntDisplay.text = $"{collectedKeyGems}/5";
-        if (collectedKeyGems >= 5)
+        keyGemAmntDisplay.text = $"{collectedKeyGems}/{keyGemAmntLimit}";
+        if (collectedKeyGems >= keyGemAmntLimit)
         {
             for (int i = 0; i < grid.gemContainer.transform.childCount; i++)
             {

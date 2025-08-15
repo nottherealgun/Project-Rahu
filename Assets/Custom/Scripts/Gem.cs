@@ -16,14 +16,14 @@ public class Gem : SerializedMonoBehaviour
 
 
 
-    static int gemTypeAmnt
+    public static int gemTypeAmnt
     {
         get { return Enum.GetNames(typeof(GemTypes)).Length; }
     }
 
-    public static int GetRandomGemType()
+    public static int GetRandomGemType(bool includeKey = false)
     {
-        return UnityEngine.Random.Range(0, gemTypeAmnt - 1);
+        return UnityEngine.Random.Range(0, includeKey ? gemTypeAmnt : gemTypeAmnt - 1);
     }
 
     [OdinSerialize] GemTypes _gemType = GemTypes.TYPE1;
