@@ -93,5 +93,6 @@ public class ScenesManager : SerializedMonoBehaviour
     public void UnloadPuzzleScene(string sceneName)
     {
         SceneManager.UnloadSceneAsync(sceneName);
+        onSceneLoaded = null;
     }
 }

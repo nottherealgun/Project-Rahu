@@ -17,7 +17,7 @@ public class PuzzleInitializer : SerializedMonoBehaviour
     string puzzleSceneName;
     GameObject currentPuzzleManager;
     PuzzleCompletionEmitter completionEmitter;
-    public void TogglePuzzle(bool toggleOn)
+    public void StartPuzzle()
     {
         switch (puzzle)
         {
@@ -38,28 +38,24 @@ public class PuzzleInitializer : SerializedMonoBehaviour
                 break;
         }
 
-        if (toggleOn == false)
-        {
-            currentPuzzleManager = null;
-            completionEmitter = null;
-            ScenesManager.Instance.UnloadPuzzleScene(puzzleSceneName);
-            PersistentDataManager.Player.GetComponent<PlayerController>().SetIsInteracting(false);
-            return;
-        }
-
         ScenesManager.Instance.onSceneLoaded += () =>
         {
             currentPuzzleManager = GameObject.Find("PuzzleManager");
             completionEmitter = currentPuzzleManager.GetComponent<PuzzleCompletionEmitter>();
             completionEmitter.onPuzzleCompleted.AddListener(() =>
             {
-                ScenesManager.Instance.UnloadPuzzleScene(puzzleSceneName);
-                currentPuzzleManager = null;
-                completionEmitter = null;
-                PersistentDataManager.Player.GetComponent<PlayerController>().StopInteracting();
+                PersistentDataManager.Player.GetComponent<PlayerController>().SetIsInteracting(false);
+                PersistentDataManager.Instance.puzzles[puzzle] = true;
             });
         };
         ScenesManager.Instance.LoadPuzzleScene(puzzleSceneName);
-        
+    }
+
+    public void EndPuzzle()
+    {
+        ScenesManager.Instance.UnloadPuzzleScene(puzzleSceneName);
+        PersistentDataManager.Instance.puzzles[puzzle] = true;
+        currentPuzzleManager = null;
+        completionEmitter = null;
     }
 }

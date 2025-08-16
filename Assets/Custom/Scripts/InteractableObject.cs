@@ -3,6 +3,7 @@ using PrimeTween;
 using Sirenix.OdinInspector;
 using System;
 using UnityEngine.Events;
+using Sirenix.Serialization;
 
 public class InteractableObject : SerializedMonoBehaviour
 {
@@ -10,21 +11,40 @@ public class InteractableObject : SerializedMonoBehaviour
     public bool isBeingInteracted;
     public Vector3 initialPosition;
     public Quaternion initialRotation;
-    public UnityEvent onInteracting;
-    public UnityEvent onInteracted;
+    public UnityEvent onEnterInteraction;
+    public UnityEvent onExitedInteraction;
+    GameObject _playerCharacter;
+    public GameObject playerCharacter
+    {
+        get { return _playerCharacter; }
+        set
+        {
+            _playerCharacter = value;
+            playerScript = _playerCharacter.GetComponent<PlayerController>();
+        }
+    }
+    PlayerController playerScript;
+    MouseRotator mouseRotator
+    {
+        get { return playerScript.GetMouseRotator(); }
+        set { mouseRotator = value; }
+    }
+    bool holdingMouse;
+    Quaternion deltaRotation;
+    [OdinSerialize] bool canBeRotated = true;
     public void OnInteracted(bool val)
     {
         isBeingInteracted = val;
-        
+
         if (val == false)
         {
-            onInteracted?.Invoke();
+            onExitedInteraction?.Invoke();
             Tween.PositionY(itemMesh.transform, endValue: initialPosition.y, duration: 1, ease: Ease.OutCubic);
             Tween.Rotation(itemMesh.transform, endValue: initialRotation, duration: 1, ease: Ease.OutCubic);
             return;
         }
 
-        onInteracting?.Invoke();
+        onEnterInteraction?.Invoke();
         Tween.PositionY(itemMesh.transform, endValue: initialPosition.y + 0.1f, duration: 1, ease: Ease.OutCubic);
     }
 
@@ -32,5 +52,19 @@ public class InteractableObject : SerializedMonoBehaviour
     {
         initialPosition = itemMesh.transform.position;
         initialRotation = itemMesh.transform.rotation;
+    }
+
+    private void Update() {
+        UpdateInteractingObjectRotation();
+    }
+
+    void UpdateInteractingObjectRotation()
+    {
+        if (isBeingInteracted && canBeRotated)
+        {
+            deltaRotation = mouseRotator.UpdateRotation(Input.mousePosition, holdingMouse);
+            itemMesh.transform.rotation = initialRotation * deltaRotation;
+        }
+
     }
 }

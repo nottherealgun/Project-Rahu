@@ -47,7 +47,7 @@ public class UIManager : MonoBehaviour
                 .OnComplete(() =>
                 {
                     _transitionPanelImage.raycastTarget = false;
-                    _HUD.SetActive(isInteracting);
+                    // _HUD.SetActive(isInteracting);
                 });
     }
 
