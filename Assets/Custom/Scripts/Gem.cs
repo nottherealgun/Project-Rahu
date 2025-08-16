@@ -23,7 +23,15 @@ public class Gem : SerializedMonoBehaviour
 
     public static int GetRandomGemType(bool includeKey = false)
     {
-        return UnityEngine.Random.Range(0, includeKey ? gemTypeAmnt : gemTypeAmnt - 1);
+        if (!includeKey)
+            return UnityEngine.Random.Range(0, gemTypeAmnt - 1);
+        else
+        {
+            if (UnityEngine.Random.Range(0f, 100f) < 5f)
+            {
+                return gemTypeAmnt - 1;
+            }else return UnityEngine.Random.Range(0, gemTypeAmnt - 1);
+        }
     }
 
     [OdinSerialize] GemTypes _gemType = GemTypes.TYPE1;
