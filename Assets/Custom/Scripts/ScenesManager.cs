@@ -11,7 +11,7 @@ public class ScenesManager : SerializedMonoBehaviour
     Scene currentScene;
     [HideInInspector] public Action onSceneLoaded;
     float minimumLoadingTime = 3f;
-
+    [HideInInspector] public AsyncOperation loadOperation;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -36,7 +36,7 @@ public class ScenesManager : SerializedMonoBehaviour
     {
         float startTime = Time.realtimeSinceStartup;
 
-        AsyncOperation loadOperation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+        loadOperation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
         loadOperation.allowSceneActivation = false;
 
         while (!loadOperation.isDone && UIManager.Instance.ManualFadeIn().isAlive)
@@ -81,7 +81,7 @@ public class ScenesManager : SerializedMonoBehaviour
     {
         float startTime = Time.realtimeSinceStartup;
 
-        AsyncOperation loadOperation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+        loadOperation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
         while (!loadOperation.isDone)
         {
             yield return null;
@@ -94,5 +94,10 @@ public class ScenesManager : SerializedMonoBehaviour
     {
         SceneManager.UnloadSceneAsync(sceneName);
         onSceneLoaded = null;
+    }
+
+    public bool IsLoadingComplete()
+    {
+        return loadOperation == null || loadOperation.isDone;
     }
 }

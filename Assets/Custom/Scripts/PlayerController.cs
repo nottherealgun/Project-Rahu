@@ -66,12 +66,9 @@ public class PlayerController : SerializedMonoBehaviour
 {
     GameObject interactingObject;
     GameObject interactingObjectMesh;
-    [TabGroup("Character")]
-    [OdinSerialize] private GameObject _mainCamera;
-    [TabGroup("Character")]
-    public GameObject interactingCamera;
-    [TabGroup("Character")]
-    public GameObject followCamera;
+    [OdinSerialize, TabGroup("Character")] GameObject _mainCamera;
+    [TabGroup("Character")] public GameObject interactingCamera;
+    [TabGroup("Character")] public GameObject followCamera;
     bool isInteracting = false;
     bool isObserving = true;
 
@@ -79,7 +76,7 @@ public class PlayerController : SerializedMonoBehaviour
     [OdinSerialize] InputManager _inputManager;
     [TabGroup("Character")]
     [OdinSerialize] bool holdingMouse = false;
-
+#region "PHYSICS"
     [TabGroup("Physics")]
     [Tooltip("Move speed of the character in m/s")]
     public float MoveSpeed = 2.0f;
@@ -108,7 +105,8 @@ public class PlayerController : SerializedMonoBehaviour
     [TabGroup("Physics")]
     [Tooltip("Time required to pass before entering the fall state. Useful for walking down stairs")]
     public float FallTimeout = 0.15f;
-
+    #endregion
+#region "PLAYER GROUNDED"
     [TabGroup("Player Grounded")]
     [Tooltip("If the character is grounded or not. Not part of the CharacterController built in grounded check")]
     public bool Grounded = true;
@@ -121,7 +119,8 @@ public class PlayerController : SerializedMonoBehaviour
     [TabGroup("Player Grounded")]
     [Tooltip("What layers the character uses as ground")]
     public LayerMask GroundLayers;
-
+    #endregion
+#region "CINEMACHINE"
     [TabGroup("Cinemachine")]
     [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
     public GameObject CinemachineCameraTarget;
@@ -140,7 +139,9 @@ public class PlayerController : SerializedMonoBehaviour
 
     private float _cinemachineTargetYaw;
     private float _cinemachineTargetPitch;
-
+    [TabGroup("Cinemachine"), OdinSerialize, ReadOnly] LayerMask defaultMask;
+    [TabGroup("Cinemachine"), OdinSerialize] LayerMask interactionMask;
+#endregion
     // player
     private float _speed;
     private float _animationBlend;
@@ -234,6 +235,7 @@ public class PlayerController : SerializedMonoBehaviour
         _mouseRotator.RotationSpeed = _objectRotationSpeed;
         _mouseRotator.InvertXRotation = _invertXObjectRotation;
         _mouseRotator.InvertYRotation = _invertYObjectRotation;
+        defaultMask = _mainCamera.GetComponent<Camera>().cullingMask;
     }
 
     void Update()
@@ -290,7 +292,6 @@ public class PlayerController : SerializedMonoBehaviour
         if (isInteracting)
             SetIsInteracting(false);
     }
-
     public void SetIsInteracting(bool value)
     {
         if (interactingObject == null || interactingObject.TryGetComponent<InteractableObject>(out InteractableObject _item) == false) return;
@@ -302,7 +303,10 @@ public class PlayerController : SerializedMonoBehaviour
         {
             _mouseRotator.ResetRotation(); // Reset rotation when interaction ends
         }
-
+        UIManager.onActionTransition += () =>
+        { 
+            _mainCamera.GetComponent<Camera>().cullingMask = isInteracting ? ~interactionMask : defaultMask;
+        };
         UIManager.Instance.ToggleTransitionPanel(isInteracting);
     }
 
@@ -319,7 +323,7 @@ public class PlayerController : SerializedMonoBehaviour
         if (interactingObjScript != null)
         {
             interactingObjectMesh = interactingObject.GetComponent<InteractableObject>().itemMesh;
-            UIManager.Instance.onTransitioned += SetInteractionCam;
+            UIManager.onActionTransition += SetInteractionCam;
             interactingObjScript.playerCharacter = this.gameObject;
         }
     }
@@ -329,7 +333,7 @@ public class PlayerController : SerializedMonoBehaviour
         {
             interactingObject = null;
             interactingObjectMesh = null;
-            UIManager.Instance.onTransitioned -= SetInteractionCam;
+            UIManager.onActionTransition -= SetInteractionCam;
         }
     }
 

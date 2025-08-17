@@ -4,6 +4,7 @@ using Sirenix.OdinInspector;
 using System;
 using UnityEngine.Events;
 using Sirenix.Serialization;
+using Unity.VisualScripting;
 
 public class InteractableObject : SerializedMonoBehaviour
 {
@@ -45,7 +46,8 @@ public class InteractableObject : SerializedMonoBehaviour
         }
 
         onEnterInteraction?.Invoke();
-        Tween.PositionY(itemMesh.transform, endValue: initialPosition.y + 0.1f, duration: 1, ease: Ease.OutCubic);
+        if(canBeRotated)
+            Tween.PositionY(itemMesh.transform, endValue: initialPosition.y + 0.1f, duration: 1, ease: Ease.OutCubic);
     }
 
     void Start()

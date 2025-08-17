@@ -75,7 +75,9 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
 
     public void PlaySFX(string trackName, bool random = false) // no variant, random
     {
-        int variant = UnityEngine.Random.Range(0, tracks.sfx[trackName].Count);
+        int variant = 0;
+        if (random)
+            variant = UnityEngine.Random.Range(0, tracks.sfx[trackName].Count);
         AudioClip track = tracks.sfx[trackName][variant];
         GameObject newSFXSource = Instantiate(nsSfxSource);
         newSFXSource.GetComponent<AudioSource>().clip = track;
