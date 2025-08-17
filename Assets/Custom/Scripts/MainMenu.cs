@@ -4,8 +4,8 @@ using UnityEngine;
 public class MainMenu : Menu
 {
     private void Start() {
-        EnvironmentalAudioManager.Instance.PlayMusic("Test");
-        EnvironmentalAudioManager.Instance.PlayAmbience("Test");
+        EnvironmentalAudioManager.Instance.PlayMusic("main_menu_music");
+        // EnvironmentalAudioManager.Instance.PlayAmbience("Test");
     }
 
     public void ButtonPressed(string _button)
