@@ -16,7 +16,7 @@ public class MainMenu : Menu
                 break;
             case "new_game":
                 UIManager.onActionTransition += NarrativeManager.Instance.StartNewGame;
-                ScenesManager.Instance.LoadScene("CH2_SC12");
+                ScenesManager.Instance.LoadScene("CH02_SC12");
                 break;
             case "settings":
                 ScenesManager.Instance.LoadScene("Settings");
