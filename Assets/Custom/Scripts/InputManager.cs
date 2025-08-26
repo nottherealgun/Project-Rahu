@@ -1,9 +1,11 @@
+using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
 
-public class InputManager : MonoBehaviour
+public class InputManager : SerializedMonoBehaviour
 {
     [Header("Character Input Values")]
     public Vector2 move;
@@ -17,6 +19,7 @@ public class InputManager : MonoBehaviour
     [Header("Mouse Cursor Settings")]
     public bool cursorLocked = true;
     public bool cursorInputForLook = true;
+    [OdinSerialize,ReadOnly] bool cursorIsLocked = false;
 
 #if ENABLE_INPUT_SYSTEM
     public void OnMove(InputValue value)
@@ -72,5 +75,9 @@ public class InputManager : MonoBehaviour
     public void SetCursorState(bool newState)
     {
         Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
+    }
+
+    private void Update() {
+        cursorIsLocked = Cursor.lockState == CursorLockMode.Locked;
     }
 }

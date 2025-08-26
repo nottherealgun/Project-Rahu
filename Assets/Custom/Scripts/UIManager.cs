@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using PrimeTween;
 using UnityEngine.Events;
 using System;
+using System.Threading.Tasks;
 
 public class UIManager : MonoBehaviour
 {
@@ -17,7 +18,7 @@ public class UIManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(this);
+            Destroy(this.gameObject);
             return;
         }
 
@@ -51,9 +52,13 @@ public class UIManager : MonoBehaviour
             });
     }
 
-    public Tween ManualFadeOut()
+    public async Task<Tween> ManualFadeOut()
     {
-        return Tween.Custom(Color.black, Color.clear, duration: 0.5f, onValueChange: newVal => _transitionPanelImage.color = newVal);
+        Tween tween = Tween.Custom(Color.black, Color.clear, duration: 0.5f, onValueChange: newVal => _transitionPanelImage.color = newVal);
+        await tween;
+        onActionTransition?.Invoke();
+        onActionTransition = null;
+        return tween;
     }
 
     public Tween ManualFadeIn()

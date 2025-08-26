@@ -16,7 +16,7 @@ public class ScenesManager : SerializedMonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(this);
+            Destroy(this.gameObject);
             return;
         }
 

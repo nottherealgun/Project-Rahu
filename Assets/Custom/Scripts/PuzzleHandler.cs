@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
+using UnityEngine.Events;
 
 public enum PuzzleType
 {
@@ -18,6 +19,10 @@ public class PuzzleHandler : SerializedMonoBehaviour
     string puzzleSceneName;
     GameObject currentPuzzleManager;
     PuzzleCompletionEmitter completionEmitter;
+    [OdinSerialize] UnityEvent onPuzzleCompleted;
+    private void Start() {
+        onPuzzleCompleted.AddListener(GameManager.Instance.OnPuzzleComplete);
+    }
     public void StartPuzzle()
     {
         switch (puzzle)
@@ -94,6 +99,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
         PersistentDataManager.Instance.puzzles[puzzle] = true;
         currentPuzzleManager = null;
         completionEmitter = null;
+        onPuzzleCompleted?.Invoke();
     }
 
     [EnableIf("puzzle", PuzzleType.CrystalCrush), Title("Crystal Crush")]

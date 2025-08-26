@@ -12,7 +12,7 @@ public class PersistentDataManager : SerializedMonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(this);
+            Destroy(this.gameObject);
             return;
         }
 
@@ -21,10 +21,6 @@ public class PersistentDataManager : SerializedMonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
-    [OdinSerialize, TabGroup("tab1", "Cinematics", SdfIconType.CameraReelsFill)] public int currentChapter = 2;
-    [OdinSerialize, TabGroup("tab1", "Cinematics")] public int currentScene         = 12;
-    [OdinSerialize, TabGroup("tab1", "Cinematics")] public int currentVoicelineID   = 1;
-    [OdinSerialize, TabGroup("tab1", "Cinematics")] public string currentVoiceline  = "";
     [OdinSerialize, ReadOnly, TabGroup("tab1", "Game Data")]
     [DictionaryDrawerSettings(KeyLabel = "Puzzle Type", ValueLabel = "Is Completed?")]
     public Dictionary<PuzzleType, bool> puzzles = new Dictionary<PuzzleType, bool>

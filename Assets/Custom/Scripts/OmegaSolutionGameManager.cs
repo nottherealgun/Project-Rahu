@@ -31,7 +31,7 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     [OdinSerialize, DisableInPlayMode] float progressRiseRate = 0.0002f;
     [InfoBox("How fast the Left Bar\'s progress DROPS per frame (Max prog. is 1.0)")]
     [OdinSerialize, DisableInPlayMode] float progressDropRate = 0.0006f;
-    [Button("Reset Values", ButtonSizes.Medium),DisableInPlayMode]
+    [Button("Reset Values", ButtonSizes.Medium), DisableInPlayMode]
     void ResetProgressRates()
     {
         boostAccelerationRate = 0.0005f;
@@ -39,7 +39,7 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         progressRiseRate = 0.0002f;
         progressDropRate = 0.0006f;
     }
-    
+
     private void Start()
     {
         bottomTransformAnchorPos = indicator.GetComponent<RectTransform>().anchoredPosition;
@@ -100,9 +100,10 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
             inRange = true;
             gaugeFiller.fillAmount += progressRiseRate;
         }
-        else if (indicatorLevel < 95 && indicatorLevel > 60) {
+        else if (indicatorLevel < 95 && indicatorLevel > 60)
+        {
             inRange = true;
-            gaugeFiller.fillAmount += progressRiseRate/3f;
+            gaugeFiller.fillAmount += progressRiseRate / 3f;
         }
         else
         {
@@ -120,7 +121,8 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
             EndGame();
         }
     }
-    
+
+    [HorizontalGroup("A"), Button(ButtonSizes.Small), LabelText("Instant Win")]
     void EndGame()
     {
         gameObject.GetComponent<PuzzleCompletionEmitter>().onPuzzleCompleted?.Invoke();

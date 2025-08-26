@@ -605,16 +605,10 @@ public class CrystalCrushGameManager : SerializedMonoBehaviour
         }
     }
 
+    [HorizontalGroup("A"), Button(ButtonSizes.Small)]
     void EndGame()
     {
         gameObject.GetComponent<PuzzleCompletionEmitter>().onPuzzleCompleted?.Invoke();
-    }
-
-    [HorizontalGroup("A"), Button(ButtonSizes.Small)]
-    void InstantWin()
-    {
-        collectedKeyCrystals = keyCrystalAmntLimit;
-        OnKeyCrystalCollected();
     }
 
     [HorizontalGroup("A"),Button(ButtonSizes.Small)]

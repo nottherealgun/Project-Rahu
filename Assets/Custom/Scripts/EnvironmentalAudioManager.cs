@@ -10,7 +10,7 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(this);
+            Destroy(this.gameObject);
             return;
         }
 
@@ -24,6 +24,8 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
     [OdinSerialize] GameObject nsSfxSource;
     [TabGroup("Sources")]
     [OdinSerialize] AudioSource musicSource;
+    [TabGroup("Sources")]
+    public AudioSource cutsceneSource;
     [TabGroup("Sources")]
     [OdinSerialize] AudioSource ambienceSource;
 

@@ -76,7 +76,7 @@ public class PlayerController : SerializedMonoBehaviour
     [OdinSerialize] InputManager _inputManager;
     [TabGroup("Character")]
     [OdinSerialize] bool holdingMouse = false;
-#region "PHYSICS"
+    #region "PHYSICS"
     [TabGroup("Physics")]
     [Tooltip("Move speed of the character in m/s")]
     public float MoveSpeed = 2.0f;
@@ -106,7 +106,7 @@ public class PlayerController : SerializedMonoBehaviour
     [Tooltip("Time required to pass before entering the fall state. Useful for walking down stairs")]
     public float FallTimeout = 0.15f;
     #endregion
-#region "PLAYER GROUNDED"
+    #region "PLAYER GROUNDED"
     [TabGroup("Player Grounded")]
     [Tooltip("If the character is grounded or not. Not part of the CharacterController built in grounded check")]
     public bool Grounded = true;
@@ -120,7 +120,7 @@ public class PlayerController : SerializedMonoBehaviour
     [Tooltip("What layers the character uses as ground")]
     public LayerMask GroundLayers;
     #endregion
-#region "CINEMACHINE"
+    #region "CINEMACHINE"
     [TabGroup("Cinemachine")]
     [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
     public GameObject CinemachineCameraTarget;
@@ -141,7 +141,7 @@ public class PlayerController : SerializedMonoBehaviour
     private float _cinemachineTargetPitch;
     [TabGroup("Cinemachine"), OdinSerialize, ReadOnly] LayerMask defaultMask;
     [TabGroup("Cinemachine"), OdinSerialize] LayerMask interactionMask;
-#endregion
+    #endregion
     // player
     private float _speed;
     private float _animationBlend;
@@ -297,14 +297,15 @@ public class PlayerController : SerializedMonoBehaviour
         if (interactingObject == null || interactingObject.TryGetComponent<InteractableObject>(out InteractableObject _item) == false) return;
         isInteracting = value;
         _item.OnInteracted(value);
-        _inputManager.SetCursorState(!value);
+        // _inputManager.SetCursorState(!value);
+        Cursor.lockState = value ? CursorLockMode.None : CursorLockMode.Locked;
 
         if (!isInteracting)
         {
             _mouseRotator.ResetRotation(); // Reset rotation when interaction ends
         }
         UIManager.onActionTransition += () =>
-        { 
+        {
             _mainCamera.GetComponent<Camera>().cullingMask = isInteracting ? ~interactionMask : defaultMask;
         };
         UIManager.Instance.ToggleTransitionPanel(isInteracting);
@@ -319,11 +320,12 @@ public class PlayerController : SerializedMonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         interactingObject = other.gameObject;
-        InteractableObject interactingObjScript = interactingObject.GetComponent<InteractableObject>();
+        interactingObject.TryGetComponent<InteractableObject>(out InteractableObject interactingObjScript);
         if (interactingObjScript != null)
         {
             interactingObjectMesh = interactingObject.GetComponent<InteractableObject>().itemMesh;
-            UIManager.onActionTransition += SetInteractionCam;
+            if (!interactingObjScript.hasInspectionCamera)
+                UIManager.onActionTransition += SetInteractionCam;
             interactingObjScript.playerCharacter = this.gameObject;
         }
     }
@@ -331,9 +333,11 @@ public class PlayerController : SerializedMonoBehaviour
     {
         if (interactingObject == other.gameObject)
         {
+            interactingObject.TryGetComponent<InteractableObject>(out InteractableObject interactingObjScript);
             interactingObject = null;
             interactingObjectMesh = null;
-            UIManager.onActionTransition -= SetInteractionCam;
+            if (!interactingObjScript.hasInspectionCamera)
+                UIManager.onActionTransition -= SetInteractionCam;
         }
     }
 
@@ -592,5 +596,8 @@ public class PlayerController : SerializedMonoBehaviour
 
         speaking = false;
         currentDialogueLine = null;
+    }
+    private void OnDestroy() {
+        _inputManager.SetCursorState(false);
     }
 }

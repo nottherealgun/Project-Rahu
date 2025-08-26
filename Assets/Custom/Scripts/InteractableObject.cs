@@ -5,6 +5,7 @@ using System;
 using UnityEngine.Events;
 using Sirenix.Serialization;
 using Unity.VisualScripting;
+using Unity.Cinemachine;
 
 public class InteractableObject : SerializedMonoBehaviour
 {
@@ -33,9 +34,17 @@ public class InteractableObject : SerializedMonoBehaviour
     bool holdingMouse;
     Quaternion deltaRotation;
     [OdinSerialize] bool canBeRotated = true;
+    [OdinSerialize] GameObject customInspectionCamera;
+    public bool hasInspectionCamera
+    {
+        get { return customInspectionCamera != null; }
+        set { hasInspectionCamera = value; }
+    }
     public void OnInteracted(bool val)
     {
         isBeingInteracted = val;
+        if(hasInspectionCamera)
+            UIManager.onActionTransition += () => customInspectionCamera.SetActive(val);
 
         if (val == false)
         {
@@ -46,7 +55,7 @@ public class InteractableObject : SerializedMonoBehaviour
         }
 
         onEnterInteraction?.Invoke();
-        if(canBeRotated)
+        if (canBeRotated)
             Tween.PositionY(itemMesh.transform, endValue: initialPosition.y + 0.1f, duration: 1, ease: Ease.OutCubic);
     }
 
