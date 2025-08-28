@@ -67,15 +67,15 @@ public class InputManager : SerializedMonoBehaviour
         sprint = newSprintState;
     }
 
-    private void OnApplicationFocus(bool hasFocus)
-    {
-        SetCursorState(cursorLocked);
-    }
+    // private void OnApplicationFocus(bool hasFocus)
+    // {
+    //     SetCursorState(cursorLocked);
+    // }
 
-    public void SetCursorState(bool newState)
-    {
-        Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
-    }
+    // public void SetCursorState(bool newState)
+    // {
+    //     UIManager.SetCursorState(newState);
+    // }
 
     private void Update() {
         cursorIsLocked = Cursor.lockState == CursorLockMode.Locked;

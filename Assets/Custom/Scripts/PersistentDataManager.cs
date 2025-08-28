@@ -1,9 +1,9 @@
-using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Events;
 
 public class PersistentDataManager : SerializedMonoBehaviour
 {
@@ -33,7 +33,7 @@ public class PersistentDataManager : SerializedMonoBehaviour
     };
     public static GameObject Player = null;
     public static bool playerExists { get { return Player == null; }}
-    [HideInInspector] public Action<bool> onPlayerSearchStatus;
+    [HideInInspector] public UnityAction<bool> OnPlayerFound;
     void Start()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -42,6 +42,6 @@ public class PersistentDataManager : SerializedMonoBehaviour
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (Player == null) Player = GameObject.FindWithTag("Player");
-        onPlayerSearchStatus.Invoke(Player != null);
+        OnPlayerFound?.Invoke(Player != null);
     }
 }

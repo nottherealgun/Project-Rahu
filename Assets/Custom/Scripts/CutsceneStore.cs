@@ -15,7 +15,7 @@ public class CutsceneStore : SerializedScriptableObject
     public struct Shot
     {
         [OdinSerialize, EnumToggleButtons] public ShotType shotType;
-        [OdinSerialize] public string fileName;
+        public string fileName;
         [OdinSerialize, ShowIf("@shotType == ShotType.LINEAR")] public string nextShotID;
         [OdinSerialize, ShowIf("@shotType == ShotType.LINEAR")] public bool isFinalShot;
         public Shot(string nextShotID, string fileName, ShotType shotType, bool isFinalShot = false)

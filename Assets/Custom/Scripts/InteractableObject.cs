@@ -44,7 +44,7 @@ public class InteractableObject : SerializedMonoBehaviour
     {
         isBeingInteracted = val;
         if(hasInspectionCamera)
-            UIManager.onActionTransition += () => customInspectionCamera.SetActive(val);
+            UIManager.OnEnteredNewScene += () => customInspectionCamera.SetActive(val);
 
         if (val == false)
         {

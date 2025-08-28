@@ -1,16 +1,12 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.Cinemachine;
 using UnityEngine.InputSystem;
-using PixelCrushers.DialogueSystem;
-using TMPro;
 using System;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine.UI;
 using UnityEngine.Events;
-
 
 public class MouseRotator
 {
@@ -204,7 +200,7 @@ public class PlayerController : SerializedMonoBehaviour
     [OdinSerialize] AudioDataStore.DialogueLine? currentDialogueLine;
 
     [TabGroup("Events")]
-    public event Action<bool> onInteracted;
+    public event UnityAction<bool> OnInteractionEntered;
     public UnityEvent onMouseHold;
     public UnityEvent onMouseRelease;
     private void Awake()
@@ -236,6 +232,8 @@ public class PlayerController : SerializedMonoBehaviour
         _mouseRotator.InvertXRotation = _invertXObjectRotation;
         _mouseRotator.InvertYRotation = _invertYObjectRotation;
         defaultMask = _mainCamera.GetComponent<Camera>().cullingMask;
+
+        OnInteractionEntered += (bool val) => { UIManager.SetCursorState(!val); };
     }
 
     void Update()
@@ -273,7 +271,7 @@ public class PlayerController : SerializedMonoBehaviour
     public void OnPrimaryInteract(InputValue value)
     {
         SetIsInteracting(!isInteracting);
-        onInteracted?.Invoke(isInteracting);
+        OnInteractionEntered?.Invoke(isInteracting);
     }
 
     public void OnSecondaryInteract(InputValue value)
@@ -284,7 +282,7 @@ public class PlayerController : SerializedMonoBehaviour
             UnityEngine.Object.Destroy(interactingObject);
             interactingObject = null;
         }
-        onInteracted?.Invoke(isInteracting);
+        OnInteractionEntered?.Invoke(isInteracting);
     }
 
     public void OnMenu(InputValue value)
@@ -297,14 +295,12 @@ public class PlayerController : SerializedMonoBehaviour
         if (interactingObject == null || interactingObject.TryGetComponent<InteractableObject>(out InteractableObject _item) == false) return;
         isInteracting = value;
         _item.OnInteracted(value);
-        // _inputManager.SetCursorState(!value);
-        Cursor.lockState = value ? CursorLockMode.None : CursorLockMode.Locked;
 
         if (!isInteracting)
         {
             _mouseRotator.ResetRotation(); // Reset rotation when interaction ends
         }
-        UIManager.onActionTransition += () =>
+        UIManager.OnEnteredNewScene += () =>
         {
             _mainCamera.GetComponent<Camera>().cullingMask = isInteracting ? ~interactionMask : defaultMask;
         };
@@ -325,7 +321,7 @@ public class PlayerController : SerializedMonoBehaviour
         {
             interactingObjectMesh = interactingObject.GetComponent<InteractableObject>().itemMesh;
             if (!interactingObjScript.hasInspectionCamera)
-                UIManager.onActionTransition += SetInteractionCam;
+                UIManager.OnEnteredNewScene += SetInteractionCam;
             interactingObjScript.playerCharacter = this.gameObject;
         }
     }
@@ -337,7 +333,7 @@ public class PlayerController : SerializedMonoBehaviour
             interactingObject = null;
             interactingObjectMesh = null;
             if (!interactingObjScript.hasInspectionCamera)
-                UIManager.onActionTransition -= SetInteractionCam;
+                UIManager.OnEnteredNewScene -= SetInteractionCam;
         }
     }
 
@@ -598,6 +594,6 @@ public class PlayerController : SerializedMonoBehaviour
         currentDialogueLine = null;
     }
     private void OnDestroy() {
-        _inputManager.SetCursorState(false);
+        UIManager.SetCursorState(false);
     }
 }

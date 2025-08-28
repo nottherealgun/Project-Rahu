@@ -18,7 +18,7 @@ class CrystalGameGrid : SerializedMonoBehaviour
     public GameObject crystalContainer;
     public GameObject markerGrid;
     public GameObject barrier;
-    public Action keyCrystalCollected;
+    public UnityAction KeyCrystalCollected;
 
     public CrystalGameGrid(GameObject crystalPrefab, GameObject crystalContainer, GameObject markerGrid, GameObject barrier)
     {
@@ -30,7 +30,7 @@ class CrystalGameGrid : SerializedMonoBehaviour
         Setup();
     }
     public List<GameObject> selectedCrystals = new List<GameObject>();
-    public Action crystalDestroy;
+    public UnityAction OnCrystalDestroyed;
     public int keyCrystalAmntLimit = 10;
     List<List<GameObject>> grid = new List<List<GameObject>>();
     int rows = 8;
@@ -55,7 +55,7 @@ class CrystalGameGrid : SerializedMonoBehaviour
     bool hasMatches = false;
     public Ease swapEaseType = Ease.Linear;
     public Ease fallEaseType = Ease.InCubic;
-    public Action onGameOver;
+    public UnityAction OnGameOver;
     public bool gameOver = false;
     async void Setup()
     {
@@ -168,7 +168,7 @@ class CrystalGameGrid : SerializedMonoBehaviour
             hasMatches = FoundMatches();
         }
         gridIsProcessing = false;
-        if (gameOver) onGameOver?.Invoke();
+        if (gameOver) OnGameOver?.Invoke();
     }
 
     public async void HandleCrystalClick(GameObject crystal)
@@ -444,7 +444,7 @@ class CrystalGameGrid : SerializedMonoBehaviour
                     grid[i][j] = null;
                     Destroy(crystal);
                     // crystal.SetActive(false);
-                    keyCrystalCollected?.Invoke();
+                    KeyCrystalCollected?.Invoke();
                     continueRefill = true;
                 }
             }
@@ -585,12 +585,12 @@ public class CrystalCrushGameManager : SerializedMonoBehaviour
     private void Start()
     {
         grid = new CrystalGameGrid(crystalPrefab, crystalContainer, markerGrid, barrier);
-        grid.keyCrystalCollected += OnKeyCrystalCollected;
+        grid.KeyCrystalCollected += OnKeyCrystalCollected;
         grid.keyCrystalAmntLimit = keyCrystalAmntLimit;
         grid.swapSpeed = swapSpeed;
         grid.swapEaseType = swapEaseType;
         grid.fallEaseType = fallEaseType;
-        grid.onGameOver += EndGame;
+        grid.OnGameOver += EndGame;
         keyCrystalAmntDisplay.text = $"0/{keyCrystalAmntLimit}";
     }
 

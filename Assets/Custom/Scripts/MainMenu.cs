@@ -1,11 +1,13 @@
-using Sirenix.Serialization;
 using UnityEngine;
-
+using UnityEngine.Events;
 public class MainMenu : Menu
 {
-    private void Start() {
+    UnityAction onButtonPressed;
+    private void Start()
+    {
         EnvironmentalAudioManager.Instance.PlayMusic("main_menu_music");
         // EnvironmentalAudioManager.Instance.PlayAmbience("Test");
+
     }
 
     public void ButtonPressed(string _button)
@@ -15,15 +17,31 @@ public class MainMenu : Menu
             case "continue":
                 break;
             case "new_game":
-                UIManager.onActionTransition += NarrativeManager.Instance.StartNewGame;
-                ScenesManager.Instance.LoadScene("CH02_SC12");
+                onButtonPressed += StartNewGame;
                 break;
             case "settings":
-                ScenesManager.Instance.LoadScene("Settings");
+                onButtonPressed += OpenSettingsMenu;
                 break;
             case "quit":
                 Application.Quit();
                 break;
         }
+        onButtonPressed?.Invoke();
+        onButtonPressed = null;
+    }
+
+    async void StartNewGame()
+    {
+        ScenesManager.Instance.ShowLoadingScreen();
+        await ScenesManager.Instance.LoadScene("CH02_SC12");
+        ScenesManager.Instance.HideLoadingScreen();
+        await NarrativeManager.Instance.PlayCutsceneSequence();
+        UIManager.SetCursorState(true);
+        ScenesManager.Instance.ShowScene();
+    }
+
+    async void OpenSettingsMenu()
+    {
+        await ScenesManager.Instance.LoadScene("Settings");
     }
 }

@@ -8,9 +8,9 @@ public class AudioStore : SerializedScriptableObject
 {
     [Button(ButtonSizes.Gigantic)]
     [TabGroup("SFX")]
-    [OdinSerialize] public Dictionary<string, List<AudioClip>> sfx = new Dictionary<string, List<AudioClip>>();
+    public Dictionary<string, List<AudioClip>> sfx = new Dictionary<string, List<AudioClip>>();
     [TabGroup("Music")]
-    [OdinSerialize] public Dictionary<string, AudioClip> music = new Dictionary<string, AudioClip>();
+    public Dictionary<string, AudioClip> music = new Dictionary<string, AudioClip>();
     [TabGroup("Ambience")]
-    [OdinSerialize] public Dictionary<string, AudioClip> ambience = new Dictionary<string, AudioClip>();
+    public Dictionary<string, AudioClip> ambience = new Dictionary<string, AudioClip>();
 }

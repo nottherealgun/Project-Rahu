@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
@@ -51,7 +52,7 @@ public class Crystal : SerializedMonoBehaviour
     [OdinSerialize, ReadOnly]
     public Vector2Int crystalPosition;
 
-    [HideInInspector] public Action<Crystal, GameObject> onDisplayGridPosition;
+    [HideInInspector] public UnityAction<Crystal, GameObject> OnGridPositionDisplayed;
     TMP_Text testText;
 
     public void SetCrystalType(int newCrystalType)

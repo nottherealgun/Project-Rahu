@@ -7,12 +7,12 @@ using UnityEngine.Video;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine;
 using System.Threading.Tasks;
-using PrimeTween;
-using Palmmedia.ReportGenerator.Core;
-
+using UnityEngine.Events;
 [Serializable]
 public class NarrativeManager : SerializedMonoBehaviour
 {
+    const string AnimaticsPath = "Animatics/";
+    const string AnimationsPath = "Animations/";
     public static NarrativeManager Instance { get; private set; }
     [OdinSerialize] AudioDataStore audioDataStore;
     [OdinSerialize] AudioSource cutsceneAudioSource;
@@ -21,8 +21,6 @@ public class NarrativeManager : SerializedMonoBehaviour
     [OdinSerialize] string currentVoiceline = "";
     [OdinSerialize] string currentShotID = "12_01";
     [OdinSerialize, AssetsOnly] GameObject cutscenePrefab;
-    const string AnimaticsPath = "Animatics/";
-    const string AnimationsPath = "Animations/";
     [OdinSerialize, ReadOnly] Queue<(string, CutsceneStore.Shot)> shotQueue = new Queue<(string, CutsceneStore.Shot)>();
     [OdinSerialize, ReadOnly] Queue<GameObject> cutsceneObjQueue = new Queue<GameObject>();
     GameObject player;
@@ -44,21 +42,19 @@ public class NarrativeManager : SerializedMonoBehaviour
         SetupCutsceneSequence();
     }
 
-    public async void StartNewGame()
-    {
+    // public void StartNewGame()
+    // {
+        // PlayCutsceneSequence();
         // VoicelineStore currentVoicelineStore = AudioDataStore.Instance.scenes.scenes[currentScene - 1];
         // AudioDataStore.DialogueLine dialogueLine = currentVoicelineStore.cutsceneVoicelines[currentVoicelineID - 1];
         // currentVoiceline = dialogueLine.text;
-        player = GameObject.FindGameObjectWithTag("Player");
-        await PlayCutsceneSequence();
-    }
+    // }
 
     GameObject CreateBlankCutscene()
     {
         GameObject newCutscene = Instantiate(cutscenePrefab, transform);
         VideoPlayer cutscenePlayer = newCutscene.transform.Find("CutscenePlayer").GetComponent<VideoPlayer>();
         cutscenePlayer.SetTargetAudioSource(0, EnvironmentalAudioManager.Instance.cutsceneSource);
-        newCutscene.SetActive(false);
         cutsceneObjQueue.Enqueue(newCutscene);
         return newCutscene;
     }
@@ -84,24 +80,24 @@ public class NarrativeManager : SerializedMonoBehaviour
         }
     }
 
-    async Task PlayCutsceneSequence()
+    public async Task PlayCutsceneSequence()
     {
-        player.SetActive(false);
         currentShotID = shotQueue.Dequeue().Item1;
         GameObject cutsceneObj = cutsceneObjQueue.Dequeue();
+
         VideoPlayer cutscenePlayer = cutsceneObj.transform.Find("CutscenePlayer").GetComponent<VideoPlayer>();
-        cutsceneObj.SetActive(true);
-        await WaitForVideoEnd(cutscenePlayer);
+        cutscenePlayer.Play();
+        while (!cutscenePlayer.isPlaying) await Task.Yield();
+        while (cutscenePlayer.isPlaying) await Task.Yield();
+
         Destroy(cutsceneObj);
         if (PlayedFinalCutscene())
         {
-            Cursor.lockState = CursorLockMode.None;
-            ScenesManager.Instance.LoadScene("MainMenu");
+            UIManager.SetCursorState(false);
+            await ScenesManager.Instance.LoadScene("MainMenu");
         }
-
-        // if shotQueue is not empty, play next shot
+        // // if shotQueue is not empty, play next shot
         if (cutsceneObjQueue.Count > 0) await PlayCutsceneSequence();
-        else { player.SetActive(true); }
     }
 
     bool PlayedFinalCutscene()
@@ -110,27 +106,11 @@ public class NarrativeManager : SerializedMonoBehaviour
         return currentShot.isFinalShot;
     }
 
-    public void StartCutscene(string shotID)
+    public async Task StartCutscene(string shotID)
     {
         currentShotID = shotID;
         SetupCutsceneSequence();
-        PlayCutsceneSequence();
-    }
-
-    private Task WaitForVideoEnd(VideoPlayer vp)
-    {
-        var tcs = new TaskCompletionSource<bool>();
-
-        // Called when video reaches the end
-        void OnVideoEnd(VideoPlayer source)
-        {
-            vp.loopPointReached -= OnVideoEnd;
-            tcs.TrySetResult(true);
-        }
-
-        vp.loopPointReached += OnVideoEnd;
-
-        return tcs.Task;
+        await PlayCutsceneSequence();
     }
 
     AsyncOperationHandle<VideoClip> PrepareShot(CutsceneStore.Shot nextShot, VideoPlayer vp)

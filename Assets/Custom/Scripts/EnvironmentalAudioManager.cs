@@ -36,7 +36,7 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
     private void Start()
     {
         TryGetComponent<AudioListener>(out audioListener);
-        PersistentDataManager.Instance.onPlayerSearchStatus += OnPlayerSearchStatus;
+        PersistentDataManager.Instance.OnPlayerFound += OnPlayerSearchStatus;
     }
 
     void OnPlayerSearchStatus(bool found)

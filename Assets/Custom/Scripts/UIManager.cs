@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using PrimeTween;
 using UnityEngine.Events;
-using System;
 using System.Threading.Tasks;
 
 public class UIManager : MonoBehaviour
@@ -13,7 +12,7 @@ public class UIManager : MonoBehaviour
     private PlayerController playerController;
     public static UIManager Instance { get; private set; }
     // public UnityEvent transitioned;
-    public static event Action onActionTransition;
+    public static event UnityAction OnEnteredNewScene;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -30,7 +29,13 @@ public class UIManager : MonoBehaviour
     }
 
     private void Start() {
-        PersistentDataManager.Instance.onPlayerSearchStatus += OnPlayerSearchStatus;
+        PersistentDataManager.Instance.OnPlayerFound += OnPlayerSearchStatus;
+    }
+
+    public static void SetCursorState(bool newState)
+    {
+        // true = locked, false = unlocked
+        Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
     }
 
     void OnPlayerSearchStatus(bool found)
@@ -43,7 +48,7 @@ public class UIManager : MonoBehaviour
         _transitionPanelImage.raycastTarget = true;
         Sequence.Create(cycles: 1, CycleMode.Restart)
             .Chain(Tween.Custom(Color.clear, Color.black, duration: 0.5f, onValueChange: newVal => _transitionPanelImage.color = newVal))
-            .ChainCallback(() => onActionTransition?.Invoke())
+            .ChainCallback(() => OnEnteredNewScene?.Invoke())
             .Chain(Tween.Custom(Color.black, Color.clear, duration: 0.5f, onValueChange: newVal => _transitionPanelImage.color = newVal))
             .OnComplete(() =>
             {
@@ -56,9 +61,14 @@ public class UIManager : MonoBehaviour
     {
         Tween tween = Tween.Custom(Color.black, Color.clear, duration: 0.5f, onValueChange: newVal => _transitionPanelImage.color = newVal);
         await tween;
-        onActionTransition?.Invoke();
-        onActionTransition = null;
+        RunOnLoadFunctions();
         return tween;
+    }
+
+    public void RunOnLoadFunctions()
+    {
+        OnEnteredNewScene?.Invoke();
+        OnEnteredNewScene = null;
     }
 
     public Tween ManualFadeIn()

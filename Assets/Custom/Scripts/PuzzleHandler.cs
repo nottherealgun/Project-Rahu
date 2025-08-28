@@ -3,6 +3,7 @@ using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public enum PuzzleType
 {
@@ -44,13 +45,13 @@ public class PuzzleHandler : SerializedMonoBehaviour
                 break;
         }
 
-        UIManager.onActionTransition += PuzzleSetup;
+        UIManager.OnEnteredNewScene += PuzzleSetup;
     }
 
     async void PuzzleSetup()
     {
         ScenesManager.Instance.LoadPuzzleScene(puzzleSceneName);
-        await ScenesManager.Instance.loadOperation;
+        await ScenesManager.Instance.LoadOperation;
         currentPuzzleManager = GameObject.Find("PuzzleManager");
         completionEmitter = currentPuzzleManager.GetComponent<PuzzleCompletionEmitter>();
         completionEmitter.onPuzzleCompleted.AddListener(() =>
@@ -78,7 +79,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
 
     public void EndPuzzle()
     {
-        UIManager.onActionTransition -= PuzzleSetup;
+        UIManager.OnEnteredNewScene -= PuzzleSetup;
         switch (puzzle)
         {
             case PuzzleType.MaraInvasion:

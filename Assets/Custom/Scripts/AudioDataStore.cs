@@ -21,9 +21,9 @@ public class AudioDataStore : MonoBehaviour
     public struct DialogueLine
     {
         [GUIColor("yellow")]
-        [OdinSerialize] public string text;
+        public string text;
         [GUIColor("yellow")]
-        [OdinSerialize] public AudioClip audioFile;
+        public AudioClip audioFile;
         public DialogueLine(string _text, AudioClip _audioFile)
         {
             text = _text;
@@ -32,5 +32,5 @@ public class AudioDataStore : MonoBehaviour
     }
 
     [Button(ButtonSizes.Large)]
-    [OdinSerialize] public DialogueStore scenes;
+    public DialogueStore scenes;
 }
