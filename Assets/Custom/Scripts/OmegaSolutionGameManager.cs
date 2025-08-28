@@ -31,14 +31,6 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     [OdinSerialize, DisableInPlayMode] float progressRiseRate = 0.0002f;
     [InfoBox("How fast the Left Bar\'s progress DROPS per frame (Max prog. is 1.0)")]
     [OdinSerialize, DisableInPlayMode] float progressDropRate = 0.0006f;
-    [Button("Reset Values", ButtonSizes.Medium), DisableInPlayMode]
-    void ResetProgressRates()
-    {
-        boostAccelerationRate = 0.0005f;
-        boostDecelerationRate = 0.002f;
-        progressRiseRate = 0.0002f;
-        progressDropRate = 0.0006f;
-    }
 
     private void Start()
     {
@@ -47,14 +39,6 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     }
     private void Update()
     {
-        // if (Input.GetKeyDown(KeyCode.E))
-        // {
-        //     boosting = true;
-        // }
-        // else if (Input.GetKeyUp(KeyCode.E))
-        // {
-        //     boosting = false;
-        // }
         indicatorLevel += boostAcceleration;
         if (indicatorLevel > maxLevel)
         {
@@ -122,9 +106,18 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         }
     }
 
-    [HorizontalGroup("A"), Button(ButtonSizes.Small), LabelText("Instant Win")]
+    [HorizontalGroup("A"), Button(ButtonSizes.Large), LabelText("Instant Win")]
     void EndGame()
     {
         gameObject.GetComponent<PuzzleCompletionEmitter>().onPuzzleCompleted?.Invoke();
+        UIManager.SetCursorState(true);
+    }
+    [HorizontalGroup("A"), Button("Reset Values", ButtonSizes.Large), DisableInPlayMode]
+    void ResetProgressRates()
+    {
+        boostAccelerationRate = 0.0005f;
+        boostDecelerationRate = 0.002f;
+        progressRiseRate = 0.0002f;
+        progressDropRate = 0.0006f;
     }
 }

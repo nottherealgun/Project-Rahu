@@ -59,7 +59,7 @@ public class NarrativeManager : SerializedMonoBehaviour
         return newCutscene;
     }
 
-    void SetupCutsceneSequence()
+    public void SetupCutsceneSequence()
     {
         string nextShotID = currentShotID;
         while (true)
@@ -91,16 +91,11 @@ public class NarrativeManager : SerializedMonoBehaviour
         while (cutscenePlayer.isPlaying) await Task.Yield();
 
         Destroy(cutsceneObj);
-        if (PlayedFinalCutscene())
-        {
-            UIManager.SetCursorState(false);
-            await ScenesManager.Instance.LoadScene("MainMenu");
-        }
         // // if shotQueue is not empty, play next shot
         if (cutsceneObjQueue.Count > 0) await PlayCutsceneSequence();
     }
 
-    bool PlayedFinalCutscene()
+    bool AtFinalCutscene()
     {
         CutsceneStore.Shot currentShot = cutsceneStore.GetShot(currentShotID);
         return currentShot.isFinalShot;
@@ -122,7 +117,6 @@ public class NarrativeManager : SerializedMonoBehaviour
             vp.clip = op.Result;
             vp.Prepare();
         };
-        vp.prepareCompleted += (op) => { print($"Prepare completed for {vp.gameObject.name}"); };
         return handle;
     }
 }

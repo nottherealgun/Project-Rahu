@@ -6,8 +6,6 @@ public class MainMenu : Menu
     private void Start()
     {
         EnvironmentalAudioManager.Instance.PlayMusic("main_menu_music");
-        // EnvironmentalAudioManager.Instance.PlayAmbience("Test");
-
     }
 
     public void ButtonPressed(string _button)
@@ -32,12 +30,14 @@ public class MainMenu : Menu
 
     async void StartNewGame()
     {
+        
         ScenesManager.Instance.ShowLoadingScreen();
         await ScenesManager.Instance.LoadScene("CH02_SC12");
         ScenesManager.Instance.HideLoadingScreen();
-        await NarrativeManager.Instance.PlayCutsceneSequence();
+        await NarrativeManager.Instance.StartCutscene("12_01");
         UIManager.SetCursorState(true);
         ScenesManager.Instance.ShowScene();
+        PersistentDataManager.Instance.FindPlayer();
     }
 
     async void OpenSettingsMenu()

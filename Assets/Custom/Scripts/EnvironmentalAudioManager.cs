@@ -35,13 +35,13 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
 
     private void Start()
     {
-        TryGetComponent<AudioListener>(out audioListener);
-        PersistentDataManager.Instance.OnPlayerFound += OnPlayerSearchStatus;
+        TryGetComponent(out audioListener);
+        PersistentDataManager.Instance.OnPlayerFound += (bool isPlayerActive) => SetPersistentListener(!isPlayerActive);
     }
 
-    void OnPlayerSearchStatus(bool found)
+    void SetPersistentListener(bool val)
     {
-        audioListener.enabled = !found;
+        audioListener.enabled = val;
     }
 
     public void PlaySFX(string trackName, Transform transform = null, int variant = 0) // transform, variant

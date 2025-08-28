@@ -31,17 +31,19 @@ public class PersistentDataManager : SerializedMonoBehaviour
         { PuzzleType.OmegaSolution   , false },
         { PuzzleType.Platinum        , false }
     };
-    public static GameObject Player = null;
-    public static bool playerExists { get { return Player == null; }}
+    [ShowInInspector, ReadOnly] public static GameObject Player = null;
+    [ShowInInspector, ReadOnly] public static bool isPlayerActive = false;
     [HideInInspector] public UnityAction<bool> OnPlayerFound;
-    void Start()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
 
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    public GameObject FindPlayer()
     {
-        if (Player == null) Player = GameObject.FindWithTag("Player");
-        OnPlayerFound?.Invoke(Player != null);
+        Player = GameObject.FindWithTag("Player");
+        isPlayerActive = Player != null && Player.activeInHierarchy;
+        OnPlayerFound?.Invoke(isPlayerActive);
+        if (isPlayerActive)
+        {
+            return Player;
+        }
+        return null;
     }
 }

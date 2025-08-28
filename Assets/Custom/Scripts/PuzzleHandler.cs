@@ -45,7 +45,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
                 break;
         }
 
-        UIManager.OnEnteredNewScene += PuzzleSetup;
+        UIManager.OnTransitioned += PuzzleSetup;
     }
 
     async void PuzzleSetup()
@@ -79,7 +79,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
 
     public void EndPuzzle()
     {
-        UIManager.OnEnteredNewScene -= PuzzleSetup;
+        UIManager.OnTransitioned -= PuzzleSetup;
         switch (puzzle)
         {
             case PuzzleType.MaraInvasion:

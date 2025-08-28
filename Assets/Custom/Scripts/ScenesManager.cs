@@ -4,13 +4,15 @@ using UnityEngine.SceneManagement;
 using Sirenix.OdinInspector;
 using System.Threading.Tasks;
 using UnityEngine.Events;
+using Sirenix.Serialization;
 public class ScenesManager : SerializedMonoBehaviour
 {
     public static ScenesManager Instance { get; private set; }
-    [HideInInspector] public UnityAction OnSceneLoaded;
+    public static UnityAction OnSceneLoaded;
     [HideInInspector] public AsyncOperation LoadOperation;
     Scene currentScene;
-    Scene loadingScreen;
+    // Scene loadingScreen;
+    [OdinSerialize] GameObject loadingScreen;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -26,8 +28,8 @@ public class ScenesManager : SerializedMonoBehaviour
 
     private void Start()
     {
-        SceneManager.LoadScene("Loading Screen", LoadSceneMode.Additive);
-        loadingScreen = SceneManager.GetSceneByName("Loading Screen");
+        // SceneManager.LoadScene("Loading Screen", LoadSceneMode.Additive);
+        // loadingScreen = SceneManager.GetSceneByName("Loading Screen");
     }
 
     public async Task LoadScene(string sceneName)
@@ -44,14 +46,11 @@ public class ScenesManager : SerializedMonoBehaviour
         float startTime = Time.realtimeSinceStartup;
 
         await SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+        print("Loaded scene: " + sceneName);
 
         Scene newScene = SceneManager.GetSceneByName(sceneName);
         foreach (GameObject o in newScene.GetRootGameObjects())
-        {
             o.SetActive(false);
-        }
-
-        print("Loaded scene: " + sceneName);
 
         await SceneManager.UnloadSceneAsync(currentScene.buildIndex);
 
@@ -62,23 +61,24 @@ public class ScenesManager : SerializedMonoBehaviour
         await UIManager.Instance.ManualFadeOut();
 
         OnSceneLoaded?.Invoke();
-        OnSceneLoaded = null;
     }
 
     public void ShowLoadingScreen()
     {
-        foreach (GameObject o in loadingScreen.GetRootGameObjects())
-        {
-            o.SetActive(true);
-        }
+        loadingScreen.SetActive(true);
+        // foreach (GameObject o in loadingScreen.GetRootGameObjects())
+        // {
+        //     o.SetActive(true);
+        // }
     }
 
     public void HideLoadingScreen()
     {
-        foreach (GameObject o in loadingScreen.GetRootGameObjects())
-        {
-            o.SetActive(false);
-        }
+        loadingScreen.SetActive(false);
+        // foreach (GameObject o in loadingScreen.GetRootGameObjects())
+        // {
+        //     o.SetActive(false);
+        // }
     }
 
     public void ShowScene()
@@ -104,13 +104,11 @@ public class ScenesManager : SerializedMonoBehaviour
             yield return null;
         }
         OnSceneLoaded?.Invoke();
-        OnSceneLoaded = null;
     }
 
     public void UnloadPuzzleScene(string sceneName)
     {
         SceneManager.UnloadSceneAsync(sceneName);
-        OnSceneLoaded = null;
     }
 
     public bool IsLoadingComplete()

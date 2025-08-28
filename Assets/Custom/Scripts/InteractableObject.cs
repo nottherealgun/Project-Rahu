@@ -43,8 +43,8 @@ public class InteractableObject : SerializedMonoBehaviour
     public void OnInteracted(bool val)
     {
         isBeingInteracted = val;
-        if(hasInspectionCamera)
-            UIManager.OnEnteredNewScene += () => customInspectionCamera.SetActive(val);
+        if (hasInspectionCamera)
+            UIManager.OnTransitioned += () => SetInspectionCamera(val);
 
         if (val == false)
         {
@@ -65,7 +65,8 @@ public class InteractableObject : SerializedMonoBehaviour
         initialRotation = itemMesh.transform.rotation;
     }
 
-    private void Update() {
+    void Update()
+    {
         UpdateInteractingObjectRotation();
     }
 
@@ -77,5 +78,10 @@ public class InteractableObject : SerializedMonoBehaviour
             itemMesh.transform.rotation = initialRotation * deltaRotation;
         }
 
+    }
+
+    void SetInspectionCamera(bool val)
+    {
+        customInspectionCamera.SetActive(val);
     }
 }

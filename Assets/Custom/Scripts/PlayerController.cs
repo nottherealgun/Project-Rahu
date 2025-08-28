@@ -300,7 +300,7 @@ public class PlayerController : SerializedMonoBehaviour
         {
             _mouseRotator.ResetRotation(); // Reset rotation when interaction ends
         }
-        UIManager.OnEnteredNewScene += () =>
+        UIManager.OnTransitioned += () =>
         {
             _mainCamera.GetComponent<Camera>().cullingMask = isInteracting ? ~interactionMask : defaultMask;
         };
@@ -321,7 +321,7 @@ public class PlayerController : SerializedMonoBehaviour
         {
             interactingObjectMesh = interactingObject.GetComponent<InteractableObject>().itemMesh;
             if (!interactingObjScript.hasInspectionCamera)
-                UIManager.OnEnteredNewScene += SetInteractionCam;
+                UIManager.OnTransitioned += SetInteractionCam;
             interactingObjScript.playerCharacter = this.gameObject;
         }
     }
@@ -333,7 +333,7 @@ public class PlayerController : SerializedMonoBehaviour
             interactingObject = null;
             interactingObjectMesh = null;
             if (!interactingObjScript.hasInspectionCamera)
-                UIManager.OnEnteredNewScene -= SetInteractionCam;
+                UIManager.OnTransitioned -= SetInteractionCam;
         }
     }
 
@@ -593,7 +593,8 @@ public class PlayerController : SerializedMonoBehaviour
         speaking = false;
         currentDialogueLine = null;
     }
-    private void OnDestroy() {
+    private void OnDestroy()
+    {
         UIManager.SetCursorState(false);
     }
 }

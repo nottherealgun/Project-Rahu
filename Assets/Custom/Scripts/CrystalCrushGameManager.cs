@@ -605,13 +605,14 @@ public class CrystalCrushGameManager : SerializedMonoBehaviour
         }
     }
 
-    [HorizontalGroup("A"), Button(ButtonSizes.Small)]
+    [HorizontalGroup("A"), Button(ButtonSizes.Large)]
     void EndGame()
     {
         gameObject.GetComponent<PuzzleCompletionEmitter>().onPuzzleCompleted?.Invoke();
+        UIManager.SetCursorState(true);
     }
 
-    [HorizontalGroup("A"),Button(ButtonSizes.Small)]
+    [HorizontalGroup("A"),Button(ButtonSizes.Large)]
     void Shuffle()
     {
         grid.ShuffleAndAnimate();
