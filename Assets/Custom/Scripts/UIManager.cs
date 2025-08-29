@@ -3,16 +3,22 @@ using UnityEngine.UI;
 using PrimeTween;
 using UnityEngine.Events;
 using System.Threading.Tasks;
+using Sirenix.Serialization;
+using Sirenix.OdinInspector;
 
-public class UIManager : MonoBehaviour
+public class UIManager : SerializedMonoBehaviour
 {
-    [SerializeField] GameObject _HUD;
-    [SerializeField] GameObject _transitionPanel;
-    [SerializeField] Image _transitionPanelImage;
-    private PlayerController playerController;
     public static UIManager Instance { get; private set; }
-    // public UnityEvent transitioned;
     public static event UnityAction OnTransitioned;
+    [OdinSerialize] GameObject _HUD;
+    [OdinSerialize] GameObject _transitionPanel;
+    [OdinSerialize] Image _transitionPanelImage;
+    [OdinSerialize] GameObject pauseMenu;
+    PlayerController playerController;
+    static bool _isGamePaused = false;
+    public static bool isGamePaused { get { return _isGamePaused; } }
+    public static bool lastCursorState = true;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -75,5 +81,18 @@ public class UIManager : MonoBehaviour
     public Tween ManualFadeIn()
     {
         return Tween.Custom(Color.clear, Color.black, duration: 0.5f, onValueChange: newVal => _transitionPanelImage.color = newVal);
+    }
+
+    public void PauseGame()
+    {
+        pauseMenu.SetActive(true);
+        _isGamePaused = true;
+    }
+
+    public void ResumeGame()
+    {
+        SetCursorState(lastCursorState);
+        pauseMenu.SetActive(false);
+        _isGamePaused = false;
     }
 }

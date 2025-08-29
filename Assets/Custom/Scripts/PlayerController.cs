@@ -233,7 +233,11 @@ public class PlayerController : SerializedMonoBehaviour
         _mouseRotator.InvertYRotation = _invertYObjectRotation;
         defaultMask = _mainCamera.GetComponent<Camera>().cullingMask;
 
-        OnInteractionEntered += (bool val) => { UIManager.SetCursorState(!val); };
+        OnInteractionEntered += (bool val) =>
+        {
+            UIManager.lastCursorState = !val;
+            UIManager.SetCursorState(!val);
+        };
     }
 
     void Update()
@@ -287,8 +291,17 @@ public class PlayerController : SerializedMonoBehaviour
 
     public void OnMenu(InputValue value)
     {
-        if (isInteracting)
-            SetIsInteracting(false);
+        if (UIManager.isGamePaused)
+        {
+            UIManager.Instance.ResumeGame();
+        }
+        else
+        {
+            UIManager.SetCursorState(false);
+            UIManager.Instance.PauseGame();
+        }
+        // if (isInteracting)
+        //     SetIsInteracting(false);
     }
     public void SetIsInteracting(bool value)
     {
