@@ -13,7 +13,7 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance { get; private set; }
     // public UnityEvent transitioned;
     public static event UnityAction OnTransitioned;
-    private void Awake()
+    void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -28,7 +28,7 @@ public class UIManager : MonoBehaviour
         _transitionPanelImage = _transitionPanel.GetComponent<Image>();
     }
 
-    private void Start()
+    void Start()
     {
         PersistentDataManager.Instance.OnPlayerFound += OnPlayerSearchStatus;
     }

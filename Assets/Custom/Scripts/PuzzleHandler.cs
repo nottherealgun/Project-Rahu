@@ -21,7 +21,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
     GameObject currentPuzzleManager;
     PuzzleCompletionEmitter completionEmitter;
     [OdinSerialize] UnityEvent onPuzzleCompleted;
-    private void Start() {
+    void Start() {
         onPuzzleCompleted.AddListener(GameManager.Instance.OnPuzzleComplete);
     }
     public void StartPuzzle()
@@ -79,7 +79,6 @@ public class PuzzleHandler : SerializedMonoBehaviour
 
     public void EndPuzzle()
     {
-        UIManager.OnTransitioned -= PuzzleSetup;
         switch (puzzle)
         {
             case PuzzleType.MaraInvasion:
@@ -96,7 +95,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
                 break;
         }
 
-        ScenesManager.Instance.UnloadPuzzleScene(puzzleSceneName);
+        UIManager.OnTransitioned += () => ScenesManager.Instance.UnloadPuzzleScene(puzzleSceneName);
         PersistentDataManager.Instance.puzzles[puzzle] = true;
         currentPuzzleManager = null;
         completionEmitter = null;

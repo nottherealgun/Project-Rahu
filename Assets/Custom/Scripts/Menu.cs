@@ -10,7 +10,7 @@ public abstract class Menu : SerializedMonoBehaviour
 
     [HideInInspector] public Dictionary<string, InputAction> UI;
 
-    private void Awake()
+    void Awake()
     {
         if (firstSelected == null)
         {

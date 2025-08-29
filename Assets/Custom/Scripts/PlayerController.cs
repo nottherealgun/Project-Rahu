@@ -203,7 +203,7 @@ public class PlayerController : SerializedMonoBehaviour
     public event UnityAction<bool> OnInteractionEntered;
     public UnityEvent onMouseHold;
     public UnityEvent onMouseRelease;
-    private void Awake()
+    void Awake()
     {
         // get a reference to our main camera
         if (_mainCamera == null)
@@ -304,45 +304,44 @@ public class PlayerController : SerializedMonoBehaviour
         {
             _mainCamera.GetComponent<Camera>().cullingMask = isInteracting ? ~interactionMask : defaultMask;
         };
+        if (!_item.hasInspectionCamera)
+            UIManager.OnTransitioned += SetInteractionCam;
+
         UIManager.Instance.ToggleTransitionPanel(isInteracting);
     }
 
-    private void SetInteractionCam()
+    void SetInteractionCam()
     {
         interactingCamera.gameObject.SetActive(isInteracting);
         interactingCamera.GetComponent<CinemachineCamera>().Target.TrackingTarget = interactingObject.transform;
     }
 
-    private void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
         interactingObject = other.gameObject;
         interactingObject.TryGetComponent<InteractableObject>(out InteractableObject interactingObjScript);
         if (interactingObjScript != null)
         {
             interactingObjectMesh = interactingObject.GetComponent<InteractableObject>().itemMesh;
-            if (!interactingObjScript.hasInspectionCamera)
-                UIManager.OnTransitioned += SetInteractionCam;
             interactingObjScript.playerCharacter = this.gameObject;
         }
     }
-    private void OnTriggerExit(Collider other)
+    void OnTriggerExit(Collider other)
     {
         if (interactingObject == other.gameObject)
         {
             interactingObject.TryGetComponent<InteractableObject>(out InteractableObject interactingObjScript);
             interactingObject = null;
             interactingObjectMesh = null;
-            if (!interactingObjScript.hasInspectionCamera)
-                UIManager.OnTransitioned -= SetInteractionCam;
         }
     }
 
-    private void LateUpdate()
+    void LateUpdate()
     {
         CameraRotation();
     }
 
-    private void AssignAnimationIDs()
+    void AssignAnimationIDs()
     {
         _animIDSpeed = Animator.StringToHash("Speed");
         _animIDGrounded = Animator.StringToHash("Grounded");
@@ -351,7 +350,7 @@ public class PlayerController : SerializedMonoBehaviour
         _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
     }
 
-    private void GroundedCheck()
+    void GroundedCheck()
     {
         // set sphere position, with offset
         Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset,
@@ -366,7 +365,7 @@ public class PlayerController : SerializedMonoBehaviour
         }
     }
 
-    private void CameraRotation()
+    void CameraRotation()
     {
         // if there is an input and camera position is not fixed
         if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
@@ -387,7 +386,7 @@ public class PlayerController : SerializedMonoBehaviour
             _cinemachineTargetYaw, 0.0f);
     }
 
-    private void Move()
+    void Move()
     {
         // set target speed based on move speed, sprint speed and if sprint is pressed
         float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
@@ -452,7 +451,7 @@ public class PlayerController : SerializedMonoBehaviour
                          new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
     }
 
-    private void JumpAndGravity()
+    void JumpAndGravity()
     {
         if (Grounded)
         {
@@ -510,7 +509,7 @@ public class PlayerController : SerializedMonoBehaviour
         return Mathf.Clamp(lfAngle, lfMin, lfMax);
     }
 
-    private void OnDrawGizmosSelected()
+    void OnDrawGizmosSelected()
     {
         Color transparentGreen = new Color(0.0f, 1.0f, 0.0f, 0.35f);
         Color transparentRed = new Color(1.0f, 0.0f, 0.0f, 0.35f);
@@ -524,7 +523,7 @@ public class PlayerController : SerializedMonoBehaviour
             GroundedRadius);
     }
 
-    private void OnFootstep(AnimationEvent animationEvent)
+    void OnFootstep(AnimationEvent animationEvent)
     {
         if (isInteracting) return;
         if (animationEvent.animatorClipInfo.weight > 0.5f)
@@ -533,7 +532,7 @@ public class PlayerController : SerializedMonoBehaviour
         }
     }
 
-    private void OnLand(AnimationEvent animationEvent)
+    void OnLand(AnimationEvent animationEvent)
     {
         if (animationEvent.animatorClipInfo.weight > 0.5f)
         {
@@ -593,7 +592,7 @@ public class PlayerController : SerializedMonoBehaviour
         speaking = false;
         currentDialogueLine = null;
     }
-    private void OnDestroy()
+    void OnDestroy()
     {
         UIManager.SetCursorState(false);
     }

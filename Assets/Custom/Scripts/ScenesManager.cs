@@ -13,7 +13,7 @@ public class ScenesManager : SerializedMonoBehaviour
     Scene currentScene;
     // Scene loadingScreen;
     [OdinSerialize] GameObject loadingScreen;
-    private void Awake()
+    void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -26,7 +26,7 @@ public class ScenesManager : SerializedMonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
-    private void Start()
+    void Start()
     {
         // SceneManager.LoadScene("Loading Screen", LoadSceneMode.Additive);
         // loadingScreen = SceneManager.GetSceneByName("Loading Screen");

@@ -3,7 +3,7 @@ using UnityEngine.Events;
 public class MainMenu : Menu
 {
     UnityAction onButtonPressed;
-    private void Start()
+    void Start()
     {
         EnvironmentalAudioManager.Instance.PlayMusic("main_menu_music");
     }
@@ -36,6 +36,7 @@ public class MainMenu : Menu
         ScenesManager.Instance.HideLoadingScreen();
         await NarrativeManager.Instance.StartCutscene("12_01");
         UIManager.SetCursorState(true);
+        PersistentDataManager.Instance.ResetPuzzleData();
         ScenesManager.Instance.ShowScene();
         PersistentDataManager.Instance.FindPlayer();
     }

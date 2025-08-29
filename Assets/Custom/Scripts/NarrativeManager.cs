@@ -24,7 +24,7 @@ public class NarrativeManager : SerializedMonoBehaviour
     [OdinSerialize, ReadOnly] Queue<(string, CutsceneStore.Shot)> shotQueue = new Queue<(string, CutsceneStore.Shot)>();
     [OdinSerialize, ReadOnly] Queue<GameObject> cutsceneObjQueue = new Queue<GameObject>();
     GameObject player;
-    private void Awake()
+    void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -37,7 +37,7 @@ public class NarrativeManager : SerializedMonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
-    private void Start()
+    void Start()
     {
         SetupCutsceneSequence();
     }

@@ -6,7 +6,7 @@ using UnityEngine;
 public class EnvironmentalAudioManager : SerializedMonoBehaviour
 {
     public static EnvironmentalAudioManager Instance { get; private set; }
-    private void Awake()
+    void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -33,7 +33,7 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
     [OdinSerialize] AudioStore tracks;
     AudioListener audioListener;
 
-    private void Start()
+    void Start()
     {
         TryGetComponent(out audioListener);
         PersistentDataManager.Instance.OnPlayerFound += (bool isPlayerActive) => SetPersistentListener(!isPlayerActive);

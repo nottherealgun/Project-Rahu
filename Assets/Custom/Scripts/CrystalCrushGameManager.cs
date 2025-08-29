@@ -582,7 +582,7 @@ public class CrystalCrushGameManager : SerializedMonoBehaviour
     [InfoBox("Easing of crystals when falling down; Default is In Cubic")]
     [OdinSerialize, TabGroup("tab1", "Appearance")] Ease fallEaseType = Ease.InCubic;
     public UnityEvent onKeyCrystalCollected;
-    private void Start()
+    void Start()
     {
         grid = new CrystalGameGrid(crystalPrefab, crystalContainer, markerGrid, barrier);
         grid.KeyCrystalCollected += OnKeyCrystalCollected;
@@ -605,14 +605,14 @@ public class CrystalCrushGameManager : SerializedMonoBehaviour
         }
     }
 
-    [HorizontalGroup("A"), Button(ButtonSizes.Large)]
+    [HorizontalGroup("A"), Button(ButtonSizes.Large), DisableInEditorMode]
     void EndGame()
     {
         gameObject.GetComponent<PuzzleCompletionEmitter>().onPuzzleCompleted?.Invoke();
         UIManager.SetCursorState(true);
     }
 
-    [HorizontalGroup("A"),Button(ButtonSizes.Large)]
+    [HorizontalGroup("A"),Button(ButtonSizes.Large), DisableInEditorMode]
     void Shuffle()
     {
         grid.ShuffleAndAnimate();

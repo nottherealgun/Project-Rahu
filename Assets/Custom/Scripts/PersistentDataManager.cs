@@ -8,7 +8,7 @@ using UnityEngine.Events;
 public class PersistentDataManager : SerializedMonoBehaviour
 {
     public static PersistentDataManager Instance { get; private set; }
-    private void Awake()
+    void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -45,5 +45,17 @@ public class PersistentDataManager : SerializedMonoBehaviour
             return Player;
         }
         return null;
+    }
+
+    public void ResetPuzzleData()
+    {
+        puzzles = new Dictionary<PuzzleType, bool>
+        {
+            { PuzzleType.MaraInvasion    , false },
+            { PuzzleType.Pipes           , false },
+            { PuzzleType.CrystalCrush    , false },
+            { PuzzleType.OmegaSolution   , false },
+            { PuzzleType.Platinum        , false }
+        };
     }
 }

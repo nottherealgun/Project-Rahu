@@ -66,18 +66,18 @@ public class Crystal : SerializedMonoBehaviour
         image.enabled = false;
     }
 
-    private void Awake()
+    void Awake()
     {
         TryGetComponent<Image>(out image);
         testText = GetComponentInChildren<TMP_Text>();
     }
 
-    private void Start()
+    void Start()
     {
         gameObject.name = $"Crystal {UnityEngine.Random.Range(0, 1000)}";
     }
 
-    private void Update()
+    void Update()
     {
         // testText.text = $"({crystalPosition.x}, {crystalPosition.y})";
     }

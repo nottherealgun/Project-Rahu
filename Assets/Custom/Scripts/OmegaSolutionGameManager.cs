@@ -16,10 +16,20 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     [OdinSerialize, ReadOnly] Vector2 bottomTransformAnchorPos;
     [OdinSerialize, ReadOnly] float indicatorLevel = 0f;
     [OdinSerialize, ReadOnly] bool boosting = false;
-    [OdinSerialize, ReadOnly, LabelText("In Green Area")] bool inRange = false;
+    // [OdinSerialize, ReadOnly, LabelText("In Green Area")] bool inRange = false;
     [OdinSerialize, ReadOnly] float boostAcceleration = 0f;
-
+    bool isGaugeFilled = false;
     float maxLevel = 100f;
+
+    enum GaugeMode
+    {
+        NONE, FILLING_FAST, FILLING, DEPLETING
+    }
+
+    [OdinSerialize] GameObject yellowFiller;
+
+    [OdinSerialize, ReadOnly] GaugeMode currentGaugeMode = GaugeMode.NONE;
+
     [Title("Progress Rates")]
     [OdinSerialize, DisableInPlayMode]
     [InfoBox("How fast the Right Bar\'s indicator accelerates per frame")]
@@ -32,14 +42,47 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     [InfoBox("How fast the Left Bar\'s progress DROPS per frame (Max prog. is 1.0)")]
     [OdinSerialize, DisableInPlayMode] float progressDropRate = 0.0006f;
 
-    private void Start()
+    void Start()
     {
         bottomTransformAnchorPos = indicator.GetComponent<RectTransform>().anchoredPosition;
         gaugeFiller.fillAmount = 0f;
+        
+        SetRandomYellowFillerPos();
     }
-    private void Update()
+
+    private void SetRandomYellowFillerPos()
+    {
+        Vector3 oldPos = yellowFiller.GetComponent<RectTransform>().anchoredPosition;
+        yellowFiller.GetComponent<RectTransform>().anchoredPosition = oldPos + Vector3.down * UnityEngine.Random.Range(0, 930f);
+    }
+
+    void Update()
     {
         indicatorLevel += boostAcceleration;
+        CheckAndClampIndicatorLevel();
+        CheckAndSetBoostAcceleration();
+        AnimateVisuals();
+        if (isGaugeFilled == false)
+        {
+            CheckIndicatorLevel();
+            switch (currentGaugeMode)
+            {
+                case GaugeMode.FILLING_FAST:
+                    gaugeFiller.fillAmount += progressRiseRate;
+                    break;
+                case GaugeMode.FILLING:
+                    gaugeFiller.fillAmount += progressRiseRate / 3f;
+                    break;
+                case GaugeMode.DEPLETING:
+                    gaugeFiller.fillAmount -= progressDropRate;
+                    break;
+            }
+        }
+        CheckGaugeFill();
+    }
+
+    void CheckAndClampIndicatorLevel()
+    {
         if (indicatorLevel > maxLevel)
         {
             indicatorLevel = maxLevel;
@@ -51,7 +94,10 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
             boostAcceleration = 0;
         }
         ;
+    }
 
+    void CheckAndSetBoostAcceleration()
+    {
         if (boosting)
         {
             boostAcceleration += boostAccelerationRate;
@@ -60,15 +106,36 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         {
             boostAcceleration -= boostDecelerationRate;
         }
-
-        AnimateVisuals();
-        LevelCheck();
-        WinCheck();
     }
 
     public void SetBoosting(bool value)
     {
         boosting = value;
+    }
+
+    public void CheckAndFinalizeGame()
+    {
+        if (isGaugeFilled) EndGame();
+    }
+
+    public void OnGreenFillEntered(GameObject triggerObj)
+    {
+        currentGaugeMode = GaugeMode.FILLING_FAST;
+    }
+
+    public void OnGreenFillExited(GameObject triggerObj)
+    {
+        currentGaugeMode = GaugeMode.FILLING;
+    }
+
+    public void OnYellowFillEntered(GameObject triggerObj)
+    {
+        currentGaugeMode = GaugeMode.FILLING;
+    }
+
+    public void OnYellowFillExited(GameObject triggerObj)
+    {
+        currentGaugeMode = GaugeMode.DEPLETING;
     }
 
     void AnimateVisuals()
@@ -77,36 +144,25 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         indicator.GetComponent<RectTransform>().anchoredPosition = bottomTransformAnchorPos + new Vector2(0f, newY);
     }
 
-    void LevelCheck()
+    void CheckIndicatorLevel()
     {
-        if (indicatorLevel < 80 && indicatorLevel > 70)
+        if (currentGaugeMode == GaugeMode.DEPLETING && gaugeFiller.fillAmount <= 0)
         {
-            inRange = true;
-            gaugeFiller.fillAmount += progressRiseRate;
-        }
-        else if (indicatorLevel < 95 && indicatorLevel > 60)
-        {
-            inRange = true;
-            gaugeFiller.fillAmount += progressRiseRate / 3f;
-        }
-        else
-        {
-            inRange = false;
-            gaugeFiller.fillAmount -= progressDropRate;
+            currentGaugeMode = GaugeMode.NONE;
         }
         ;
 
     }
 
-    void WinCheck()
+    void CheckGaugeFill()
     {
         if (gaugeFiller.fillAmount == 1f)
         {
-            EndGame();
+            isGaugeFilled = true;
         }
     }
 
-    [HorizontalGroup("A"), Button(ButtonSizes.Large), LabelText("Instant Win")]
+    [HorizontalGroup("A"), Button(ButtonSizes.Large), LabelText("Instant Win"), DisableInEditorMode]
     void EndGame()
     {
         gameObject.GetComponent<PuzzleCompletionEmitter>().onPuzzleCompleted?.Invoke();
