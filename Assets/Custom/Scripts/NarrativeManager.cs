@@ -68,6 +68,7 @@ public class NarrativeManager : SerializedMonoBehaviour
             CutsceneStore.Shot currentShot = cutsceneStore.GetShot(nextShotID);
             shotQueue.Enqueue((nextShotID, currentShot));
             GameObject newCutscene = CreateBlankCutscene();
+            newCutscene.SetActive(false);
             VideoPlayer cutscenePlayer = newCutscene.transform.Find("CutscenePlayer").GetComponent<VideoPlayer>();
             PrepareShot(currentShot, cutscenePlayer);
 
@@ -84,7 +85,7 @@ public class NarrativeManager : SerializedMonoBehaviour
     {
         currentShotID = shotQueue.Dequeue().Item1;
         GameObject cutsceneObj = cutsceneObjQueue.Dequeue();
-
+        cutsceneObj.SetActive(true);
         VideoPlayer cutscenePlayer = cutsceneObj.transform.Find("CutscenePlayer").GetComponent<VideoPlayer>();
         cutscenePlayer.Play();
         while (!cutscenePlayer.isPlaying) await Task.Yield();
