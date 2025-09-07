@@ -38,7 +38,6 @@ public class InteractableObject : SerializedMonoBehaviour
     public bool hasInspectionCamera
     {
         get { return customInspectionCamera != null; }
-        set { hasInspectionCamera = value; }
     }
     public void OnInteracted(bool val)
     {

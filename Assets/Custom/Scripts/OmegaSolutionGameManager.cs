@@ -2,11 +2,7 @@ using System.Collections;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using UnityEngine.Events;
-using System.Text;
-using Unity.Cinemachine;
 
 public class OmegaSolutionGameManager : SerializedMonoBehaviour
 {
@@ -16,7 +12,6 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     [OdinSerialize, ReadOnly] Vector2 bottomTransformAnchorPos;
     [OdinSerialize, ReadOnly] float indicatorLevel = 0f;
     [OdinSerialize, ReadOnly] bool boosting = false;
-    // [OdinSerialize, ReadOnly, LabelText("In Green Area")] bool inRange = false;
     [OdinSerialize, ReadOnly] float boostAcceleration = 0f;
     bool isGaugeFilled = false;
     float maxLevel = 100f;

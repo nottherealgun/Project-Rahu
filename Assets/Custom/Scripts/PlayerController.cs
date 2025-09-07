@@ -60,7 +60,7 @@ public class MouseRotator
 
 public class PlayerController : SerializedMonoBehaviour
 {
-    GameObject interactingObject;
+    [OdinSerialize, ReadOnly] GameObject interactingObject;
     GameObject interactingObjectMesh;
     [OdinSerialize, TabGroup("Character")] GameObject _mainCamera;
     [TabGroup("Character")] public GameObject interactingCamera;
@@ -278,17 +278,6 @@ public class PlayerController : SerializedMonoBehaviour
         OnInteractionEntered?.Invoke(isInteracting);
     }
 
-    public void OnSecondaryInteract(InputValue value)
-    {
-        if (interactingObject && interactingObject.TryGetComponent<InteractableObject>(out InteractableObject can))
-        {
-            SetIsInteracting(false);
-            UnityEngine.Object.Destroy(interactingObject);
-            interactingObject = null;
-        }
-        OnInteractionEntered?.Invoke(isInteracting);
-    }
-
     public void OnMenu(InputValue value)
     {
         if (UIManager.isGamePaused)
@@ -300,27 +289,31 @@ public class PlayerController : SerializedMonoBehaviour
             UIManager.SetCursorState(false);
             UIManager.Instance.PauseGame();
         }
-        // if (isInteracting)
-        //     SetIsInteracting(false);
     }
     public void SetIsInteracting(bool value)
     {
         if (interactingObject == null || interactingObject.TryGetComponent<InteractableObject>(out InteractableObject _item) == false) return;
+
         isInteracting = value;
         _item.OnInteracted(value);
 
-        if (!isInteracting)
-        {
-            _mouseRotator.ResetRotation(); // Reset rotation when interaction ends
-        }
+        if (isInteracting == false) _mouseRotator.ResetRotation(); // Reset rotation when interaction ends
+
         UIManager.OnTransitioned += () =>
         {
             _mainCamera.GetComponent<Camera>().cullingMask = isInteracting ? ~interactionMask : defaultMask;
         };
-        if (!_item.hasInspectionCamera)
+
+        if (_item.hasInspectionCamera == false)
             UIManager.OnTransitioned += SetInteractionCam;
 
         UIManager.Instance.ToggleTransitionPanel(isInteracting);
+
+        if (!value)
+        {
+            interactingObject = null;
+            interactingObjectMesh = null;
+        }
     }
 
     void SetInteractionCam()

@@ -1,9 +1,9 @@
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public enum PuzzleType
 {
@@ -11,7 +11,7 @@ public enum PuzzleType
     Pipes,
     CrystalCrush,
     OmegaSolution,
-    Platinum   
+    Platinum
 }
 
 public class PuzzleHandler : SerializedMonoBehaviour
@@ -21,7 +21,10 @@ public class PuzzleHandler : SerializedMonoBehaviour
     GameObject currentPuzzleManager;
     PuzzleCompletionEmitter completionEmitter;
     [OdinSerialize] UnityEvent onPuzzleCompleted;
-    void Start() {
+    [OdinSerialize, ReadOnly] string enteredCode = "";
+    int currentDigit = 0;
+    void Start()
+    {
         onPuzzleCompleted.AddListener(GameManager.Instance.OnPuzzleComplete);
     }
     public void StartPuzzle()
@@ -102,12 +105,57 @@ public class PuzzleHandler : SerializedMonoBehaviour
         onPuzzleCompleted?.Invoke();
     }
 
-    [EnableIf("puzzle", PuzzleType.CrystalCrush), Title("Crystal Crush")]
-    [EnableIf("puzzle", PuzzleType.CrystalCrush), OdinSerialize, SceneObjectsOnly] Transform crystalSpawnPos;
-    [EnableIf("puzzle", PuzzleType.CrystalCrush), OdinSerialize, AssetsOnly] GameObject[] crystalProps = new GameObject[4];
-    [EnableIf("puzzle", PuzzleType.CrystalCrush), Button(ButtonSizes.Medium)]
+    [ShowIf("puzzle", PuzzleType.CrystalCrush), Title("Crystal Crush")]
+    [ShowIf("puzzle", PuzzleType.CrystalCrush), OdinSerialize, SceneObjectsOnly] Transform crystalSpawnPos;
+    [ShowIf("puzzle", PuzzleType.CrystalCrush), OdinSerialize, AssetsOnly] GameObject[] crystalProps = new GameObject[4];
+    [ShowIf("puzzle", PuzzleType.CrystalCrush), Button(ButtonSizes.Medium)]
     public void SpawnCrystalProp()
     {
         GameObject newCrystalProp = Instantiate(crystalProps[Random.Range(0, crystalProps.Length)], crystalSpawnPos.position, Quaternion.identity);
+    }
+
+    [ShowIf("puzzle", PuzzleType.Platinum), Title("Passcode Numbers")]
+    [ShowIf("puzzle", PuzzleType.Platinum), OdinSerialize, SceneObjectsOnly]
+    Dictionary<string, List<Sprite>> numbers = new Dictionary<string, List<Sprite>>()
+    {
+        {"Purple", new List<Sprite>{} },
+        {"Green", new List<Sprite>{} },
+        {"Yellow", new List<Sprite>{} },
+        {"Red", new List<Sprite>{} }
+    };
+    List<string> colorOrder = new List<string>() { "Purple", "Green", "Yellow", "Red" };
+
+    [ShowIf("puzzle", PuzzleType.Platinum), OdinSerialize, SceneObjectsOnly] List<Image> numberImages = new List<Image>();
+
+    public void OnPanelButtonPressed(int number)
+    {
+        if (number == -1)
+        {
+            if (enteredCode.Length > 0) enteredCode = enteredCode.Substring(0, enteredCode.Length - 1);
+            if (currentDigit > 0) currentDigit--;
+            numberImages[currentDigit].sprite = null;
+            return;
+        }
+        else if (enteredCode.Length == 4)
+        {
+            enteredCode = "";
+            currentDigit = 0;
+        }
+
+        enteredCode += number.ToString();
+        numberImages[currentDigit].sprite = numbers[colorOrder[currentDigit]][number];
+        currentDigit++;
+
+        PasscodeCheck();
+    }
+
+    public void PasscodeCheck()
+    {
+        if (enteredCode == "1584")
+        {
+            print("Passcode correct! Unlocking door...");
+            completionEmitter.onPuzzleCompleted?.Invoke();
+            UIManager.SetCursorState(true);
+        }
     }
 }

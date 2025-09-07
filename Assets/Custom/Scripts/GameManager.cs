@@ -7,7 +7,7 @@ public class GameManager : SerializedMonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     [OdinSerialize] PersistentDataManager persistentDataManager;
-    UnityAction onPuzzleCompleted;
+    UnityAction OnPuzzleCompleted;
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -24,7 +24,7 @@ public class GameManager : SerializedMonoBehaviour
     void Start()
     {
         persistentDataManager = PersistentDataManager.Instance;
-        onPuzzleCompleted += StartFinalCutscene;
+        OnPuzzleCompleted += StartFinalCutscene;
     }
 
     public void OnPuzzleComplete()

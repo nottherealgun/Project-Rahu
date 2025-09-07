@@ -35,6 +35,11 @@ public class PersistentDataManager : SerializedMonoBehaviour
     [ShowInInspector, ReadOnly] public static bool isPlayerActive = false;
     [HideInInspector] public UnityAction<bool> OnPlayerFound;
 
+    void Start()
+    {
+        FindPlayer();
+    }
+
     public GameObject FindPlayer()
     {
         Player = GameObject.FindWithTag("Player");
