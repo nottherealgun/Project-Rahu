@@ -87,6 +87,7 @@ public class UIManager : SerializedMonoBehaviour
     {
         pauseMenu.SetActive(true);
         _isGamePaused = true;
+        Time.timeScale = 0f;
     }
 
     public void ResumeGame()
@@ -94,5 +95,6 @@ public class UIManager : SerializedMonoBehaviour
         SetCursorState(lastCursorState);
         pauseMenu.SetActive(false);
         _isGamePaused = false;
+        Time.timeScale = 1f;
     }
 }
