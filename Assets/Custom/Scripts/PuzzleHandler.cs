@@ -138,6 +138,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
         }
         else if (enteredCode.Length == 4)
         {
+            ResetNumberImages();
             enteredCode = "";
             currentDigit = 0;
         }
@@ -147,6 +148,14 @@ public class PuzzleHandler : SerializedMonoBehaviour
         currentDigit++;
 
         PasscodeCheck();
+    }
+
+    void ResetNumberImages()
+    {
+        foreach (Image img in numberImages)
+        {
+            img.sprite = null;
+        }
     }
 
     public void PasscodeCheck()
