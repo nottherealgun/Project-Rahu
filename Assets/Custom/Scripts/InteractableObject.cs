@@ -10,21 +10,12 @@ using Unity.Cinemachine;
 public class InteractableObject : SerializedMonoBehaviour
 {
     [SceneObjectsOnly] public GameObject itemMesh;
-    public bool isBeingInteracted;
+    public bool playerIsInteractingWith;
     public Vector3 initialPosition;
     public Quaternion initialRotation;
     public UnityEvent onEnterInteraction;
     public UnityEvent onExitedInteraction;
     GameObject _playerCharacter;
-    public GameObject playerCharacter
-    {
-        get { return _playerCharacter; }
-        set
-        {
-            _playerCharacter = value;
-            playerScript = _playerCharacter.GetComponent<PlayerController>();
-        }
-    }
     PlayerController playerScript;
     MouseRotator mouseRotator
     {
@@ -41,12 +32,17 @@ public class InteractableObject : SerializedMonoBehaviour
     }
     public void OnInteracted(bool val)
     {
-        isBeingInteracted = val;
+        playerIsInteractingWith = val;
         if (hasInspectionCamera)
             UIManager.OnTransitioned += () => SetInspectionCamera(val);
 
-        if (val == false)
+        if (playerIsInteractingWith)
         {
+            _playerCharacter = PersistentDataManager.Player;
+        }
+        else
+        {
+            // If player stops interacting with the object
             onExitedInteraction?.Invoke();
             Tween.PositionY(itemMesh.transform, endValue: initialPosition.y, duration: 1, ease: Ease.OutCubic);
             Tween.Rotation(itemMesh.transform, endValue: initialRotation, duration: 1, ease: Ease.OutCubic);
@@ -71,7 +67,7 @@ public class InteractableObject : SerializedMonoBehaviour
 
     void UpdateInteractingObjectRotation()
     {
-        if (isBeingInteracted && canBeRotated)
+        if (playerIsInteractingWith && canBeRotated)
         {
             deltaRotation = mouseRotator.UpdateRotation(Input.mousePosition, holdingMouse);
             itemMesh.transform.rotation = initialRotation * deltaRotation;

@@ -31,7 +31,8 @@ public class GameManager : SerializedMonoBehaviour
     {
         bool donePuzzle1 = persistentDataManager.puzzles[PuzzleType.CrystalCrush];
         bool donePuzzle2 = persistentDataManager.puzzles[PuzzleType.OmegaSolution];
-        if (donePuzzle1 && donePuzzle2)
+        bool donePuzzle3 = persistentDataManager.puzzles[PuzzleType.Platinum];
+        if (donePuzzle1 && donePuzzle2 && donePuzzle3)
         {
             UIManager.OnTransitioned += StartFinalCutscene;
         }

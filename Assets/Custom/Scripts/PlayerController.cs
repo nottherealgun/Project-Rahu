@@ -63,11 +63,8 @@ public class PlayerController : SerializedMonoBehaviour
     [OdinSerialize, ReadOnly] GameObject interactingObject;
     GameObject interactingObjectMesh;
     [OdinSerialize, TabGroup("Character")] GameObject _mainCamera;
-    [TabGroup("Character")] public GameObject interactingCamera;
+    [TabGroup("Character")] public GameObject playerInteractionCamera;
     [TabGroup("Character")] public GameObject followCamera;
-    bool isInteracting = false;
-    bool isObserving = true;
-
     [TabGroup("Character")]
     [OdinSerialize] InputManager _inputManager;
     [TabGroup("Character")]
@@ -139,6 +136,7 @@ public class PlayerController : SerializedMonoBehaviour
     [TabGroup("Cinemachine"), OdinSerialize] LayerMask interactionMask;
     #endregion
     // player
+    private bool isInteracting = false;
     private float _speed;
     private float _animationBlend;
     private float _targetRotation = 0.0f;
@@ -200,7 +198,6 @@ public class PlayerController : SerializedMonoBehaviour
     [OdinSerialize] AudioDataStore.DialogueLine? currentDialogueLine;
 
     [TabGroup("Events")]
-    public event UnityAction<bool> OnInteractionEntered;
     public UnityEvent onMouseHold;
     public UnityEvent onMouseRelease;
     void Awake()
@@ -232,12 +229,6 @@ public class PlayerController : SerializedMonoBehaviour
         _mouseRotator.InvertXRotation = _invertXObjectRotation;
         _mouseRotator.InvertYRotation = _invertYObjectRotation;
         defaultMask = _mainCamera.GetComponent<Camera>().cullingMask;
-
-        OnInteractionEntered += (bool val) =>
-        {
-            UIManager.lastCursorState = !val;
-            UIManager.SetCursorState(!val);
-        };
     }
 
     void Update()
@@ -272,71 +263,150 @@ public class PlayerController : SerializedMonoBehaviour
         return _mouseRotator;
     }
 
-    public void OnPrimaryInteract(InputValue value)
+    public void OnPrimaryInteract(InputValue _value)
     {
-        SetIsInteracting(!isInteracting);
-        OnInteractionEntered?.Invoke(isInteracting);
+        // If there's no interactable object in vicinity, do nothing
+        if (interactingObject == null) return;
+
+        if (isInteracting == false)
+        {
+            // If not interacting, start interaction
+            EnterInteractionWithObject();
+        }
+        else
+        {
+            // If already interacting, exit interaction
+            ExitInteractionWithObject();
+        }
+
+        // When entering/leaving interaction: initiate camera transition (fade)
+        UIManager.Instance.ToggleTransitionPanel(isInteracting);
     }
 
     public void OnMenu(InputValue value)
     {
+        // On Windows PC, Menu = ESC
         if (UIManager.isGamePaused)
         {
+            // If game was paused, resume it
             UIManager.Instance.ResumeGame();
+
+            // Not setting cursor state here, because resume game function will set it to the most recent state
         }
         else
         {
-            UIManager.SetCursorState(false);
+            // If game was not paused, pause it
             UIManager.Instance.PauseGame();
+            // Free cursor as well
+            UIManager.SetCursorState(false);
         }
     }
-    public void SetIsInteracting(bool value)
+
+    void EnterInteractionWithObject()
     {
-        if (interactingObject == null || interactingObject.TryGetComponent<InteractableObject>(out InteractableObject _item) == false) return;
+        isInteracting = true;
+        InteractableObject interactingObjScript = interactingObject.GetComponent<InteractableObject>();
 
-        isInteracting = value;
-        _item.OnInteracted(value);
+        // Emit event to notify object that interaction has started
+        interactingObjScript.OnInteracted(true);
 
-        if (isInteracting == false) _mouseRotator.ResetRotation(); // Reset rotation when interaction ends
-
+        // When transitioned to interaction...
         UIManager.OnTransitioned += () =>
         {
-            _mainCamera.GetComponent<Camera>().cullingMask = isInteracting ? ~interactionMask : defaultMask;
+            // Ignore player layer on camera
+            // (so that player model won't be seen phasing into the camera)
+            _mainCamera.GetComponent<Camera>().cullingMask = ~interactionMask;
+
+            // Enable interaction camera if the object does not have its own
+            if (interactingObjScript.hasInspectionCamera == false)
+                EnableInteractionCamera();
         };
+        
+        // Also let cursor be free
+        UIManager.SetCursorState(false);
 
-        if (_item.hasInspectionCamera == false)
-            UIManager.OnTransitioned += SetInteractionCam;
-
-        UIManager.Instance.ToggleTransitionPanel(isInteracting);
-
-        if (!value)
-        {
-            interactingObject = null;
-            interactingObjectMesh = null;
-        }
+        // Record last cursor state
+        // When unpaused, cursor state will be set to the last recorded state
+        UIManager.lastCursorState = false;
     }
 
-    void SetInteractionCam()
+    void ExitInteractionWithObject()
     {
-        interactingCamera.gameObject.SetActive(isInteracting);
-        interactingCamera.GetComponent<CinemachineCamera>().Target.TrackingTarget = interactingObject.transform;
+        isInteracting = false;
+        InteractableObject interactingObjScript = interactingObject.GetComponent<InteractableObject>();
+
+        // Emit event to notify object that interaction has finished
+        interactingObjScript.OnInteracted(false);
+
+        // When transitioned out of interaction...
+        UIManager.OnTransitioned += () =>
+        {
+            // Show all layers on camera
+            _mainCamera.GetComponent<Camera>().cullingMask = defaultMask;
+
+            // Disable interaction camera
+            DisableInteractionCamera();
+        };
+
+        // Clear interaction object references
+        interactingObject = null;
+        interactingObjectMesh = null;
+
+        // Reset mouse rotation when interaction ends
+        // (mouse rotator is used to rotate the object when interacting)
+        _mouseRotator.ResetRotation();
+
+        // Also lock cursor
+        UIManager.SetCursorState(true);
+        UIManager.lastCursorState = true;
+    }
+
+    public void ForceStopInteraction()
+    {
+        // If not interacting already, do nothing
+        if (isInteracting == false) return;
+
+        ExitInteractionWithObject();
+        UIManager.Instance.ToggleTransitionPanel(isInteracting);
+    }
+
+    void EnableInteractionCamera()
+    {
+        // If interacting, enable it
+        playerInteractionCamera.gameObject.SetActive(true);
+
+        // Make camera look at the object
+        playerInteractionCamera.GetComponent<CinemachineCamera>().Target.TrackingTarget = interactingObject.transform;
+    }
+
+    void DisableInteractionCamera()
+    {
+        // If interaction camera is already disabled, do nothing
+        if (playerInteractionCamera.gameObject.activeInHierarchy == false) return;
+
+        // Disable interaction camera
+        playerInteractionCamera.gameObject.SetActive(false);
+    }
+
+    bool IsValidInteractableObject(GameObject _obj)
+    {
+        _obj.TryGetComponent<InteractableObject>(out InteractableObject _script);
+        return _script != null;
     }
 
     void OnTriggerEnter(Collider other)
     {
-        interactingObject = other.gameObject;
-        interactingObject.TryGetComponent<InteractableObject>(out InteractableObject interactingObjScript);
-        if (interactingObjScript != null)
+        if (IsValidInteractableObject(other.gameObject))
         {
-            interactingObjectMesh = interactingObject.GetComponent<InteractableObject>().itemMesh;
-            interactingObjScript.playerCharacter = this.gameObject;
+            interactingObject = other.gameObject;
+            interactingObjectMesh = interactingObject.GetComponent<InteractableObject>().itemMesh;   
         }
     }
+
     void OnTriggerExit(Collider other)
     {
         if (interactingObject == other.gameObject)
         {
-            interactingObject.TryGetComponent<InteractableObject>(out InteractableObject interactingObjScript);
             interactingObject = null;
             interactingObjectMesh = null;
         }

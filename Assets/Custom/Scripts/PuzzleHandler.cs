@@ -59,7 +59,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
         completionEmitter = currentPuzzleManager.GetComponent<PuzzleCompletionEmitter>();
         completionEmitter.onPuzzleCompleted.AddListener(() =>
         {
-            PersistentDataManager.Player.GetComponent<PlayerController>().SetIsInteracting(false);
+            PersistentDataManager.Player.GetComponent<PlayerController>().ForceStopInteraction();
             PersistentDataManager.Instance.puzzles[puzzle] = true;
         });
 

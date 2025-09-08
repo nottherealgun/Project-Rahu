@@ -17,6 +17,7 @@ public class NarrativeManager : SerializedMonoBehaviour
     [OdinSerialize] AudioDataStore audioDataStore;
     [OdinSerialize] AudioSource cutsceneAudioSource;
     [OdinSerialize] CutsceneStore cutsceneStore;
+    [OdinSerialize] Transform cutsceneContainer;
     [OdinSerialize] int currentVoicelineID = 1;
     [OdinSerialize] string currentVoiceline = "";
     [OdinSerialize] string currentShotID = "12_01";
@@ -37,29 +38,29 @@ public class NarrativeManager : SerializedMonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
-    void Start()
-    {
-        SetupCutsceneSequence();
-    }
+    // void Start()
+    // {
+    //     SetupCutsceneSequence();
+    // }
 
     // public void StartNewGame()
     // {
-        // PlayCutsceneSequence();
-        // VoicelineStore currentVoicelineStore = AudioDataStore.Instance.scenes.scenes[currentScene - 1];
-        // AudioDataStore.DialogueLine dialogueLine = currentVoicelineStore.cutsceneVoicelines[currentVoicelineID - 1];
-        // currentVoiceline = dialogueLine.text;
+    // PlayCutsceneSequence();
+    // VoicelineStore currentVoicelineStore = AudioDataStore.Instance.scenes.scenes[currentScene - 1];
+    // AudioDataStore.DialogueLine dialogueLine = currentVoicelineStore.cutsceneVoicelines[currentVoicelineID - 1];
+    // currentVoiceline = dialogueLine.text;
     // }
 
     GameObject CreateBlankCutscene()
     {
-        GameObject newCutscene = Instantiate(cutscenePrefab, transform);
+        GameObject newCutscene = Instantiate(cutscenePrefab, cutsceneContainer);
         VideoPlayer cutscenePlayer = newCutscene.transform.Find("CutscenePlayer").GetComponent<VideoPlayer>();
         cutscenePlayer.SetTargetAudioSource(0, EnvironmentalAudioManager.Instance.cutsceneSource);
         cutsceneObjQueue.Enqueue(newCutscene);
         return newCutscene;
     }
 
-    public void SetupCutsceneSequence()
+    public void PrepareCutsceneSequence()
     {
         string nextShotID = currentShotID;
         while (true)
@@ -68,7 +69,6 @@ public class NarrativeManager : SerializedMonoBehaviour
             CutsceneStore.Shot currentShot = cutsceneStore.GetShot(nextShotID);
             shotQueue.Enqueue((nextShotID, currentShot));
             GameObject newCutscene = CreateBlankCutscene();
-            newCutscene.SetActive(false);
             VideoPlayer cutscenePlayer = newCutscene.transform.Find("CutscenePlayer").GetComponent<VideoPlayer>();
             PrepareShot(currentShot, cutscenePlayer);
 
@@ -83,9 +83,9 @@ public class NarrativeManager : SerializedMonoBehaviour
 
     public async Task PlayCutsceneSequence()
     {
+        ShowCutsceneContainer();
         currentShotID = shotQueue.Dequeue().Item1;
         GameObject cutsceneObj = cutsceneObjQueue.Dequeue();
-        cutsceneObj.SetActive(true);
         VideoPlayer cutscenePlayer = cutsceneObj.transform.Find("CutscenePlayer").GetComponent<VideoPlayer>();
         cutscenePlayer.Play();
         while (!cutscenePlayer.isPlaying) await Task.Yield();
@@ -94,18 +94,18 @@ public class NarrativeManager : SerializedMonoBehaviour
         Destroy(cutsceneObj);
         // // if shotQueue is not empty, play next shot
         if (cutsceneObjQueue.Count > 0) await PlayCutsceneSequence();
+        else HideCutsceneContainer();
     }
 
-    bool AtFinalCutscene()
+    public void InitializeCutsceneSequence(string startingShotID)
     {
-        CutsceneStore.Shot currentShot = cutsceneStore.GetShot(currentShotID);
-        return currentShot.isFinalShot;
+        currentShotID = startingShotID;
+        PrepareCutsceneSequence();
     }
 
     public async Task StartCutscene(string shotID)
     {
-        currentShotID = shotID;
-        SetupCutsceneSequence();
+        InitializeCutsceneSequence(shotID);
         await PlayCutsceneSequence();
     }
 
@@ -119,5 +119,17 @@ public class NarrativeManager : SerializedMonoBehaviour
             vp.Prepare();
         };
         return handle;
+    }
+
+    void ShowCutsceneContainer()
+    {
+        cutsceneContainer.gameObject.TryGetComponent<CanvasGroup>(out CanvasGroup _cg);
+        _cg.alpha = 1;
+    }
+
+    void HideCutsceneContainer()
+    {
+        cutsceneContainer.gameObject.TryGetComponent<CanvasGroup>(out CanvasGroup _cg);
+        _cg.alpha = 0;
     }
 }
