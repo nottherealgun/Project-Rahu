@@ -17,9 +17,8 @@ public class InputManager : SerializedMonoBehaviour
     public bool analogMovement;
 
     [Header("Mouse Cursor Settings")]
-    public bool cursorLocked = true;
-    public bool cursorInputForLook = true;
-    [OdinSerialize,ReadOnly] bool cursorIsLocked = false;
+    bool cursorLocked = true;
+    bool cursorInputForLook = true;
 
 #if ENABLE_INPUT_SYSTEM
     public void OnMove(InputValue value)
@@ -65,19 +64,5 @@ public class InputManager : SerializedMonoBehaviour
     public void SprintInput(bool newSprintState)
     {
         sprint = newSprintState;
-    }
-
-    // void OnApplicationFocus(bool hasFocus)
-    // {
-    //     SetCursorState(cursorLocked);
-    // }
-
-    // public void SetCursorState(bool newState)
-    // {
-    //     UIManager.SetCursorState(newState);
-    // }
-
-    void Update() {
-        cursorIsLocked = Cursor.lockState == CursorLockMode.Locked;
     }
 }

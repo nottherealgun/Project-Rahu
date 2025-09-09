@@ -105,12 +105,15 @@ public class NarrativeManager : SerializedMonoBehaviour
         // Destroy(cutsceneObj);
         cutsceneObj.SetActive(false);
 
+        currentShotID = currentShot.nextShotID;
+        
         // if shotQueue is not empty, play next shot
         if (currentShot.shotType == ShotType.EVENT || currentShot.isFinalShot) HideCutsceneContainer();
-        else {
-            currentShotID = currentShot.nextShotID;
+        else
+        {
             await PlayCutsceneSequence();
-        };
+        }
+        ;
     }
 
     public async Task PlaySequenceFrom(string shotID)
