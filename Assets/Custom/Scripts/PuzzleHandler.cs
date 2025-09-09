@@ -27,7 +27,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
     {
         onPuzzleCompleted.AddListener(GameManager.Instance.OnPuzzleComplete);
     }
-    public void StartPuzzle()
+    public void PreparePuzzle()
     {
         switch (puzzle)
         {
@@ -53,14 +53,18 @@ public class PuzzleHandler : SerializedMonoBehaviour
 
     async void PuzzleSetup()
     {
+        PlayerController playerController = PersistentDataManager.Player.GetComponent<PlayerController>();
+
         ScenesManager.Instance.LoadPuzzleScene(puzzleSceneName);
         await ScenesManager.Instance.LoadOperation;
         currentPuzzleManager = GameObject.Find("PuzzleManager");
         completionEmitter = currentPuzzleManager.GetComponent<PuzzleCompletionEmitter>();
         completionEmitter.onPuzzleCompleted.AddListener(() =>
         {
-            PersistentDataManager.Player.GetComponent<PlayerController>().ForceStopInteraction();
+            playerController.ForceExitInteraction();
+            playerController.DisconnectFromInteractingObject();
             PersistentDataManager.Instance.puzzles[puzzle] = true;
+            onPuzzleCompleted?.Invoke();
         });
 
         switch (puzzle)
@@ -80,7 +84,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
         }
     }
 
-    public void EndPuzzle()
+    public void UnloadPuzzle()
     {
         switch (puzzle)
         {
@@ -102,7 +106,6 @@ public class PuzzleHandler : SerializedMonoBehaviour
         PersistentDataManager.Instance.puzzles[puzzle] = true;
         currentPuzzleManager = null;
         completionEmitter = null;
-        onPuzzleCompleted?.Invoke();
     }
 
     [ShowIf("puzzle", PuzzleType.CrystalCrush), Title("Crystal Crush")]

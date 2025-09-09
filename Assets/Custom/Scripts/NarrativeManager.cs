@@ -8,6 +8,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine;
 using System.Threading.Tasks;
 using UnityEngine.Events;
+using Unity.VisualScripting;
 [Serializable]
 public class NarrativeManager : SerializedMonoBehaviour
 {
@@ -20,10 +21,23 @@ public class NarrativeManager : SerializedMonoBehaviour
     [OdinSerialize] Transform cutsceneContainer;
     [OdinSerialize] int currentVoicelineID = 1;
     [OdinSerialize] string currentVoiceline = "";
-    [OdinSerialize] string currentShotID = "12_01";
+    [OdinSerialize] string currentShotID = "";
     [OdinSerialize, AssetsOnly] GameObject cutscenePrefab;
-    [OdinSerialize, ReadOnly] Queue<(string, CutsceneStore.Shot)> shotQueue = new Queue<(string, CutsceneStore.Shot)>();
-    [OdinSerialize, ReadOnly] Queue<GameObject> cutsceneObjQueue = new Queue<GameObject>();
+    // [OdinSerialize, ReadOnly] Queue<(string, CutsceneStore.Shot)> shotQueue = new Queue<(string, CutsceneStore.Shot)>();
+    struct Cutscene
+    {
+        public string shotID;
+        public CutsceneStore.Shot shotData;
+        public GameObject cutsceneObj;
+        public Cutscene(string id, CutsceneStore.Shot data, GameObject obj)
+        {
+            shotID = id;
+            shotData = data;
+            cutsceneObj = obj;
+        }
+    }
+    [OdinSerialize, ReadOnly] Dictionary<string, Cutscene> shotDict = new Dictionary<string, Cutscene>();
+    // [OdinSerialize, ReadOnly] Queue<GameObject> cutsceneObjQueue = new Queue<GameObject>();
     GameObject player;
     void Awake()
     {
@@ -38,25 +52,17 @@ public class NarrativeManager : SerializedMonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
-    // void Start()
-    // {
-    //     SetupCutsceneSequence();
-    // }
-
-    // public void StartNewGame()
-    // {
-    // PlayCutsceneSequence();
-    // VoicelineStore currentVoicelineStore = AudioDataStore.Instance.scenes.scenes[currentScene - 1];
-    // AudioDataStore.DialogueLine dialogueLine = currentVoicelineStore.cutsceneVoicelines[currentVoicelineID - 1];
-    // currentVoiceline = dialogueLine.text;
-    // }
+    void Start()
+    {
+        PrepareCutsceneSequenceFrom("12_01");
+    }
 
     GameObject CreateBlankCutscene()
     {
         GameObject newCutscene = Instantiate(cutscenePrefab, cutsceneContainer);
         VideoPlayer cutscenePlayer = newCutscene.transform.Find("CutscenePlayer").GetComponent<VideoPlayer>();
         cutscenePlayer.SetTargetAudioSource(0, EnvironmentalAudioManager.Instance.cutsceneSource);
-        cutsceneObjQueue.Enqueue(newCutscene);
+        // cutsceneObjQueue.Enqueue(newCutscene);
         return newCutscene;
     }
 
@@ -67,12 +73,14 @@ public class NarrativeManager : SerializedMonoBehaviour
         {
             // enqueue loop until the shot is an EVENT shot, nextPlayer final shot or nextShot doesn't exist
             CutsceneStore.Shot currentShot = cutsceneStore.GetShot(nextShotID);
-            shotQueue.Enqueue((nextShotID, currentShot));
+            // shotQueue.Enqueue((nextShotID, currentShot));
             GameObject newCutscene = CreateBlankCutscene();
+            shotDict[nextShotID] = new Cutscene(nextShotID, currentShot, newCutscene);
+            newCutscene.name = $"Cutscene_{nextShotID}";
             VideoPlayer cutscenePlayer = newCutscene.transform.Find("CutscenePlayer").GetComponent<VideoPlayer>();
             PrepareShot(currentShot, cutscenePlayer);
 
-            if (currentShot.isFinalShot || currentShot.shotType != ShotType.LINEAR || currentShot.nextShotID == "")
+            if (currentShot.isFinalShot || currentShot.nextShotID == "")
             {
                 break;
             }
@@ -84,20 +92,34 @@ public class NarrativeManager : SerializedMonoBehaviour
     public async Task PlayCutsceneSequence()
     {
         ShowCutsceneContainer();
-        currentShotID = shotQueue.Dequeue().Item1;
-        GameObject cutsceneObj = cutsceneObjQueue.Dequeue();
+
+        CutsceneStore.Shot currentShot = shotDict[currentShotID].shotData;
+        GameObject cutsceneObj = shotDict[currentShotID].cutsceneObj;
         VideoPlayer cutscenePlayer = cutsceneObj.transform.Find("CutscenePlayer").GetComponent<VideoPlayer>();
+
         cutscenePlayer.Play();
+
         while (!cutscenePlayer.isPlaying) await Task.Yield();
         while (cutscenePlayer.isPlaying) await Task.Yield();
 
-        Destroy(cutsceneObj);
-        // // if shotQueue is not empty, play next shot
-        if (cutsceneObjQueue.Count > 0) await PlayCutsceneSequence();
-        else HideCutsceneContainer();
+        // Destroy(cutsceneObj);
+        cutsceneObj.SetActive(false);
+
+        // if shotQueue is not empty, play next shot
+        if (currentShot.shotType == ShotType.EVENT || currentShot.isFinalShot) HideCutsceneContainer();
+        else {
+            currentShotID = currentShot.nextShotID;
+            await PlayCutsceneSequence();
+        };
     }
 
-    public void InitializeCutsceneSequence(string startingShotID)
+    public async Task PlaySequenceFrom(string shotID)
+    {
+        currentShotID = shotID;
+        await PlayCutsceneSequence();
+    }
+
+    public void PrepareCutsceneSequenceFrom(string startingShotID)
     {
         currentShotID = startingShotID;
         PrepareCutsceneSequence();
@@ -105,7 +127,7 @@ public class NarrativeManager : SerializedMonoBehaviour
 
     public async Task StartCutscene(string shotID)
     {
-        InitializeCutsceneSequence(shotID);
+        PrepareCutsceneSequenceFrom(shotID);
         await PlayCutsceneSequence();
     }
 

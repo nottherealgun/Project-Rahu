@@ -6,7 +6,6 @@ public class MainMenu : Menu
     void Start()
     {
         EnvironmentalAudioManager.Instance.PlayMusic("main_menu_music");
-        NarrativeManager.Instance.InitializeCutsceneSequence("12_01");
     }
 
     public void ButtonPressed(string _button)
@@ -35,7 +34,6 @@ public class MainMenu : Menu
         ScenesManager.Instance.ShowLoadingScreen();
         await ScenesManager.Instance.LoadScene("CH02_SC12");
         ScenesManager.Instance.HideLoadingScreen();
-        // await NarrativeManager.Instance.StartCutscene("12_01");
         await NarrativeManager.Instance.PlayCutsceneSequence();
         UIManager.SetCursorState(true);
         PersistentDataManager.Instance.ResetPuzzleData();
@@ -45,6 +43,9 @@ public class MainMenu : Menu
 
     async void OpenSettingsMenu()
     {
+        ScenesManager.Instance.ShowLoadingScreen();
         await ScenesManager.Instance.LoadScene("Settings");
+        ScenesManager.Instance.HideLoadingScreen();
+        ScenesManager.Instance.ShowScene();
     }
 }

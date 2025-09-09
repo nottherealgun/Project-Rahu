@@ -15,7 +15,15 @@ public class InteractableObject : SerializedMonoBehaviour
     public Quaternion initialRotation;
     public UnityEvent onEnterInteraction;
     public UnityEvent onExitedInteraction;
-    GameObject _playerCharacter;
+    GameObject _playerCharacter
+    {
+        get { return PersistentDataManager.Player; }
+        set
+        {
+            if (ReferenceEquals(_playerCharacter, value)) return;
+            _playerCharacter = value;
+        }
+    }
     PlayerController playerScript;
     MouseRotator mouseRotator
     {
@@ -33,25 +41,27 @@ public class InteractableObject : SerializedMonoBehaviour
     public void OnInteracted(bool val)
     {
         playerIsInteractingWith = val;
+        _playerCharacter = PersistentDataManager.Player;
+
         if (hasInspectionCamera)
             UIManager.OnTransitioned += () => SetInspectionCamera(val);
 
         if (playerIsInteractingWith)
         {
-            _playerCharacter = PersistentDataManager.Player;
+            onEnterInteraction?.Invoke();
+            if (canBeRotated)
+                Tween.PositionY(itemMesh.transform, endValue: initialPosition.y + 0.1f, duration: 1, ease: Ease.OutCubic);
         }
         else
         {
             // If player stops interacting with the object
             onExitedInteraction?.Invoke();
-            Tween.PositionY(itemMesh.transform, endValue: initialPosition.y, duration: 1, ease: Ease.OutCubic);
-            Tween.Rotation(itemMesh.transform, endValue: initialRotation, duration: 1, ease: Ease.OutCubic);
-            return;
+            if (canBeRotated)
+            {
+                Tween.PositionY(itemMesh.transform, endValue: initialPosition.y, duration: 1, ease: Ease.OutCubic);
+                Tween.Rotation(itemMesh.transform, endValue: initialRotation, duration: 1, ease: Ease.OutCubic);   
+            }
         }
-
-        onEnterInteraction?.Invoke();
-        if (canBeRotated)
-            Tween.PositionY(itemMesh.transform, endValue: initialPosition.y + 0.1f, duration: 1, ease: Ease.OutCubic);
     }
 
     void Start()

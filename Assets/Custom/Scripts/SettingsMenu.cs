@@ -1,13 +1,17 @@
-using Sirenix.Serialization;
-using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class SettingsMenu : Menu
 {
-    void Update() {
-        if(UI["cancel"].triggered)
-        {
-            ScenesManager.Instance.LoadScene("MainMenu");
-        }
+    public void OnMenu(InputValue value)
+    {
+        LoadMainMenu();
+    }
+
+    public async void LoadMainMenu()
+    {
+        ScenesManager.Instance.ShowLoadingScreen();
+        await ScenesManager.Instance.LoadScene("MainMenu");
+        ScenesManager.Instance.HideLoadingScreen();
+        ScenesManager.Instance.ShowScene();
     }
 }

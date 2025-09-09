@@ -41,7 +41,7 @@ public class GameManager : SerializedMonoBehaviour
     async void StartFinalCutscene()
     {
         UIManager.SetCursorState(false);
-        await NarrativeManager.Instance.StartCutscene("12_02");
+        await NarrativeManager.Instance.PlayCutsceneSequence();
         ScenesManager.Instance.ShowLoadingScreen();
         await ScenesManager.Instance.LoadScene("MainMenu");
         ScenesManager.Instance.HideLoadingScreen();

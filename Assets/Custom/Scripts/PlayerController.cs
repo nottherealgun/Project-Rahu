@@ -278,9 +278,6 @@ public class PlayerController : SerializedMonoBehaviour
             // If already interacting, exit interaction
             ExitInteractionWithObject();
         }
-
-        // When entering/leaving interaction: initiate camera transition (fade)
-        UIManager.Instance.ToggleTransitionPanel(isInteracting);
     }
 
     public void OnMenu(InputValue value)
@@ -321,13 +318,16 @@ public class PlayerController : SerializedMonoBehaviour
             if (interactingObjScript.hasInspectionCamera == false)
                 EnableInteractionCamera();
         };
-        
+
         // Also let cursor be free
         UIManager.SetCursorState(false);
 
         // Record last cursor state
         // When unpaused, cursor state will be set to the last recorded state
         UIManager.lastCursorState = false;
+
+        // Camera transition in (fade)
+        UIManager.Instance.ToggleTransitionPanel(true);
     }
 
     void ExitInteractionWithObject()
@@ -348,10 +348,6 @@ public class PlayerController : SerializedMonoBehaviour
             DisableInteractionCamera();
         };
 
-        // Clear interaction object references
-        interactingObject = null;
-        interactingObjectMesh = null;
-
         // Reset mouse rotation when interaction ends
         // (mouse rotator is used to rotate the object when interacting)
         _mouseRotator.ResetRotation();
@@ -359,15 +355,24 @@ public class PlayerController : SerializedMonoBehaviour
         // Also lock cursor
         UIManager.SetCursorState(true);
         UIManager.lastCursorState = true;
+
+        // Camera transition out (fade)
+        UIManager.Instance.ToggleTransitionPanel(false);
     }
 
-    public void ForceStopInteraction()
+    public void DisconnectFromInteractingObject()
+    {
+        // Clear interaction object references
+        interactingObject = null;
+        interactingObjectMesh = null;
+    }
+
+    public void ForceExitInteraction()
     {
         // If not interacting already, do nothing
         if (isInteracting == false) return;
 
         ExitInteractionWithObject();
-        UIManager.Instance.ToggleTransitionPanel(isInteracting);
     }
 
     void EnableInteractionCamera()
@@ -407,8 +412,7 @@ public class PlayerController : SerializedMonoBehaviour
     {
         if (interactingObject == other.gameObject)
         {
-            interactingObject = null;
-            interactingObjectMesh = null;
+            DisconnectFromInteractingObject();
         }
     }
 
