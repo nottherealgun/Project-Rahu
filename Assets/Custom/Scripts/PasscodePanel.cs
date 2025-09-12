@@ -58,6 +58,8 @@ public class PasscodePanel : SerializedMonoBehaviour
 
     public void OnPanelButtonPressed(int number)
     {
+        EnvironmentalAudioManager.Instance.PlaySFX("passcode_button_pressed");
+
         if (number == -1)
         {
             if (enteredCode.Length > 0) enteredCode = enteredCode.Substring(0, enteredCode.Length - 1);
@@ -76,7 +78,7 @@ public class PasscodePanel : SerializedMonoBehaviour
         numberImages[currentDigit].sprite = numbers[colorOrder[currentDigit]][number];
         currentDigit++;
 
-        PasscodeCheck();
+        UnlockIfPasscodeCorrect();
     }
 
     void ResetNumberImages()
@@ -87,20 +89,25 @@ public class PasscodePanel : SerializedMonoBehaviour
         }
     }
 
-    public void PasscodeCheck()
+    public bool UnlockIfPasscodeCorrect()
     {
+        if (enteredCode.Length != 4) return false;
         if (enteredCode == "1584")
         {
             PersistentDataManager.Instance.puzzles[PuzzleType.Platinum] = true;
             onUnlocked?.Invoke();
             UIManager.SetCursorState(true);
+            EnvironmentalAudioManager.Instance.PlaySFX("passcode_correct");
+            return true;
         }
+        EnvironmentalAudioManager.Instance.PlaySFX("passcode_wrong");
+        return false;
     }
 
     [Button(ButtonSizes.Large)]
     void ForceUnlock()
     {
         enteredCode = "1584";
-        PasscodeCheck();
+        UnlockIfPasscodeCorrect();
     }
 }
