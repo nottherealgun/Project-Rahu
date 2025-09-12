@@ -19,9 +19,9 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
     [TabGroup("Sources")]
-    [OdinSerialize] GameObject sfxSource;
+    [OdinSerialize] GameObject sfxPrefab;
     [TabGroup("Sources")]
-    [OdinSerialize] GameObject nsSfxSource;
+    [OdinSerialize] GameObject nonSpatialSfxPrefab;
     [TabGroup("Sources")]
     [OdinSerialize] AudioSource musicSource;
     [TabGroup("Sources")]
@@ -52,7 +52,8 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
             PlaySFX(trackName, false);
             return;
         }
-        GameObject newSFXSource = Instantiate(sfxSource);
+        GameObject newSFXSource = Instantiate(sfxPrefab);
+        newSFXSource.name = "SFX_" + trackName;
         newSFXSource.transform.position = transform.position;
         newSFXSource.GetComponent<AudioSource>().clip = track;
         newSFXSource.GetComponent<AudioSource>().Play();
@@ -68,7 +69,8 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
             PlaySFX(trackName, random);
             return;
         }
-        GameObject newSFXSource = Instantiate(sfxSource);
+        GameObject newSFXSource = Instantiate(sfxPrefab);
+        newSFXSource.name = "SFX_" + trackName;
         newSFXSource.transform.position = transform.position;
         newSFXSource.GetComponent<AudioSource>().clip = track;
         newSFXSource.GetComponent<AudioSource>().Play();
@@ -81,7 +83,8 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
         if (random)
             variant = UnityEngine.Random.Range(0, tracks.sfx[trackName].Count);
         AudioClip track = tracks.sfx[trackName][variant];
-        GameObject newSFXSource = Instantiate(nsSfxSource);
+        GameObject newSFXSource = Instantiate(nonSpatialSfxPrefab);
+        newSFXSource.name = "SFX_" + trackName;
         newSFXSource.GetComponent<AudioSource>().clip = track;
         newSFXSource.GetComponent<AudioSource>().Play();
         newSFXSource.GetComponent<DestroyOnAudioFinish>().CheckAudioFinish();
@@ -90,7 +93,8 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
     public void PlaySFX(string trackName, int variant) // variant, no random
     {
         AudioClip track = tracks.sfx[trackName][variant];
-        GameObject newSFXSource = Instantiate(nsSfxSource);
+        GameObject newSFXSource = Instantiate(nonSpatialSfxPrefab);
+        newSFXSource.name = "SFX_" + trackName;
         newSFXSource.GetComponent<AudioSource>().clip = track;
         newSFXSource.GetComponent<AudioSource>().Play();
         newSFXSource.GetComponent<DestroyOnAudioFinish>().CheckAudioFinish();
@@ -99,10 +103,40 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
     public void PlaySFX(string trackName)
     {
         AudioClip track = tracks.sfx[trackName][0]; // Assuming the first variant is the UI sound
-        GameObject newSFXSource = Instantiate(nsSfxSource);
+        GameObject newSFXSource = Instantiate(nonSpatialSfxPrefab);
+        newSFXSource.name = "SFX_" + trackName;
         newSFXSource.GetComponent<AudioSource>().clip = track;
         newSFXSource.GetComponent<AudioSource>().Play();
         newSFXSource.GetComponent<DestroyOnAudioFinish>().CheckAudioFinish();
+    }
+
+    public void PlayLoopingSFX(string trackName)
+    {
+        if (LoopingSFXExists(trackName)) return;
+        AudioClip track = tracks.sfx[trackName][0]; // Assuming the first variant is the looping sound
+        GameObject newSFXSource = Instantiate(sfxPrefab, transform);
+        newSFXSource.name = "SFX_" + trackName;
+        newSFXSource.transform.position = transform.position;
+        AudioSource source = newSFXSource.GetComponent<AudioSource>();
+        source.clip = track;
+        source.loop = true;
+        source.Play();
+    }
+
+    public void StopLoopingSFX(string trackName)
+    {
+        if(!LoopingSFXExists(trackName)) return;
+        GameObject newSource = transform.Find("SFX_" + trackName).gameObject;
+        if (newSource != null)
+        {
+            newSource.GetComponent<AudioSource>().Stop();
+            Destroy(newSource);
+        }
+    }
+
+    bool LoopingSFXExists(string trackName)
+    {
+        return transform.Find("SFX_" + trackName) != null;
     }
 
     public void PlayMusic(string trackName)
@@ -122,8 +156,30 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
         ambienceSource.Play();
     }
 
+    public void PlayPersistingAmbience(string trackName)
+    {
+        if (PersistingAmbienceExists(trackName)) return;
+        AudioSource newSource = Instantiate(ambienceSource, this.transform);
+        newSource.name = "AMB_" + trackName;
+        newSource.clip = tracks.ambience[trackName];
+        newSource.Play();
+    }
+
     public void StopAmbience()
     {
         ambienceSource.Stop();
+    }
+
+    public void StopPersistingAmbience(string trackName)
+    {
+        if (!PersistingAmbienceExists(trackName)) return;
+        GameObject newSource = transform.Find("AMB_" + trackName).gameObject;
+        newSource.GetComponent<AudioSource>().Stop();
+        Destroy(newSource);
+    }
+    
+    bool PersistingAmbienceExists(string trackName)
+    {
+        return transform.Find("AMB_" + trackName) != null;
     }
 }

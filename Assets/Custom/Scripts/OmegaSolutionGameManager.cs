@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
@@ -37,11 +38,17 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     [InfoBox("How fast the Left Bar\'s progress DROPS per frame (Max prog. is 1.0)")]
     [OdinSerialize, DisableInPlayMode] float progressDropRate = 0.0006f;
 
+    string currentlyPlayingBoilingSFX = "";
+    const int HIGH_BOILING_POINT_IDX = 2;
+    const int MID_BOILING_POINT_IDX = 1;
+    const int LOW_BOILING_POINT_IDX = 0;
+    List<string> boilingSFXNames = new List<string> { "chemical_boil_low", "chemical_boil_mid", "chemical_boil_high" };
+
     void Start()
     {
         bottomTransformAnchorPos = indicator.GetComponent<RectTransform>().anchoredPosition;
         gaugeFiller.fillAmount = 0f;
-        
+
         SetRandomYellowFillerPos();
     }
 
@@ -74,6 +81,11 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
             }
         }
         CheckGaugeFill();
+    }
+
+    void OnDestroy()
+    {
+        EndGame();
     }
 
     void CheckAndClampIndicatorLevel()
@@ -116,21 +128,25 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     public void OnGreenFillEntered(GameObject triggerObj)
     {
         currentGaugeMode = GaugeMode.FILLING_FAST;
+        PlayBoilingSFX(HIGH_BOILING_POINT_IDX);
     }
 
     public void OnGreenFillExited(GameObject triggerObj)
     {
         currentGaugeMode = GaugeMode.FILLING;
+        PlayBoilingSFX(MID_BOILING_POINT_IDX);
     }
 
     public void OnYellowFillEntered(GameObject triggerObj)
     {
         currentGaugeMode = GaugeMode.FILLING;
+        PlayBoilingSFX(MID_BOILING_POINT_IDX);
     }
 
     public void OnYellowFillExited(GameObject triggerObj)
     {
         currentGaugeMode = GaugeMode.DEPLETING;
+        PlayBoilingSFX(LOW_BOILING_POINT_IDX);
     }
 
     void AnimateVisuals()
@@ -162,7 +178,9 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     {
         gameObject.GetComponent<PuzzleCompletionEmitter>().onPuzzleCompleted?.Invoke();
         UIManager.SetCursorState(true);
+        StopBoilingSFX();
     }
+
     [HorizontalGroup("A"), Button("Reset Values", ButtonSizes.Large), DisableInPlayMode]
     void ResetProgressRates()
     {
@@ -170,5 +188,32 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         boostDecelerationRate = 0.002f;
         progressRiseRate = 0.0002f;
         progressDropRate = 0.0006f;
+    }
+
+    void PlayBoilingSFX(int boilingLevel)
+    {
+        string newBoilingSFX = boilingSFXNames[boilingLevel];
+
+        // If the same boiling SFX is already playing, do nothing
+        if (newBoilingSFX == currentlyPlayingBoilingSFX) return;
+
+        // If a different boiling SFX is playing, stop it first
+        else if (currentlyPlayingBoilingSFX != "")
+        {
+            EnvironmentalAudioManager.Instance.StopLoopingSFX(currentlyPlayingBoilingSFX);
+        }
+
+        // Play the new boiling SFX
+        currentlyPlayingBoilingSFX = newBoilingSFX;
+        EnvironmentalAudioManager.Instance.PlayLoopingSFX(newBoilingSFX);
+    }
+
+    void StopBoilingSFX()
+    {
+        if (currentlyPlayingBoilingSFX != "")
+        {
+            EnvironmentalAudioManager.Instance.StopLoopingSFX(currentlyPlayingBoilingSFX);
+            currentlyPlayingBoilingSFX = "";
+        }
     }
 }

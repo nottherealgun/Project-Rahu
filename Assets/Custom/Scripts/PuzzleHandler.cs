@@ -75,6 +75,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
                 script.onKeyCrystalCollected.AddListener(SpawnCrystalProp);
                 break;
             case PuzzleType.OmegaSolution:
+                EnvironmentalAudioManager.Instance.PlayPersistingAmbience("chemical_stirring");
                 break;
             case PuzzleType.Platinum:
                 break;
@@ -94,6 +95,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
                 script.onKeyCrystalCollected.RemoveAllListeners();
                 break;
             case PuzzleType.OmegaSolution:
+                EnvironmentalAudioManager.Instance.StopPersistingAmbience("chemical_stirring");
                 break;
         }
 
