@@ -8,67 +8,18 @@ using Sirenix.Serialization;
 using UnityEngine.UI;
 using UnityEngine.Events;
 
-public class MouseRotator
-{
-
-    public float RotationSpeed { get; set; } = 0.5f;
-    public bool InvertXRotation { get; set; } = false;
-    public bool InvertYRotation { get; set; } = false;
-    private Vector2 _lastMousePosition;
-
-    private Quaternion _currentRotation = Quaternion.identity; // Using Quaternion.identity for Unity
-
-    public MouseRotator(Vector2 initialMousePosition)
-    {
-        _lastMousePosition = initialMousePosition;
-    }
-
-    public Quaternion UpdateRotation(Vector2 currentMousePosition, bool isDragging)
-    {
-        if (isDragging)
-        {
-            // Calculate the change in mouse position since the last frame
-            Vector2 mouseDelta = currentMousePosition - _lastMousePosition;
-
-            float rotationAmountX = mouseDelta.y * RotationSpeed * (InvertXRotation ? -1f : 1f);
-            float rotationAmountY = mouseDelta.x * RotationSpeed * (InvertYRotation ? -1f : 1f);
-
-            Quaternion pitchRotation = Quaternion.AngleAxis(rotationAmountX, Vector3.right); // Rotate around object's local right
-            Quaternion yawRotation = Quaternion.AngleAxis(rotationAmountY, Vector3.up);    // Rotate around world up (for turntable)
-
-            _currentRotation = yawRotation * pitchRotation * _currentRotation;
-
-            _currentRotation = Quaternion.Normalize(_currentRotation);
-        }
-        _lastMousePosition = currentMousePosition;
-
-        return _currentRotation;
-    }
-    public void ResetRotation()
-    {
-        _currentRotation = Quaternion.identity;
-    }
-    public void SetRotation(Quaternion newRotation)
-    {
-        _currentRotation = newRotation;
-    }
-    public Quaternion GetCurrentRotation()
-    {
-        return _currentRotation;
-    }
-}
-
 public class PlayerController : SerializedMonoBehaviour
 {
     [OdinSerialize, ReadOnly] GameObject interactingObject;
     GameObject interactingObjectMesh;
-    [OdinSerialize, TabGroup("Character")] GameObject _mainCamera;
-    [TabGroup("Character")] public GameObject playerInteractionCamera;
+    [OdinSerialize, TabGroup("Character")] GameObject mainCamera;
+    [TabGroup("Character")] public GameObject mainInteractionCamera;
+    [TabGroup("Character"), ReadOnly] public GameObject currentInteractionCamera;
     [TabGroup("Character")] public GameObject followCamera;
     [TabGroup("Character")]
     [OdinSerialize] InputManager _inputManager;
     [TabGroup("Character")]
-    [OdinSerialize] bool holdingMouse = false;
+    [OdinSerialize, ReadOnly] bool holdingMouse = false;
     #region "PHYSICS"
     [TabGroup("Physics")]
     [Tooltip("Move speed of the character in m/s")]
@@ -129,11 +80,13 @@ public class PlayerController : SerializedMonoBehaviour
     [TabGroup("Cinemachine")]
     [Tooltip("For locking the camera position on all axis")]
     public bool LockCameraPosition = false;
-
     private float _cinemachineTargetYaw;
     private float _cinemachineTargetPitch;
-    [TabGroup("Cinemachine"), OdinSerialize, ReadOnly] LayerMask defaultMask;
-    [TabGroup("Cinemachine"), OdinSerialize] LayerMask interactionMask;
+    [TabGroup("Cinemachine"), OdinSerialize, ReadOnly]
+    LayerMask defaultMask;
+    [TabGroup("Cinemachine"), OdinSerialize]
+    [InfoBox("The layers to ignore when in interaction mode (so that player model won't be seen phasing into the camera)")]
+    LayerMask interactionMask;
     #endregion
     // player
     private bool isInteracting = false;
@@ -177,18 +130,7 @@ public class PlayerController : SerializedMonoBehaviour
 #endif
         }
     }
-
-    private Vector3 currentRotationOffset;
-    private float rotationSpeed = 5f;
-    private MouseRotator _mouseRotator;
-    private Quaternion _initialObjectRotationOnDragStart;
-
-    [Tooltip("Adjusts the speed of rotation for interacting objects. Higher values mean faster rotation.")]
-    private float _objectRotationSpeed = 0.5f;
-    [Tooltip("Inverts vertical mouse movement for object rotation.")]
-    private bool _invertXObjectRotation = false;
-    [Tooltip("Inverts horizontal mouse movement for object rotation.")]
-    private bool _invertYObjectRotation = false;
+    const float ZoomIntensity = 2f;
 
     [FoldoutGroup("Audio")]
     [OdinSerialize] AudioSource voiceSource;
@@ -196,22 +138,18 @@ public class PlayerController : SerializedMonoBehaviour
     [OdinSerialize] bool speaking = false;
     [FoldoutGroup("Audio")]
     [OdinSerialize] AudioDataStore.DialogueLine? currentDialogueLine;
-
-    [TabGroup("Events")]
-    public UnityEvent onMouseHold;
-    public UnityEvent onMouseRelease;
-    void Awake()
+    void Start()
     {
         // get a reference to our main camera
-        if (_mainCamera == null)
-            _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+        if (mainCamera == null)
+            mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
 
         if (followCamera == null)
             followCamera = GameObject.Find("FollowCamera");
 
-    }
-    void Start()
-    {
+        currentInteractionCamera = mainInteractionCamera;
+        SetupInteractionCam();
+        
         _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
 
         _hasAnimator = TryGetComponent(out _animator);
@@ -223,12 +161,7 @@ public class PlayerController : SerializedMonoBehaviour
         // reset our timeouts on start
         _jumpTimeoutDelta = JumpTimeout;
         _fallTimeoutDelta = FallTimeout;
-
-        _mouseRotator = new MouseRotator(Input.mousePosition);
-        _mouseRotator.RotationSpeed = _objectRotationSpeed;
-        _mouseRotator.InvertXRotation = _invertXObjectRotation;
-        _mouseRotator.InvertYRotation = _invertYObjectRotation;
-        defaultMask = _mainCamera.GetComponent<Camera>().cullingMask;
+        defaultMask = mainCamera.GetComponent<Camera>().cullingMask;
     }
 
     void Update()
@@ -248,19 +181,43 @@ public class PlayerController : SerializedMonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             holdingMouse = true;
-            onMouseHold?.Invoke();
         }
         // End dragging when mouse button is released
         else if (Input.GetMouseButtonUp(0))
         {
             holdingMouse = false;
-            onMouseRelease?.Invoke();
+        }
+
+        UpdateZoom();
+    }
+
+    float minZoom;
+    float maxZoom;
+
+    void SetupInteractionCam()
+    {
+        CinemachineCamera currentCinemachineCam = currentInteractionCamera.GetComponent<CinemachineCamera>();
+        maxZoom = currentCinemachineCam.Lens.FieldOfView;
+        minZoom = maxZoom - (maxZoom/3f);
+    }
+
+    void UpdateZoom()
+    {
+        // if mouse scroll up/down, zoom in/out interaction camera
+        CinemachineCamera currentCinemachineCam = currentInteractionCamera.GetComponent<CinemachineCamera>();
+
+        if (Input.mouseScrollDelta.y != 0)
+        {
+            float scrollAmount = Input.mouseScrollDelta.y; // Adjust the multiplier to control zoom speed
+            currentCinemachineCam.Lens.FieldOfView -= scrollAmount * ZoomIntensity;
+            currentCinemachineCam.Lens.FieldOfView = Mathf.Clamp(currentCinemachineCam.Lens.FieldOfView, minZoom, maxZoom);
         }
     }
 
-    public MouseRotator GetMouseRotator()
+    void ResetZoom()
     {
-        return _mouseRotator;
+        CinemachineCamera currentCinemachineCam = currentInteractionCamera.GetComponent<CinemachineCamera>();
+        currentCinemachineCam.Lens.FieldOfView = maxZoom;
     }
 
     public void OnPrimaryInteract(InputValue _value)
@@ -307,17 +264,31 @@ public class PlayerController : SerializedMonoBehaviour
         // Emit event to notify object that interaction has started
         interactingObjScript.OnInteracted(true);
 
-        // When transitioned to interaction...
-        UIManager.OnTransitioned += () =>
+        // isInstantInteraction = Have interaction sequence or Want animations/fading
+        if (interactingObjScript.isInstantInteraction == false)
         {
-            // Ignore player layer on camera
-            // (so that player model won't be seen phasing into the camera)
-            _mainCamera.GetComponent<Camera>().cullingMask = ~interactionMask;
+            currentInteractionCamera = interactingObjScript.GetInspectionCamera();
+            SetupInteractionCam();
 
-            // Enable interaction camera if the object does not have its own
-            if (interactingObjScript.hasInspectionCamera == false)
-                EnableInteractionCamera();
-        };
+            // When transitioned to interaction...
+            UIManager.OnTransitioned += () =>
+            {
+                // Ignore player layer on camera
+                // (so that player model won't be seen phasing into the camera)
+                mainCamera.GetComponent<Camera>().cullingMask = ~interactionMask;
+
+                // Enable interaction camera if the object does not have its own
+                if (interactingObjScript.hasInspectionCamera == false)
+                    EnableInteractionCamera();
+            };
+            // Camera transition in (fade)
+            UIManager.Instance.ToggleTransitionPanel(true);
+        }
+        else
+        {
+            currentInteractionCamera = mainInteractionCamera;
+            DisconnectFromInteractingObject();
+        }
 
         // Also let cursor be free
         UIManager.SetCursorState(false);
@@ -325,9 +296,6 @@ public class PlayerController : SerializedMonoBehaviour
         // Record last cursor state
         // When unpaused, cursor state will be set to the last recorded state
         UIManager.lastCursorState = false;
-
-        // Camera transition in (fade)
-        UIManager.Instance.ToggleTransitionPanel(true);
     }
 
     void ExitInteractionWithObject()
@@ -342,15 +310,18 @@ public class PlayerController : SerializedMonoBehaviour
         UIManager.OnTransitioned += () =>
         {
             // Show all layers on camera
-            _mainCamera.GetComponent<Camera>().cullingMask = defaultMask;
+            mainCamera.GetComponent<Camera>().cullingMask = defaultMask;
 
             // Disable interaction camera
             DisableInteractionCamera();
+
+            // Reset interactingCamera zoom
+            ResetZoom();
         };
 
         // Reset mouse rotation when interaction ends
         // (mouse rotator is used to rotate the object when interacting)
-        _mouseRotator.ResetRotation();
+        interactingObjScript.ResetRotation();
 
         // Also lock cursor
         UIManager.SetCursorState(true);
@@ -365,6 +336,7 @@ public class PlayerController : SerializedMonoBehaviour
         // Clear interaction object references
         interactingObject = null;
         interactingObjectMesh = null;
+        isInteracting = false;
     }
 
     public void ForceExitInteraction()
@@ -378,19 +350,19 @@ public class PlayerController : SerializedMonoBehaviour
     void EnableInteractionCamera()
     {
         // If interacting, enable it
-        playerInteractionCamera.gameObject.SetActive(true);
+        currentInteractionCamera.gameObject.SetActive(true);
 
         // Make camera look at the object
-        playerInteractionCamera.GetComponent<CinemachineCamera>().Target.TrackingTarget = interactingObject.transform;
+        currentInteractionCamera.GetComponent<CinemachineCamera>().Target.TrackingTarget = interactingObject.transform;
     }
 
     void DisableInteractionCamera()
     {
         // If interaction camera is already disabled, do nothing
-        if (playerInteractionCamera.gameObject.activeInHierarchy == false) return;
+        if (currentInteractionCamera.gameObject.activeInHierarchy == false) return;
 
         // Disable interaction camera
-        playerInteractionCamera.gameObject.SetActive(false);
+        currentInteractionCamera.gameObject.SetActive(false);
     }
 
     bool IsValidInteractableObject(GameObject _obj)
@@ -515,7 +487,7 @@ public class PlayerController : SerializedMonoBehaviour
         if (_input.move != Vector2.zero)
         {
             _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
-                              _mainCamera.transform.eulerAngles.y;
+                              mainCamera.transform.eulerAngles.y;
             float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
                 RotationSmoothTime);
 
