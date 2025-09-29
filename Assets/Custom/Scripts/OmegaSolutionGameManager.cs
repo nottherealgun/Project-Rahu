@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
@@ -23,20 +24,19 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     }
 
     [OdinSerialize] GameObject yellowFiller;
-
+    [OdinSerialize] Button ejectButton;
     [OdinSerialize, ReadOnly] GaugeMode currentGaugeMode = GaugeMode.NONE;
-
     [Title("Progress Rates")]
-    [OdinSerialize, DisableInPlayMode]
+    [OdinSerialize]
     [InfoBox("How fast the Right Bar\'s indicator accelerates per frame")]
     float boostAccelerationRate = 0.0005f;
-    [OdinSerialize, DisableInPlayMode]
+    [OdinSerialize]
     [InfoBox("How fast the Right Bar\'s indicator decelerates per frame")]
     float boostDecelerationRate = 0.002f;
     [InfoBox("How fast the Left Bar\'s progress RISES per frame (Max prog. is 1.0)")]
-    [OdinSerialize, DisableInPlayMode] float progressRiseRate = 0.0002f;
+    [OdinSerialize] float progressRiseRate = 0.0002f;
     [InfoBox("How fast the Left Bar\'s progress DROPS per frame (Max prog. is 1.0)")]
-    [OdinSerialize, DisableInPlayMode] float progressDropRate = 0.0006f;
+    [OdinSerialize] float progressDropRate = 0.0006f;
 
     string currentlyPlayingBoilingSFX = "";
     const int HIGH_BOILING_POINT_IDX = 2;
@@ -44,18 +44,29 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     const int LOW_BOILING_POINT_IDX = 0;
     List<string> boilingSFXNames = new List<string> { "chemical_boil_low", "chemical_boil_mid", "chemical_boil_high" };
 
+    Vector3 startingFillerPos;
+    Vector3 currentFillerPos;
+
+    int round = 1;
+
     void Start()
     {
         bottomTransformAnchorPos = indicator.GetComponent<RectTransform>().anchoredPosition;
         gaugeFiller.fillAmount = 0f;
+        startingFillerPos = yellowFiller.GetComponent<RectTransform>().anchoredPosition;
+        currentFillerPos = startingFillerPos;
 
         SetRandomYellowFillerPos();
     }
 
     private void SetRandomYellowFillerPos()
     {
-        Vector3 oldPos = yellowFiller.GetComponent<RectTransform>().anchoredPosition;
-        yellowFiller.GetComponent<RectTransform>().anchoredPosition = oldPos + Vector3.down * UnityEngine.Random.Range(0, 930f);
+        Vector3 previousFillerPos = currentFillerPos;
+        while (Math.Abs(previousFillerPos.y - currentFillerPos.y) <= 150f)
+        {
+            yellowFiller.GetComponent<RectTransform>().anchoredPosition = startingFillerPos + Vector3.down * UnityEngine.Random.Range(0, 930f);
+            currentFillerPos = yellowFiller.GetComponent<RectTransform>().anchoredPosition;
+        }
     }
 
     void Update()
@@ -85,7 +96,7 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
 
     void OnDestroy()
     {
-        EndGame();
+        LeaveGame();
     }
 
     void CheckAndClampIndicatorLevel()
@@ -169,15 +180,28 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     {
         if (gaugeFiller.fillAmount == 1f)
         {
-            isGaugeFilled = true;
+            if (IsChemicalsComplete())
+            {
+                isGaugeFilled = true;
+                ejectButton.interactable = true;
+                return;
+            }
+            StartNewRound();
         }
+    }
+
+    void LeaveGame()
+    {
+        UIManager.LockCursor(true);
+        StopBoilingSFX();
+        EnvironmentalAudioManager.Instance.StopMusic();
     }
 
     [HorizontalGroup("A"), Button(ButtonSizes.Large), LabelText("Instant Win"), DisableInEditorMode]
     void EndGame()
     {
         gameObject.GetComponent<PuzzleCompletionEmitter>().onPuzzleCompleted?.Invoke();
-        UIManager.SetCursorState(true);
+        UIManager.LockCursor(true);
         StopBoilingSFX();
     }
 
@@ -215,5 +239,17 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
             EnvironmentalAudioManager.Instance.StopLoopingSFX(currentlyPlayingBoilingSFX);
             currentlyPlayingBoilingSFX = "";
         }
+    }
+
+    bool IsChemicalsComplete()
+    {
+        return round > 3;
+    }
+
+    void StartNewRound()
+    {
+        round++;
+        SetRandomYellowFillerPos();
+        gaugeFiller.fillAmount = 0;
     }
 }

@@ -148,6 +148,7 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
     public void StopMusic()
     {
         musicSource.Stop();
+        musicSource.clip = null;
     }
 
     public void PlayAmbience(string trackName)

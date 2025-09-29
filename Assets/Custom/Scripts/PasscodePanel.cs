@@ -24,6 +24,7 @@ public class PasscodePanel : SerializedMonoBehaviour
     [OdinSerialize, SceneObjectsOnly] List<Image> numberImages = new List<Image>();
     [OdinSerialize] GameObject screenBlocker;
     public UnityEvent onUnlocked;
+    [OdinSerialize] Animator doorController;
 
     void Start()
     {
@@ -45,7 +46,6 @@ public class PasscodePanel : SerializedMonoBehaviour
         PlayerController playerController = PersistentDataManager.Player.GetComponent<PlayerController>();
         onUnlocked.AddListener(() =>
         {
-            GameManager.Instance.OnPuzzleComplete();
             playerController.ForceExitInteraction();
             playerController.DisconnectFromInteractingObject();
         });
@@ -94,9 +94,9 @@ public class PasscodePanel : SerializedMonoBehaviour
         if (enteredCode.Length != 4) return false;
         if (enteredCode == "1584")
         {
-            PersistentDataManager.Instance.puzzles[PuzzleType.Platinum] = true;
             onUnlocked?.Invoke();
-            UIManager.SetCursorState(true);
+            doorController.SetTrigger("DoorUnlocked");
+            UIManager.LockCursor(true);
             EnvironmentalAudioManager.Instance.PlaySFX("passcode_correct");
             return true;
         }

@@ -45,10 +45,10 @@ public class PuzzleHandler : SerializedMonoBehaviour
                 break;
         }
 
-        UIManager.OnTransitioned += PuzzleSetup;
+        UIManager.OnTransitioned += SetupPuzzle;
     }
 
-    async void PuzzleSetup()
+    async void SetupPuzzle()
     {
         PlayerController playerController = PersistentDataManager.Player.GetComponent<PlayerController>();
 
@@ -75,6 +75,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
                 script.onKeyCrystalCollected.AddListener(SpawnCrystalProp);
                 break;
             case PuzzleType.OmegaSolution:
+                EnvironmentalAudioManager.Instance.PlayMusic("chemical_puzzle_bgm");
                 EnvironmentalAudioManager.Instance.PlayPersistingAmbience("chemical_stirring");
                 break;
             case PuzzleType.Platinum:
@@ -93,6 +94,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
             case PuzzleType.CrystalCrush:
                 CrystalCrushGameManager script = currentPuzzleManager.GetComponent<CrystalCrushGameManager>();
                 script.onKeyCrystalCollected.RemoveAllListeners();
+                EnvironmentalAudioManager.Instance.StopMusic();
                 break;
             case PuzzleType.OmegaSolution:
                 EnvironmentalAudioManager.Instance.StopPersistingAmbience("chemical_stirring");

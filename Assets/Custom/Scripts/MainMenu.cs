@@ -1,11 +1,24 @@
+using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.Events;
+using TMPro;
+using UnityEditor;
+using UnityEngine.ResourceManagement.Profiling;
+using uLipSync;
+using UnityEditor.Rendering;
+using Sirenix.OdinInspector.Editor.Internal;
 public class MainMenu : Menu
 {
     UnityAction onButtonPressed;
+    [OdinSerialize] TMP_Text gameVersionText;
     void Start()
     {
+        UIManager.LockCursor(false);
         EnvironmentalAudioManager.Instance.PlayMusic("main_menu_music");
+        gameVersionText.text = "build " + Application.version;
+        gameVersionText.text += "\nUnity: " + Application.unityVersion;
+
+        NarrativeManager.Instance.PrepareCutsceneSequenceFrom("12_01");
     }
 
     public void ButtonPressed(string _button)
@@ -35,7 +48,7 @@ public class MainMenu : Menu
         await ScenesManager.Instance.LoadScene("CH02_SC12");
         ScenesManager.Instance.HideLoadingScreen();
         await NarrativeManager.Instance.PlayCutsceneSequence();
-        UIManager.SetCursorState(true);
+        UIManager.LockCursor(true);
         PersistentDataManager.Instance.ResetPuzzleData();
         ScenesManager.Instance.ShowScene();
         PersistentDataManager.Instance.FindPlayer();

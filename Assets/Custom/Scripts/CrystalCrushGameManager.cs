@@ -609,7 +609,7 @@ public class CrystalCrushGameManager : SerializedMonoBehaviour
     void EndGame()
     {
         gameObject.GetComponent<PuzzleCompletionEmitter>().onPuzzleCompleted?.Invoke();
-        UIManager.SetCursorState(true);
+        UIManager.LockCursor(true);
     }
 
     [HorizontalGroup("A"),Button(ButtonSizes.Large), DisableInEditorMode]

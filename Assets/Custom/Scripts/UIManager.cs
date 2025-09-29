@@ -39,7 +39,8 @@ public class UIManager : SerializedMonoBehaviour
         PersistentDataManager.Instance.OnPlayerFound += OnPlayerSearchStatus;
     }
 
-    public static void SetCursorState(bool newState)
+    [Button(ButtonSizes.Large)]
+    public static void LockCursor(bool newState)
     {
         // true = locked, false = unlocked
         Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
@@ -92,9 +93,21 @@ public class UIManager : SerializedMonoBehaviour
 
     public void ResumeGame()
     {
-        SetCursorState(lastCursorState);
+        LockCursor(lastCursorState);
         pauseMenu.SetActive(false);
         _isGamePaused = false;
         Time.timeScale = 1f;
+    }
+
+    public void ShowInteractionPrompt()
+    {
+        if (_HUD.gameObject.activeInHierarchy) return;
+        _HUD.gameObject.SetActive(true);
+    }
+
+    public void HideInteractionPrompt()
+    {
+        if (_HUD.gameObject.activeInHierarchy == false) return;
+        _HUD.gameObject.SetActive(false);
     }
 }

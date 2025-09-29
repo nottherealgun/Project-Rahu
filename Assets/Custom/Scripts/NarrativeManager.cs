@@ -52,11 +52,6 @@ public class NarrativeManager : SerializedMonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
-    void Start()
-    {
-        PrepareCutsceneSequenceFrom("12_01");
-    }
-
     GameObject CreateBlankCutscene()
     {
         GameObject newCutscene = Instantiate(cutscenePrefab, cutsceneContainer);

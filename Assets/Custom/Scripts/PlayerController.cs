@@ -196,6 +196,7 @@ public class PlayerController : SerializedMonoBehaviour
 
     void SetupInteractionCam()
     {
+        if (currentInteractionCamera == null) currentInteractionCamera = mainInteractionCamera;
         CinemachineCamera currentCinemachineCam = currentInteractionCamera.GetComponent<CinemachineCamera>();
         maxZoom = currentCinemachineCam.Lens.FieldOfView;
         minZoom = maxZoom - (maxZoom/3f);
@@ -252,7 +253,7 @@ public class PlayerController : SerializedMonoBehaviour
             // If game was not paused, pause it
             UIManager.Instance.PauseGame();
             // Free cursor as well
-            UIManager.SetCursorState(false);
+            UIManager.LockCursor(false);
         }
     }
 
@@ -291,11 +292,13 @@ public class PlayerController : SerializedMonoBehaviour
         }
 
         // Also let cursor be free
-        UIManager.SetCursorState(false);
+        UIManager.LockCursor(false);
 
         // Record last cursor state
         // When unpaused, cursor state will be set to the last recorded state
         UIManager.lastCursorState = false;
+
+        UIManager.Instance.HideInteractionPrompt();
     }
 
     void ExitInteractionWithObject()
@@ -324,7 +327,7 @@ public class PlayerController : SerializedMonoBehaviour
         interactingObjScript.ResetRotation();
 
         // Also lock cursor
-        UIManager.SetCursorState(true);
+        UIManager.LockCursor(true);
         UIManager.lastCursorState = true;
 
         // Camera transition out (fade)
@@ -376,7 +379,8 @@ public class PlayerController : SerializedMonoBehaviour
         if (IsValidInteractableObject(other.gameObject))
         {
             interactingObject = other.gameObject;
-            interactingObjectMesh = interactingObject.GetComponent<InteractableObject>().itemMesh;   
+            interactingObjectMesh = interactingObject.GetComponent<InteractableObject>().itemMesh;
+            UIManager.Instance.ShowInteractionPrompt();   
         }
     }
 
@@ -385,6 +389,7 @@ public class PlayerController : SerializedMonoBehaviour
         if (interactingObject == other.gameObject)
         {
             DisconnectFromInteractingObject();
+            UIManager.Instance.HideInteractionPrompt();
         }
     }
 
@@ -646,6 +651,6 @@ public class PlayerController : SerializedMonoBehaviour
     }
     void OnDestroy()
     {
-        UIManager.SetCursorState(false);
+        UIManager.LockCursor(false);
     }
 }

@@ -40,13 +40,14 @@ public class GameManager : SerializedMonoBehaviour
         }
         if (donePuzzle3)
         {
-            UIManager.OnTransitioned += StartFinalCutscene;
+            // UIManager.OnTransitioned += StartFinalCutscene;
+            StartFinalCutscene();
         }
     }
 
     async void StartFinalCutscene()
     {
-        UIManager.SetCursorState(false);
+        UIManager.LockCursor(false);
         await NarrativeManager.Instance.PlayCutsceneSequence();
         ScenesManager.Instance.ShowLoadingScreen();
         await ScenesManager.Instance.LoadScene("MainMenu");
