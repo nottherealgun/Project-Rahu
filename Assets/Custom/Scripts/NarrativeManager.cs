@@ -7,8 +7,6 @@ using UnityEngine.Video;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine;
 using System.Threading.Tasks;
-using UnityEngine.Events;
-using Unity.VisualScripting;
 [Serializable]
 public class NarrativeManager : SerializedMonoBehaviour
 {
@@ -19,6 +17,8 @@ public class NarrativeManager : SerializedMonoBehaviour
     [OdinSerialize] AudioSource cutsceneAudioSource;
     [OdinSerialize] CutsceneStore cutsceneStore;
     [OdinSerialize] Transform cutsceneContainer;
+
+    [OdinSerialize] VoicelineManager voicelineManager;
     [OdinSerialize] int currentVoicelineID = 1;
     [OdinSerialize] string currentVoiceline = "";
     [OdinSerialize] string currentShotID = "";
@@ -50,6 +50,11 @@ public class NarrativeManager : SerializedMonoBehaviour
         Instance = this;
 
         DontDestroyOnLoad(this.gameObject);
+    }
+
+    void Start()
+    {
+        TryGetComponent<VoicelineManager>(out voicelineManager);
     }
 
     GameObject CreateBlankCutscene()

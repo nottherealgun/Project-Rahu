@@ -37,6 +37,9 @@ public class InteractableObject : SerializedMonoBehaviour
     {
         get { return customInspectionCamera != null; }
     }
+
+    [OdinSerialize] GameObject interactionPrompt;
+
     public void OnInteracted(bool val)
     {
         isBeingInteractedWith = val;
@@ -46,15 +49,18 @@ public class InteractableObject : SerializedMonoBehaviour
 
         if (isBeingInteractedWith)
         {
+            DeactivatePrompt();
             onEnterInteraction?.Invoke();
             if (canBeRotated)
             {
                 // Tween.PositionY(itemMesh.transform, endValue: initialPosition.y + 0.15f, duration: 1, ease: Ease.OutCubic);
                 Tween.PositionY(transform, endValue: initialPosition.y + 0.15f, duration: 1, ease: Ease.OutCubic);
             }
+
         }
         else
         {
+            UIManager.OnTransitioned += () => ActivatePrompt();
             // If player stops interacting with the object
             onExitedInteraction?.Invoke();
         }
@@ -122,6 +128,46 @@ public class InteractableObject : SerializedMonoBehaviour
     public GameObject GetInspectionCamera()
     {
         return customInspectionCamera;
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            ShowPrompt();
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            HidePrompt();
+        }
+    }
+
+    void ActivatePrompt()
+    {
+        if (interactionPrompt == null) return;
+        interactionPrompt.SetActive(true);
+    }
+
+    void DeactivatePrompt()
+    {
+        if (interactionPrompt == null) return;
+        interactionPrompt.SetActive(false);
+    }
+
+    void ShowPrompt()
+    {
+        if (interactionPrompt == null) return;
+        interactionPrompt.GetComponent<InteractionPrompt>().ShowPrompt();
+    }
+
+    void HidePrompt()
+    {
+        if (interactionPrompt == null) return;
+        interactionPrompt.GetComponent<InteractionPrompt>().HidePrompt();
     }
 }
 

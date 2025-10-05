@@ -297,8 +297,6 @@ public class PlayerController : SerializedMonoBehaviour
         // Record last cursor state
         // When unpaused, cursor state will be set to the last recorded state
         UIManager.lastCursorState = false;
-
-        UIManager.Instance.HideInteractionPrompt();
     }
 
     void ExitInteractionWithObject()
@@ -380,7 +378,6 @@ public class PlayerController : SerializedMonoBehaviour
         {
             interactingObject = other.gameObject;
             interactingObjectMesh = interactingObject.GetComponent<InteractableObject>().itemMesh;
-            UIManager.Instance.ShowInteractionPrompt();   
         }
     }
 
@@ -389,7 +386,6 @@ public class PlayerController : SerializedMonoBehaviour
         if (interactingObject == other.gameObject)
         {
             DisconnectFromInteractingObject();
-            UIManager.Instance.HideInteractionPrompt();
         }
     }
 

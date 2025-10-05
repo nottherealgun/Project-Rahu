@@ -2,11 +2,6 @@ using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
-using UnityEditor;
-using UnityEngine.ResourceManagement.Profiling;
-using uLipSync;
-using UnityEditor.Rendering;
-using Sirenix.OdinInspector.Editor.Internal;
 public class MainMenu : Menu
 {
     UnityAction onButtonPressed;
