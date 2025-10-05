@@ -5,12 +5,12 @@ using UnityEngine.Events;
 using System.Threading.Tasks;
 using Sirenix.Serialization;
 using Sirenix.OdinInspector;
+using TMPro;
 
 public class UIManager : SerializedMonoBehaviour
 {
     public static UIManager Instance { get; private set; }
     public static event UnityAction OnTransitioned;
-    [OdinSerialize] GameObject _HUD;
     [OdinSerialize] GameObject _transitionPanel;
     [OdinSerialize] Image _transitionPanelImage;
     [OdinSerialize] GameObject pauseMenu;
@@ -18,6 +18,12 @@ public class UIManager : SerializedMonoBehaviour
     static bool _isGamePaused = false;
     public static bool isGamePaused { get { return _isGamePaused; } }
     public static bool lastCursorState = true;
+
+    [Title("PDA Menu")]
+    [OdinSerialize] GameObject pdaMenu;
+    [OdinSerialize] TMP_Text pdaHeader;
+    [OdinSerialize] TMP_Text pdaBody;
+    [OdinSerialize] Image pdaImage;
 
     void Awake()
     {
@@ -99,15 +105,34 @@ public class UIManager : SerializedMonoBehaviour
         Time.timeScale = 1f;
     }
 
-    public void ShowInteractionPrompt()
+    public void SetupPDA(string header, string body, Sprite image)
     {
-        if (_HUD.gameObject.activeInHierarchy) return;
-        _HUD.gameObject.SetActive(true);
+        pdaHeader.text = header;
+        pdaBody.text = body;
+        pdaImage.sprite = image;
     }
 
-    public void HideInteractionPrompt()
+    public void OpenPDA()
     {
-        if (_HUD.gameObject.activeInHierarchy == false) return;
-        _HUD.gameObject.SetActive(false);
+        pdaMenu.SetActive(true);
+        LockCursor(false);
+        if (playerController != null) playerController.enabled = false;
+    }
+
+    public void ClosePDA()
+    {
+        pdaMenu.SetActive(false);
+        LockCursor(lastCursorState);
+        if (playerController != null) playerController.enabled = true;
+    }
+
+    public void HideAllPrompts()
+    {
+        GameObject.Find("BillboardCamera").GetComponent<Camera>().enabled = false;
+    }
+
+    public void ShowAllPrompts()
+    {
+        GameObject.Find("BillboardCamera").GetComponent<Camera>().enabled = true;
     }
 }
