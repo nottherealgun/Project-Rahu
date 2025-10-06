@@ -27,7 +27,7 @@ public class InteractableObject : SerializedMonoBehaviour
     bool holdingMouse;
     Quaternion deltaRotation;
     [Tooltip("Adjusts the speed of rotation for interacting objects. Higher values mean faster rotation.")]
-    float _objectRotationSpeed = 0.5f;
+    float _objectRotationSpeed = 0.05f;
     [Tooltip("Inverts vertical mouse movement for object rotation.")]
     bool _invertXObjectRotation = false;
     [Tooltip("Inverts horizontal mouse movement for object rotation.")]
