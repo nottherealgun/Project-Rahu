@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Sirenix.Serialization;
 using Sirenix.OdinInspector;
 using Newtonsoft.Json;
+using UnityEngine.Events;
 
 public class VoicelineManager : SerializedMonoBehaviour
 {
@@ -21,6 +22,8 @@ public class VoicelineManager : SerializedMonoBehaviour
         public Dictionary<string, VoicelineData> eventBased;
         public Dictionary<string, List<VoicelineData>> randomBased;
     }
+
+    public UnityAction OnVoicelinePackDictEmpty;
 
     public class VoicelineData
     {
@@ -46,7 +49,6 @@ public class VoicelineManager : SerializedMonoBehaviour
     {
         await InitializeVoicelinePackOf(NarrativeManager.currentScene.name);
         NarrativeManager.currentScene.characters = currentVoicelinePack.characters;
-        // print(currentVoicelinePack.randomBased["random"][0].dialogueText);
     }
 
     async Task InitializeVoicelinePackOf(string sceneName)
@@ -104,12 +106,12 @@ public class VoicelineManager : SerializedMonoBehaviour
     public async Task<AudioClip> LoadAudio(string fileName)
     {
         string address = VoicelinesPath + $"SC{NarrativeManager.currentScene.name}/" + fileName;
-        print(address);
         AsyncOperationHandle<AudioClip> handle = Addressables.LoadAssetAsync<AudioClip>(address);
         await handle.Task;
 
         if (handle.Status == AsyncOperationStatus.Succeeded)
         {
+            print("Playing audio: " + fileName);
             return handle.Result;
         }
         else
@@ -126,7 +128,7 @@ public class VoicelineManager : SerializedMonoBehaviour
         await CharacterSpeak(ProjectRahu.VoicelineType.RandomBased, "random");
     }
 
-    public async Task CharacterSpeak(ProjectRahu.VoicelineType voicelineType, string voicelineKey)
+    public async Task CharacterSpeak(ProjectRahu.VoicelineType voicelineType, string voicelineKey, bool removeOnUse = true)
     {
         VoicelineData data = null;
         switch (voicelineType)
@@ -141,10 +143,18 @@ public class VoicelineManager : SerializedMonoBehaviour
                 if (currentVoicelinePack.randomBased.ContainsKey(voicelineKey))
                 {
                     List<VoicelineData> voicelines = currentVoicelinePack.randomBased[voicelineKey];
-                    if (voicelines.Count == 0) return;
+
+                    if (voicelines.Count == 0)
+                    {
+                        OnVoicelinePackDictEmpty?.Invoke();
+                        return;
+                    }
+                    
 
                     int randomIndex = Random.Range(0, voicelines.Count);
                     data = voicelines[randomIndex];
+
+                    if (removeOnUse) currentVoicelinePack.randomBased[voicelineKey].RemoveAt(randomIndex);
                 }
                 break;
         }

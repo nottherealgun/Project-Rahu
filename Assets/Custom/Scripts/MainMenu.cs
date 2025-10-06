@@ -46,7 +46,7 @@ public class MainMenu : Menu
         ScenesManager.Instance.ShowScene();
         PersistentDataManager.Instance.FindPlayer();
 
-        await VoicelineManager.Instance.CharacterSpeak(ProjectRahu.VoicelineType.RandomBased, "random");
+        await NarrativeManager.Instance.LateSetup();
     }
 
     async void OpenSettingsMenu()

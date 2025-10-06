@@ -25,6 +25,9 @@ public class UIManager : SerializedMonoBehaviour
     [OdinSerialize] TMP_Text pdaBody;
     [OdinSerialize] Image pdaImage;
 
+    [Title("Subtitles")]
+    [OdinSerialize] TMP_Text subtitleText;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -134,5 +137,23 @@ public class UIManager : SerializedMonoBehaviour
     public void ShowAllPrompts()
     {
         GameObject.Find("BillboardCamera").GetComponent<Camera>().enabled = true;
+    }
+
+    Sequence? subtitleSeq;
+    public void DisplaySubtitle(string text)
+    {
+        subtitleText.text = text;
+        subtitleText.color = new Color(subtitleText.color.r, subtitleText.color.g, subtitleText.color.b, 1f);
+        
+        // Tween out the text opacity after 5 seconds
+        subtitleSeq?.Stop();
+        subtitleSeq = Sequence.Create()
+            .ChainDelay(5f)
+            .Chain(Tween.Custom(1f, 0f, duration: 5f, onValueChange: newVal => subtitleText.color = new Color(subtitleText.color.r, subtitleText.color.g, subtitleText.color.b, newVal)))
+            .OnComplete(() =>
+            {
+                subtitleText.text = "";
+                subtitleText.color = new Color(subtitleText.color.r, subtitleText.color.g, subtitleText.color.b, 1f);
+            });
     }
 }

@@ -31,6 +31,16 @@ public class PersistentDataManager : SerializedMonoBehaviour
         { PuzzleType.OmegaSolution   , false },
         { PuzzleType.Platinum        , false }
     };
+
+    [OdinSerialize, TabGroup("tab1", "Game Data")]
+    [DictionaryDrawerSettings(KeyLabel = "Event", ValueLabel = "Is Completed?")]
+    public Dictionary<string, bool> oneShotEvent = new Dictionary<string, bool>
+    {
+        { "checkedFuse" , false },
+        { "gemGameFinished", false },
+        { "chemicalGameFinished", false },
+        { "passcodeTerminalAccessed", false }
+    };
     [ShowInInspector, ReadOnly] public static GameObject Player = null;
     [ShowInInspector, ReadOnly] public static bool isPlayerActive = false;
     [HideInInspector] public UnityAction<bool> OnPlayerFound;
@@ -62,5 +72,19 @@ public class PersistentDataManager : SerializedMonoBehaviour
             { PuzzleType.OmegaSolution   , false },
             { PuzzleType.Platinum        , false }
         };
+    }
+
+    public bool HasEventPassed(string eventName)
+    {
+        if (oneShotEvent.ContainsKey(eventName))
+            return oneShotEvent[eventName];
+        else
+            return false;
+    }
+
+    public void MarkEventAsPassed(string eventName)
+    {
+        if (oneShotEvent.ContainsKey(eventName))
+            oneShotEvent[eventName] = true;
     }
 }

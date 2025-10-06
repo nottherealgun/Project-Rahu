@@ -7,6 +7,7 @@ using UnityEngine.Video;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine;
 using System.Threading.Tasks;
+using System.Collections;
 
 public class ProjectRahu
 {
@@ -87,6 +88,34 @@ public class NarrativeManager : SerializedMonoBehaviour
         PrepareCutsceneSequenceFrom($"{setupSceneName}_{setupStartingShotID}");
 
         VoicelineManager.Instance.Setup();
+        VoicelineManager.Instance.OnVoicelinePackDictEmpty += () =>
+        {
+            StopAllCoroutines();
+        };
+    }
+
+    public async Task LateSetup()
+    {
+        // Everything here happens after the scene is loaded and objects in the scene are active
+
+        // Force someone to randomly speak (removeOnUse = true)
+        await VoicelineManager.Instance.CharacterSpeak(ProjectRahu.VoicelineType.RandomBased, "random");
+
+        StartCoroutine(SpeakRandomLineAfterInterval());
+    }
+
+    IEnumerator SpeakRandomLineAfterInterval()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(UnityEngine.Random.Range(10f, 30f));
+            yield return VoicelineManager.Instance.CharacterSpeak(ProjectRahu.VoicelineType.RandomBased, "random");
+        }
+    }
+
+    public async void CharacterSpeak(string lineName)
+    {
+        await VoicelineManager.Instance.CharacterSpeak(ProjectRahu.VoicelineType.EventBased, lineName);
     }
 
     GameObject CreateBlankCutscene()

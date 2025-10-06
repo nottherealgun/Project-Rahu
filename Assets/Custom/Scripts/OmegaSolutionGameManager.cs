@@ -203,6 +203,10 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         gameObject.GetComponent<PuzzleCompletionEmitter>().onPuzzleCompleted?.Invoke();
         UIManager.LockCursor(true);
         StopBoilingSFX();
+
+        if (PersistentDataManager.Instance.HasEventPassed("chemicalGameFinished")) return;
+        NarrativeManager.Instance.CharacterSpeak("chemicalGameFinished");
+        PersistentDataManager.Instance.MarkEventAsPassed("chemicalGameFinished");
     }
 
     [HorizontalGroup("A"), Button("Reset Values", ButtonSizes.Large), DisableInPlayMode]

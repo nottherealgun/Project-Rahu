@@ -51,10 +51,10 @@ public class PasscodePanel : SerializedMonoBehaviour
         });
     }
 
-    public void Close()
-    {
-        onUnlocked.RemoveAllListeners();
-    }
+    // public void Close()
+    // {
+    //     onUnlocked.RemoveAllListeners();
+    // }
 
     public void OnPanelButtonPressed(int number)
     {
@@ -98,6 +98,10 @@ public class PasscodePanel : SerializedMonoBehaviour
             doorController.SetTrigger("DoorUnlocked");
             UIManager.LockCursor(true);
             EnvironmentalAudioManager.Instance.PlaySFX("passcode_correct");
+
+            if (PersistentDataManager.Instance.HasEventPassed("passcodeTerminalAccessed")) return true;
+            NarrativeManager.Instance.CharacterSpeak("passcodeTerminalAccessed");
+            PersistentDataManager.Instance.MarkEventAsPassed("passcodeTerminalAccessed");
             return true;
         }
         EnvironmentalAudioManager.Instance.PlaySFX("passcode_wrong");
@@ -109,5 +113,13 @@ public class PasscodePanel : SerializedMonoBehaviour
     {
         enteredCode = "1584";
         UnlockIfPasscodeCorrect();
+    }
+
+    public void CheckFuse()
+    {
+        if (PersistentDataManager.Instance.HasEventPassed("checkedFuse")) return;
+        NarrativeManager.Instance.CharacterSpeak("blownFuse");
+        PersistentDataManager.Instance.MarkEventAsPassed("checkedFuse");
+        GetComponent<InteractableObject>().onEnterInteraction.RemoveListener(CheckFuse);
     }
 }

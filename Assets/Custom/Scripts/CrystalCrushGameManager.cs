@@ -37,6 +37,8 @@ class CrystalGameGrid : SerializedMonoBehaviour
     int columns = 5;
     public float swapSpeed = 0.5f;
     int generatedKeyCrystals = 0;
+    int keyCrystalsOnScreen = 0;
+    int keyCrystalsOnScreenLimit = 2;
     bool[,] initialCrystalMatrix = new bool[9, 5]
     {
         { false, false, false, false, false },
@@ -95,6 +97,7 @@ class CrystalGameGrid : SerializedMonoBehaviour
         if (crystalType == Crystal.crystalTypeAmnt - 1)
         {
             generatedKeyCrystals++;
+            keyCrystalsOnScreen++;
         }
         return _crystalPrefab;
     }
@@ -102,7 +105,8 @@ class CrystalGameGrid : SerializedMonoBehaviour
     GameObject CreateCrystal(Vector2Int gridPos)
     {
         // creates crystal instance at {position} with {crystalType} crystal type
-        int crystalType = Crystal.GetRandomCrystalType((generatedKeyCrystals < keyCrystalAmntLimit) ? true : false);
+        bool canGenerateKeyCrystal = (keyCrystalsOnScreen < keyCrystalsOnScreenLimit) && (generatedKeyCrystals < keyCrystalAmntLimit);
+        int crystalType = Crystal.GetRandomCrystalType(canGenerateKeyCrystal);
         return CreateCrystal(gridPos, crystalType);
     }
 
@@ -446,6 +450,7 @@ class CrystalGameGrid : SerializedMonoBehaviour
                     // crystal.SetActive(false);
                     KeyCrystalCollected?.Invoke();
                     continueRefill = true;
+                    keyCrystalsOnScreen--;
                 }
             }
         }
@@ -610,6 +615,11 @@ public class CrystalCrushGameManager : SerializedMonoBehaviour
     {
         gameObject.GetComponent<PuzzleCompletionEmitter>().onPuzzleCompleted?.Invoke();
         UIManager.LockCursor(true);
+
+        if (PersistentDataManager.Instance.HasEventPassed("gemGameFinished")) return;
+
+        NarrativeManager.Instance.CharacterSpeak("gemGameFinished");
+        PersistentDataManager.Instance.MarkEventAsPassed("gemGameFinished");
     }
 
     [HorizontalGroup("A"),Button(ButtonSizes.Large), DisableInEditorMode]
