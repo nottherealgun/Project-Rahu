@@ -1,14 +1,13 @@
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Animations;
+using UnityEngine.UI;
 
 public class InteractionPrompt : SerializedMonoBehaviour
 {
     public bool active = false;
-    [OdinSerialize] GameObject InactivePrompt;
-    [OdinSerialize] GameObject ActivePrompt;
+    [OdinSerialize] GameObject inactivePrompt;
+    [OdinSerialize] GameObject activePrompt;
     GameObject player;
     void Start()
     {
@@ -21,8 +20,8 @@ public class InteractionPrompt : SerializedMonoBehaviour
     {
         if (active) return;
         active = true;
-        InactivePrompt.SetActive(false);
-        ActivePrompt.SetActive(true);
+        inactivePrompt.SetActive(false);
+        activePrompt.SetActive(true);
     }
 
     [Button(ButtonSizes.Large)]
@@ -30,8 +29,8 @@ public class InteractionPrompt : SerializedMonoBehaviour
     {
         if (!active) return;
         active = false;
-        InactivePrompt.SetActive(true);
-        ActivePrompt.SetActive(false);
+        inactivePrompt.SetActive(true);
+        activePrompt.SetActive(false);
     }
 
     void LateUpdate()
@@ -46,5 +45,11 @@ public class InteractionPrompt : SerializedMonoBehaviour
         float distance = Vector3.Distance(player.transform.position, transform.position);
         float scale = Mathf.Clamp(1f + (distance / 5f), 1f, 10f);
         transform.localScale = new Vector3(scale, scale, scale);
+
+        // fades out the inactive prompt when the player is far away
+        float alpha = Mathf.Clamp(1f - (distance / 10f), 0f, 1f);
+        Color inactiveColor = inactivePrompt.GetComponent<Image>().color;
+        inactiveColor.a = alpha;
+        inactivePrompt.GetComponent<Image>().color = inactiveColor;
     }
 }

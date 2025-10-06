@@ -85,6 +85,7 @@ public class ScenesManager : SerializedMonoBehaviour
     {
         foreach (GameObject o in currentScene.GetRootGameObjects())
         {
+            if (o.name == "TEST OBJECTS") continue;
             o.SetActive(true);
         }
     }
