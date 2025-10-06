@@ -7,23 +7,36 @@ using UnityEngine.Video;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine;
 using System.Threading.Tasks;
+
+public class ProjectRahu
+{
+    public enum Character
+    {
+        FASAI,
+        NATE
+    }
+
+    public enum VoicelineType
+    {
+        EventBased,
+        RandomBased
+    }
+}
+
 [Serializable]
 public class NarrativeManager : SerializedMonoBehaviour
 {
     const string AnimaticsPath = "Animatics/";
     const string AnimationsPath = "Animations/";
+
     public static NarrativeManager Instance { get; private set; }
-    [OdinSerialize] AudioDataStore audioDataStore;
     [OdinSerialize] AudioSource cutsceneAudioSource;
     [OdinSerialize] CutsceneStore cutsceneStore;
     [OdinSerialize] Transform cutsceneContainer;
-
-    [OdinSerialize] VoicelineManager voicelineManager;
     [OdinSerialize] int currentVoicelineID = 1;
     [OdinSerialize] string currentVoiceline = "";
     [OdinSerialize] string currentShotID = "";
     [OdinSerialize, AssetsOnly] GameObject cutscenePrefab;
-    // [OdinSerialize, ReadOnly] Queue<(string, CutsceneStore.Shot)> shotQueue = new Queue<(string, CutsceneStore.Shot)>();
     struct Cutscene
     {
         public string shotID;
@@ -37,8 +50,17 @@ public class NarrativeManager : SerializedMonoBehaviour
         }
     }
     [OdinSerialize, ReadOnly] Dictionary<string, Cutscene> shotDict = new Dictionary<string, Cutscene>();
-    // [OdinSerialize, ReadOnly] Queue<GameObject> cutsceneObjQueue = new Queue<GameObject>();
-    GameObject player;
+    public static SceneData currentScene;
+    public struct SceneData
+    {
+        public string name;
+        public List<string> characters;
+        public SceneData(string name, List<string> characters)
+        {
+            this.name = name;
+            this.characters = characters;
+        }
+    }
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -54,7 +76,17 @@ public class NarrativeManager : SerializedMonoBehaviour
 
     void Start()
     {
-        TryGetComponent<VoicelineManager>(out voicelineManager);
+        SetupScene("12","01");
+    }
+
+    public void SetupScene(string setupSceneName, string setupStartingShotID = "01")
+    {
+        currentScene = new SceneData(setupSceneName, new List<string>());
+
+        // Before entering a scene, call this function to setup the scene data and prepare the cutscene sequence
+        PrepareCutsceneSequenceFrom($"{setupSceneName}_{setupStartingShotID}");
+
+        VoicelineManager.Instance.Setup();
     }
 
     GameObject CreateBlankCutscene()
@@ -62,7 +94,6 @@ public class NarrativeManager : SerializedMonoBehaviour
         GameObject newCutscene = Instantiate(cutscenePrefab, cutsceneContainer);
         VideoPlayer cutscenePlayer = newCutscene.transform.Find("CutscenePlayer").GetComponent<VideoPlayer>();
         cutscenePlayer.SetTargetAudioSource(0, EnvironmentalAudioManager.Instance.cutsceneSource);
-        // cutsceneObjQueue.Enqueue(newCutscene);
         return newCutscene;
     }
 
@@ -102,7 +133,6 @@ public class NarrativeManager : SerializedMonoBehaviour
         while (!cutscenePlayer.isPlaying) await Task.Yield();
         while (cutscenePlayer.isPlaying) await Task.Yield();
 
-        // Destroy(cutsceneObj);
         cutsceneObj.SetActive(false);
 
         currentShotID = currentShot.nextShotID;
@@ -126,12 +156,6 @@ public class NarrativeManager : SerializedMonoBehaviour
     {
         currentShotID = startingShotID;
         PrepareCutsceneSequence();
-    }
-
-    public async Task StartCutscene(string shotID)
-    {
-        PrepareCutsceneSequenceFrom(shotID);
-        await PlayCutsceneSequence();
     }
 
     AsyncOperationHandle<VideoClip> PrepareShot(CutsceneStore.Shot nextShot, VideoPlayer vp)

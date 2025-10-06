@@ -12,8 +12,6 @@ public class MainMenu : Menu
         EnvironmentalAudioManager.Instance.PlayMusic("main_menu_music");
         gameVersionText.text = "build " + Application.version;
         gameVersionText.text += "\nUnity: " + Application.unityVersion;
-
-        NarrativeManager.Instance.PrepareCutsceneSequenceFrom("12_01");
     }
 
     public void ButtonPressed(string _button)
@@ -38,7 +36,7 @@ public class MainMenu : Menu
 
     async void StartNewGame()
     {
-        
+
         ScenesManager.Instance.ShowLoadingScreen();
         await ScenesManager.Instance.LoadScene("CH02_SC12");
         ScenesManager.Instance.HideLoadingScreen();
@@ -47,6 +45,8 @@ public class MainMenu : Menu
         PersistentDataManager.Instance.ResetPuzzleData();
         ScenesManager.Instance.ShowScene();
         PersistentDataManager.Instance.FindPlayer();
+
+        await VoicelineManager.Instance.CharacterSpeak(ProjectRahu.VoicelineType.RandomBased, "random");
     }
 
     async void OpenSettingsMenu()

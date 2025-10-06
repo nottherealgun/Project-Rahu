@@ -131,13 +131,6 @@ public class PlayerController : SerializedMonoBehaviour
         }
     }
     const float ZoomIntensity = 2f;
-
-    [FoldoutGroup("Audio")]
-    [OdinSerialize] AudioSource voiceSource;
-    [FoldoutGroup("Audio")]
-    [OdinSerialize] bool speaking = false;
-    [FoldoutGroup("Audio")]
-    [OdinSerialize] AudioDataStore.DialogueLine? currentDialogueLine;
     void Start()
     {
         // get a reference to our main camera
@@ -611,40 +604,6 @@ public class PlayerController : SerializedMonoBehaviour
         body.AddForce(pushDirection * PushForce, ForceMode.Impulse);
     }
 
-    [FoldoutGroup("Audio")]
-    [OdinSerialize] AudioDataStore.DialogueLine testDL = new AudioDataStore.DialogueLine();
-    [Button(ButtonSizes.Large)]
-    [FoldoutGroup("Audio")]
-    public void VoiceTest()
-    {
-        Speak(testDL);
-    }
-
-    public AudioDataStore.DialogueLine Speak(AudioDataStore.DialogueLine dialogueLine)
-    {
-        if (dialogueLine.audioFile == null)
-        {
-            Debug.LogError($"Dialogue line struct does NOT contain valid audio file.\n Ran on {name} object.");
-            return dialogueLine;
-        }
-        voiceSource.clip = dialogueLine.audioFile;
-        currentDialogueLine = dialogueLine;
-        StartCoroutine(PlayAndCheckDialogueCompletion());
-
-        return dialogueLine;
-    }
-
-    IEnumerator PlayAndCheckDialogueCompletion()
-    {
-        voiceSource.Play();
-        speaking = true;
-
-        while (voiceSource.isPlaying)
-            yield return null;
-
-        speaking = false;
-        currentDialogueLine = null;
-    }
     void OnDestroy()
     {
         UIManager.LockCursor(false);
