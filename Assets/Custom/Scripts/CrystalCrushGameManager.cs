@@ -617,8 +617,7 @@ public class CrystalCrushGameManager : SerializedMonoBehaviour
         UIManager.LockCursor(true);
 
         if (PersistentDataManager.Instance.HasEventPassed("gemGameFinished")) return;
-
-        NarrativeManager.Instance.CharacterSpeak("gemGameFinished");
+        NarrativeManager.Instance.CharacterSpeak("SC12_Fasai_CandyCrush_Finish");
         PersistentDataManager.Instance.MarkEventAsPassed("gemGameFinished");
     }
 

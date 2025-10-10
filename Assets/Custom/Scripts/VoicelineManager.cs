@@ -7,6 +7,7 @@ using Sirenix.Serialization;
 using Sirenix.OdinInspector;
 using Newtonsoft.Json;
 using UnityEngine.Events;
+using System.Collections;
 
 public class VoicelineManager : SerializedMonoBehaviour
 {
@@ -30,7 +31,12 @@ public class VoicelineManager : SerializedMonoBehaviour
         public string speaker { get; set; }
         public string dialogueText { get; set; }
         public string audioClipPath { get; set; }
+        public string respondingVoicelineKey { get; set; }
+        public float? responseDelay { get; set; }
     }
+
+    Queue voicelineQueue = new Queue();
+    bool playingDialogue = false;
 
     void Awake()
     {
@@ -159,21 +165,48 @@ public class VoicelineManager : SerializedMonoBehaviour
                 break;
         }
 
-        await CharacterSpeak(data);
-    }
-
-    async Task CharacterSpeak(VoicelineData data)
-    {
-        // Find speaker
-        string speakerName = data.speaker;
-        GameObject speaker = GameObject.Find(speakerName);
-        if (speaker == null) return;
-        SpeakerComponent speakerComponent = speaker.GetComponent<SpeakerComponent>();
-
         // Load audio
         AudioClip clip = await LoadAudio(data.audioClipPath);
+        voicelineQueue.Enqueue((data, clip, voicelineType));
 
-        // Play audio and dialogue
-        speakerComponent.Speak(data, clip);
+        // Play dialogue
+        StartCoroutine(PlayDialogueQueue());
+    }
+
+    IEnumerator PlayDialogueQueue()
+    {
+        if (playingDialogue) yield break;
+
+        playingDialogue = true;
+
+        while (voicelineQueue.Count > 0)
+        {
+            var currentTuple = ((VoicelineData, AudioClip, ProjectRahu.VoicelineType))voicelineQueue.Dequeue();
+            VoicelineData voicelineData = currentTuple.Item1;
+
+            // Find speaker
+            string speakerName = voicelineData.speaker;
+            GameObject speaker = GameObject.Find(speakerName);
+
+            if (speaker == null) break;
+
+            SpeakerComponent speakerComponent = speaker.GetComponent<SpeakerComponent>();
+            speakerComponent.voiceSource.clip = currentTuple.Item2;
+            speakerComponent.currentDialogueLine = voicelineData.dialogueText;
+
+            if (voicelineData.respondingVoicelineKey != null && voicelineData.respondingVoicelineKey != "")
+            {
+                ProjectRahu.VoicelineType voicelineType = currentTuple.Item3;
+                CharacterSpeak(voicelineType, voicelineData.respondingVoicelineKey, false);
+            }
+            
+            if (voicelineData.responseDelay != null)
+                yield return new WaitForSeconds((float)voicelineData.responseDelay);
+            
+            UIManager.Instance.DisplaySubtitle($"{voicelineData.speaker}: {speakerComponent.currentDialogueLine}");
+            yield return speakerComponent.PlayAndCheckDialogueCompletion();
+        }
+        
+        playingDialogue = false;
     }
 }

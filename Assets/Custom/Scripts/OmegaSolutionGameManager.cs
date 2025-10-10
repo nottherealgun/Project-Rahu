@@ -205,7 +205,7 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         StopBoilingSFX();
 
         if (PersistentDataManager.Instance.HasEventPassed("chemicalGameFinished")) return;
-        NarrativeManager.Instance.CharacterSpeak("chemicalGameFinished");
+        NarrativeManager.Instance.CharacterSpeak("SC12_Fasai_Chemical_Finish");
         PersistentDataManager.Instance.MarkEventAsPassed("chemicalGameFinished");
     }
 

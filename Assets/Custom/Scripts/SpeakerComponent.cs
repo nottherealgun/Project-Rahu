@@ -6,11 +6,11 @@ using System.Collections;
 
 public class SpeakerComponent : SerializedMonoBehaviour
 {
-    [OdinSerialize] AudioSource voiceSource;
+    public AudioSource voiceSource;
     [OdinSerialize] VoicelineManager.VoicelineData currentVoicelineData;
-    [OdinSerialize, ReadOnly] bool isSpeaking = false;
-    [OdinSerialize, ReadOnly] string currentDialogueLine;
-    Queue voicelineQueue = new Queue();
+    [ReadOnly] public bool isSpeaking = false;
+    [ReadOnly] public string currentDialogueLine;
+    
     void Start()
     {
         if(voiceSource == null)
@@ -19,36 +19,22 @@ public class SpeakerComponent : SerializedMonoBehaviour
 
     public void Speak(VoicelineManager.VoicelineData data, AudioClip audioClip)
     {
-        voicelineQueue.Enqueue((data, audioClip));
-
-        if(isSpeaking) return;
-
-        StartCoroutine(PlayDialogueQueue());
+        
+        voiceSource.clip = audioClip;
+        currentVoicelineData = data;
+        currentDialogueLine = data.dialogueText;
+        
+        StartCoroutine(PlayAndCheckDialogueCompletion());
     }
 
-    IEnumerator PlayDialogueQueue()
-    {
-        isSpeaking = true;
-
-        while (voicelineQueue.Count > 0)
-        {
-            var currentTuple = ((VoicelineManager.VoicelineData, AudioClip))voicelineQueue.Dequeue();
-            currentVoicelineData = currentTuple.Item1;
-            voiceSource.clip = currentTuple.Item2;
-            currentDialogueLine = currentVoicelineData.dialogueText;
-
-            UIManager.Instance.DisplaySubtitle($"{currentVoicelineData.speaker}: {currentDialogueLine}");
-            yield return PlayAndCheckDialogueCompletion();
-        }
-
-        isSpeaking = false;
-    }
-
-    IEnumerator PlayAndCheckDialogueCompletion()
+    public IEnumerator PlayAndCheckDialogueCompletion()
     {
         voiceSource.Play();
+        isSpeaking = true;
 
         while (voiceSource.isPlaying)
             yield return null;
+
+        isSpeaking = false;
     }
 }

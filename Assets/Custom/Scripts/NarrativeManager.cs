@@ -108,7 +108,7 @@ public class NarrativeManager : SerializedMonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(UnityEngine.Random.Range(10f, 30f));
+            yield return new WaitForSeconds(UnityEngine.Random.Range(30f, 60f));
             yield return VoicelineManager.Instance.CharacterSpeak(ProjectRahu.VoicelineType.RandomBased, "random");
         }
     }

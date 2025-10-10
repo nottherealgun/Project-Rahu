@@ -3,6 +3,8 @@ using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using System.Threading.Tasks;   
 
 public enum PuzzleType
 {
@@ -66,19 +68,17 @@ public class PuzzleHandler : SerializedMonoBehaviour
 
         switch (puzzle)
         {
-            case PuzzleType.MaraInvasion:
-                break;
-            case PuzzleType.Pipes:
-                break;
             case PuzzleType.CrystalCrush:
                 CrystalCrushGameManager script = currentPuzzleManager.GetComponent<CrystalCrushGameManager>();
                 script.onKeyCrystalCollected.AddListener(SpawnCrystalProp);
+                NarrativeManager.Instance.CharacterSpeak("SC12_Nate_CandyCrush_DumbQuestion");
+                GameManager.Instance.OnPuzzleStart();
                 break;
             case PuzzleType.OmegaSolution:
                 EnvironmentalAudioManager.Instance.PlayMusic("chemical_puzzle_bgm");
                 EnvironmentalAudioManager.Instance.PlayPersistingAmbience("chemical_stirring");
-                break;
-            case PuzzleType.Platinum:
+                NarrativeManager.Instance.CharacterSpeak("SC12_Nate_Chemical_Joke");
+                GameManager.Instance.OnPuzzleStart();
                 break;
         }
     }
@@ -87,10 +87,6 @@ public class PuzzleHandler : SerializedMonoBehaviour
     {
         switch (puzzle)
         {
-            case PuzzleType.MaraInvasion:
-                break;
-            case PuzzleType.Pipes:
-                break;
             case PuzzleType.CrystalCrush:
                 CrystalCrushGameManager script = currentPuzzleManager.GetComponent<CrystalCrushGameManager>();
                 script.onKeyCrystalCollected.RemoveAllListeners();
@@ -105,6 +101,12 @@ public class PuzzleHandler : SerializedMonoBehaviour
         PersistentDataManager.Instance.puzzles[puzzle] = true;
         currentPuzzleManager = null;
         completionEmitter = null;
+
+        if(GameManager.Instance.TwoPuzzlesAreDone())
+        {
+            if (PersistentDataManager.Instance.HasEventPassed("replacedFuse")) return;
+            NarrativeManager.Instance.CharacterSpeak("SC12_Fasai_After2ndPuzzle_Foundfuse");
+        }
     }
 
     [ShowIf("puzzle", PuzzleType.CrystalCrush), Title("Crystal Crush")]

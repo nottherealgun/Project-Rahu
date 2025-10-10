@@ -37,6 +37,8 @@ public class PersistentDataManager : SerializedMonoBehaviour
     public Dictionary<string, bool> oneShotEvent = new Dictionary<string, bool>
     {
         { "checkedFuse" , false },
+        { "foundNewFuse" , false },
+        { "replacedFuse" , false },
         { "gemGameFinished", false },
         { "chemicalGameFinished", false },
         { "passcodeTerminalAccessed", false }

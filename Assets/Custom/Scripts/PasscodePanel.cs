@@ -25,6 +25,7 @@ public class PasscodePanel : SerializedMonoBehaviour
     [OdinSerialize] GameObject screenBlocker;
     public UnityEvent onUnlocked;
     [OdinSerialize] Animator doorController;
+    [OdinSerialize] bool fusedReplaced = false;
 
     void Start()
     {
@@ -100,7 +101,7 @@ public class PasscodePanel : SerializedMonoBehaviour
             EnvironmentalAudioManager.Instance.PlaySFX("passcode_correct");
 
             if (PersistentDataManager.Instance.HasEventPassed("passcodeTerminalAccessed")) return true;
-            NarrativeManager.Instance.CharacterSpeak("passcodeTerminalAccessed");
+            NarrativeManager.Instance.CharacterSpeak("SC12_Fasai_Safe_Finish");
             PersistentDataManager.Instance.MarkEventAsPassed("passcodeTerminalAccessed");
             return true;
         }
@@ -117,9 +118,16 @@ public class PasscodePanel : SerializedMonoBehaviour
 
     public void CheckFuse()
     {
-        if (PersistentDataManager.Instance.HasEventPassed("checkedFuse")) return;
-        NarrativeManager.Instance.CharacterSpeak("blownFuse");
-        PersistentDataManager.Instance.MarkEventAsPassed("checkedFuse");
         GetComponent<InteractableObject>().onEnterInteraction.RemoveListener(CheckFuse);
+
+        if (PersistentDataManager.Instance.HasEventPassed("foundFuse"))
+        {
+            NarrativeManager.Instance.CharacterSpeak("SC12_Fasai_DoorPin_FuseReplaced");
+        }
+        else if (!PersistentDataManager.Instance.HasEventPassed("checkedFuse"))
+        {
+            NarrativeManager.Instance.CharacterSpeak("SC12_Fasai_Random_FuseBlown");
+            PersistentDataManager.Instance.MarkEventAsPassed("checkedFuse");
+        }
     }
 }
