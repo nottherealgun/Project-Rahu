@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Sirenix.Serialization;
 using Sirenix.OdinInspector;
 using TMPro;
+using System.Collections;
 
 public class UIManager : SerializedMonoBehaviour
 {
@@ -25,8 +26,21 @@ public class UIManager : SerializedMonoBehaviour
     [OdinSerialize] TMP_Text pdaBody;
     [OdinSerialize] Image pdaImage;
 
+    [Title("Settings")]
+    [OdinSerialize] GameObject settingsMenu;
+
     [Title("Subtitles")]
+    private bool _subtitlesOn = true;
+    [ReadOnly] public bool subtitlesOn { get { return _subtitlesOn; } set { SetSubtitles(value); } }
+    void SetSubtitles(bool value)
+    {
+        _subtitlesOn = value;
+        if (!value) subtitleText.gameObject.SetActive(false);
+        else subtitleText.gameObject.SetActive(true);
+    }
     [OdinSerialize] TMP_Text subtitleText;
+
+    Stack uiLayers = new Stack();
 
     void Awake()
     {
@@ -46,6 +60,7 @@ public class UIManager : SerializedMonoBehaviour
     void Start()
     {
         PersistentDataManager.Instance.OnPlayerFound += OnPlayerSearchStatus;
+        settingsMenu.GetComponent<SettingsMenu>().Initialize();
     }
 
     [Button(ButtonSizes.Large)]
@@ -98,6 +113,8 @@ public class UIManager : SerializedMonoBehaviour
         pauseMenu.SetActive(true);
         _isGamePaused = true;
         Time.timeScale = 0f;
+
+        uiLayers.Push("PauseMenu");
     }
 
     public void ResumeGame()
@@ -120,6 +137,8 @@ public class UIManager : SerializedMonoBehaviour
         pdaMenu.SetActive(true);
         LockCursor(false);
         if (playerController != null) playerController.enabled = false;
+
+        uiLayers.Push("PDA");
     }
 
     public void ClosePDA()
@@ -144,7 +163,7 @@ public class UIManager : SerializedMonoBehaviour
     {
         subtitleText.text = text;
         subtitleText.color = new Color(subtitleText.color.r, subtitleText.color.g, subtitleText.color.b, 1f);
-        
+
         // Tween out the text opacity after 5 seconds
         subtitleSeq?.Stop();
         subtitleSeq = Sequence.Create()
@@ -155,5 +174,39 @@ public class UIManager : SerializedMonoBehaviour
                 subtitleText.text = "";
                 subtitleText.color = new Color(subtitleText.color.r, subtitleText.color.g, subtitleText.color.b, 1f);
             });
+    }
+
+    public void OpenSettingsMenu()
+    {
+        settingsMenu.SetActive(true);
+        LockCursor(false);
+        if (playerController != null) playerController.enabled = false;
+
+        uiLayers.Push("Settings");
+    }
+
+    public void CloseSettingsMenu()
+    {
+        settingsMenu.SetActive(false);
+        if (playerController != null) playerController.enabled = true;
+    }
+
+    public void CloseMenu()
+    {
+        if (uiLayers.Count == 0) return;
+
+        string currentLayer = (string) uiLayers.Pop();
+        switch (currentLayer)
+        {
+            case "PDA":
+                ClosePDA();
+                break;
+            case "PauseMenu":
+                ResumeGame();
+                break;
+            case "Settings":
+                CloseSettingsMenu();
+                break;
+        }
     }
 }

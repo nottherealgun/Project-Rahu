@@ -224,7 +224,11 @@ public class PlayerController : SerializedMonoBehaviour
             // If not interacting, start interaction
             EnterInteractionWithObject();
         }
-        else
+    }
+
+    public void OnExitInteraction(InputValue _value)
+    {
+        if (isInteracting)
         {
             // If already interacting, exit interaction
             ExitInteractionWithObject();
@@ -237,7 +241,8 @@ public class PlayerController : SerializedMonoBehaviour
         if (UIManager.isGamePaused)
         {
             // If game was paused, resume it
-            UIManager.Instance.ResumeGame();
+            // UIManager.Instance.ResumeGame();
+            UIManager.Instance.CloseMenu();
 
             // Not setting cursor state here, because resume game function will set it to the most recent state
         }

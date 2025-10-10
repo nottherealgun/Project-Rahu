@@ -24,7 +24,8 @@ public class MainMenu : Menu
                 onButtonPressed += StartNewGame;
                 break;
             case "settings":
-                onButtonPressed += OpenSettingsMenu;
+                // onButtonPressed += OpenSettingsMenu;
+                onButtonPressed += () => UIManager.Instance.OpenSettingsMenu();
                 break;
             case "quit":
                 Application.Quit();
@@ -49,11 +50,11 @@ public class MainMenu : Menu
         await NarrativeManager.Instance.LateSetup();
     }
 
-    async void OpenSettingsMenu()
-    {
-        ScenesManager.Instance.ShowLoadingScreen();
-        await ScenesManager.Instance.LoadScene("Settings");
-        ScenesManager.Instance.HideLoadingScreen();
-        ScenesManager.Instance.ShowScene();
-    }
+    // async void OpenSettingsMenu()
+    // {
+    //     ScenesManager.Instance.ShowLoadingScreen();
+    //     await ScenesManager.Instance.LoadScene("Settings");
+    //     ScenesManager.Instance.HideLoadingScreen();
+    //     ScenesManager.Instance.ShowScene();
+    // }
 }
