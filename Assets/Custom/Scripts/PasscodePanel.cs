@@ -118,8 +118,6 @@ public class PasscodePanel : SerializedMonoBehaviour
 
     public void CheckFuse()
     {
-        GetComponent<InteractableObject>().onEnterInteraction.RemoveListener(CheckFuse);
-
         if (PersistentDataManager.Instance.HasEventPassed("foundFuse"))
         {
             NarrativeManager.Instance.CharacterSpeak("SC12_Fasai_DoorPin_FuseReplaced");

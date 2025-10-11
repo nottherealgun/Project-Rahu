@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using PrimeTween;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
@@ -9,6 +10,7 @@ using UnityEngine.UI;
 public class OmegaSolutionGameManager : SerializedMonoBehaviour
 {
     [OdinSerialize] Image gaugeFiller;
+    [OdinSerialize] Image beakerFiller;
     [OdinSerialize] GameObject indicator;
     [OdinSerialize] RectTransform topTransform;
     [OdinSerialize, ReadOnly] Vector2 bottomTransformAnchorPos;
@@ -27,16 +29,16 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     [OdinSerialize] Button ejectButton;
     [OdinSerialize, ReadOnly] GaugeMode currentGaugeMode = GaugeMode.NONE;
     [Title("Progress Rates")]
-    [OdinSerialize]
-    [InfoBox("How fast the Right Bar\'s indicator accelerates per frame")]
-    float boostAccelerationRate = 0.0005f;
-    [OdinSerialize]
+    // [OdinSerialize]
+    // [InfoBox("How fast the Right Bar\'s indicator accelerates per frame")]
+    // float boostAccelerationRate = 0.0005f;
+    // [OdinSerialize]
     [InfoBox("How fast the Right Bar\'s indicator decelerates per frame")]
-    float boostDecelerationRate = 0.002f;
+    float boostDecelerationRate = 0.02f;
     [InfoBox("How fast the Left Bar\'s progress RISES per frame (Max prog. is 1.0)")]
-    [OdinSerialize] float progressRiseRate = 0.0002f;
+    [OdinSerialize] float progressRiseRate = 0.0000025f;
     [InfoBox("How fast the Left Bar\'s progress DROPS per frame (Max prog. is 1.0)")]
-    [OdinSerialize] float progressDropRate = 0.0006f;
+    [OdinSerialize] float progressDropRate = 0.001f;
 
     string currentlyPlayingBoilingSFX = "";
     const int HIGH_BOILING_POINT_IDX = 2;
@@ -44,10 +46,10 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     const int LOW_BOILING_POINT_IDX = 0;
     List<string> boilingSFXNames = new List<string> { "chemical_boil_low", "chemical_boil_mid", "chemical_boil_high" };
 
-    Vector3 startingFillerPos;
-    Vector3 currentFillerPos;
+    Vector2 startingFillerPos;
+    Vector2 currentFillerPos;
 
-    int round = 1;
+    int round = 0;
 
     void Start()
     {
@@ -56,16 +58,25 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         startingFillerPos = yellowFiller.GetComponent<RectTransform>().anchoredPosition;
         currentFillerPos = startingFillerPos;
 
-        SetRandomYellowFillerPos();
+        StartCoroutine(SetRandomYellowFillerPos());
     }
 
-    private void SetRandomYellowFillerPos()
+    private IEnumerator SetRandomYellowFillerPos()
     {
-        Vector3 previousFillerPos = currentFillerPos;
-        while (Math.Abs(previousFillerPos.y - currentFillerPos.y) <= 150f)
+        while (IsChemicalsComplete() == false)
         {
-            yellowFiller.GetComponent<RectTransform>().anchoredPosition = startingFillerPos + Vector3.down * UnityEngine.Random.Range(0, 930f);
-            currentFillerPos = yellowFiller.GetComponent<RectTransform>().anchoredPosition;
+            Vector2 newPos = Vector2.zero;
+            while (Math.Abs(currentFillerPos.y - newPos.y) <= 150f)
+            {
+                newPos = startingFillerPos + Vector2.down * UnityEngine.Random.Range(0, 1000);
+            }
+            // yellowFiller.GetComponent<RectTransform>().anchoredPosition
+            RectTransform rt = yellowFiller.GetComponent<RectTransform>();
+            Tween t = Tween.Custom(rt.anchoredPosition, newPos, 5.0f, t => rt.anchoredPosition = t, Ease.OutSine);
+
+            currentGaugeMode = GaugeMode.DEPLETING;
+
+            yield return t;
         }
     }
 
@@ -118,11 +129,13 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     {
         if (boosting)
         {
-            boostAcceleration += boostAccelerationRate;
+            // boostAcceleration += boostAccelerationRate;
+            boostAcceleration = 0.2f;
         }
         else if (indicatorLevel > 0f)
         {
             boostAcceleration -= boostDecelerationRate;
+            // boostAcceleration = -0.35f;
         }
     }
 
@@ -164,6 +177,9 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     {
         float newY = indicatorLevel * Mathf.Abs(topTransform.anchoredPosition.y - bottomTransformAnchorPos.y) / maxLevel;
         indicator.GetComponent<RectTransform>().anchoredPosition = bottomTransformAnchorPos + new Vector2(0f, newY);
+
+        gaugeFiller.GetComponent<Image>().color = new Color(1f, 1f, 1f, gaugeFiller.fillAmount);
+        beakerFiller.GetComponent<Image>().color = new Color(1f, gaugeFiller.fillAmount, gaugeFiller.fillAmount, 1f);
     }
 
     void CheckIndicatorLevel()
@@ -180,13 +196,14 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     {
         if (gaugeFiller.fillAmount == 1f)
         {
+            // StartNewRound();
+            round++;
             if (IsChemicalsComplete())
             {
                 isGaugeFilled = true;
                 ejectButton.interactable = true;
                 return;
             }
-            StartNewRound();
         }
     }
 
@@ -209,14 +226,14 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         PersistentDataManager.Instance.MarkEventAsPassed("chemicalGameFinished");
     }
 
-    [HorizontalGroup("A"), Button("Reset Values", ButtonSizes.Large), DisableInPlayMode]
-    void ResetProgressRates()
-    {
-        boostAccelerationRate = 0.0005f;
-        boostDecelerationRate = 0.002f;
-        progressRiseRate = 0.0002f;
-        progressDropRate = 0.0006f;
-    }
+    // [HorizontalGroup("A"), Button("Reset Values", ButtonSizes.Large), DisableInPlayMode]
+    // void ResetProgressRates()
+    // {
+    //     // boostAccelerationRate = 0.0005f;
+    //     // boostDecelerationRate = 0.002f;
+    //     progressRiseRate = 0.0002f;
+    //     progressDropRate = 0.0006f;
+    // }
 
     void PlayBoilingSFX(int boilingLevel)
     {
@@ -247,7 +264,7 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
 
     bool IsChemicalsComplete()
     {
-        return round > 3;
+        return round > 0;
     }
 
     void StartNewRound()
