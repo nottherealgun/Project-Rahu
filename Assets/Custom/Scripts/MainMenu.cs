@@ -30,6 +30,9 @@ public class MainMenu : Menu
             case "quit":
                 Application.Quit();
                 break;
+            case "feedback":
+                Application.OpenURL("https://docs.google.com/forms/d/e/1FAIpQLSfgrIaDWybumbbBhgbqLWZgmpVR268cR1YK7johQJViCf0Uvw/viewform?usp=header");
+                break;
         }
         onButtonPressed?.Invoke();
         onButtonPressed = null;
