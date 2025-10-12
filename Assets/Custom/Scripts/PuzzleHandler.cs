@@ -22,12 +22,12 @@ public class PuzzleHandler : SerializedMonoBehaviour
     GameObject currentPuzzleManager;
     PuzzleCompletionEmitter completionEmitter;
     [OdinSerialize] UnityEvent onPuzzleCompleted;
+    [OdinSerialize, ReadOnly] bool puzzleLoaded = false;
     void Start()
     {
+        onPuzzleCompleted.AddListener(UnloadPuzzle);
         onPuzzleCompleted.AddListener(GameManager.Instance.OnPuzzleComplete);
-    }
-    public void PreparePuzzle()
-    {
+
         switch (puzzle)
         {
             case PuzzleType.MaraInvasion:
@@ -46,8 +46,18 @@ public class PuzzleHandler : SerializedMonoBehaviour
                 puzzleSceneName = "Puzzle03Platinum";
                 break;
         }
+    }
 
-        UIManager.OnTransitioned += SetupPuzzle;
+    public void EnterPuzzle()
+    {
+        if (puzzleLoaded)
+        {
+            UIManager.OnTransitioned += ShowPuzzle;
+        }
+        else
+        {
+            UIManager.OnTransitioned += SetupPuzzle;
+        }
     }
 
     async void SetupPuzzle()
@@ -56,7 +66,9 @@ public class PuzzleHandler : SerializedMonoBehaviour
 
         ScenesManager.Instance.LoadPuzzleScene(puzzleSceneName);
         await ScenesManager.Instance.LoadOperation;
-        currentPuzzleManager = GameObject.Find("PuzzleManager");
+        puzzleLoaded = true;
+
+        currentPuzzleManager = GameObject.Find($"{puzzleSceneName}Manager");
         completionEmitter = currentPuzzleManager.GetComponent<PuzzleCompletionEmitter>();
         completionEmitter.onPuzzleCompleted.AddListener(() =>
         {
@@ -73,24 +85,33 @@ public class PuzzleHandler : SerializedMonoBehaviour
                 script.onKeyCrystalCollected.AddListener(SpawnCrystalProp);
                 NarrativeManager.Instance.CharacterSpeak("SC12_Nate_CandyCrush_DumbQuestion");
                 GameManager.Instance.OnPuzzleStart();
-                UIManager.Instance.AddUILayer("CrystalCrush");
                 break;
             case PuzzleType.OmegaSolution:
                 EnvironmentalAudioManager.Instance.PlayMusic("chemical_puzzle_bgm");
                 EnvironmentalAudioManager.Instance.PlayPersistingAmbience("chemical_stirring");
                 NarrativeManager.Instance.CharacterSpeak("SC12_Nate_Chemical_Joke");
                 GameManager.Instance.OnPuzzleStart();
-                UIManager.Instance.AddUILayer("OmegaSolution");
-                break;
-            default:
-                UIManager.Instance.AddUILayer("GenericPuzzle");
                 break;
         }
     }
 
+    async void ShowPuzzle()
+    {
+        ScenesManager.ShowSceneObjects(puzzleSceneName);
+    }
+
+    async void HidePuzzle()
+    {
+        ScenesManager.HideSceneObjects(puzzleSceneName);
+    }
+
+    public void LeavePuzzle()
+    {
+        UIManager.OnTransitioned += HidePuzzle;
+    }
+
     public void UnloadPuzzle()
     {
-        UIManager.Instance.CloseMenu();
         switch (puzzle)
         {
             case PuzzleType.CrystalCrush:
@@ -104,6 +125,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
         }
 
         UIManager.OnTransitioned += () => ScenesManager.Instance.UnloadPuzzleScene(puzzleSceneName);
+        puzzleLoaded = false;
         PersistentDataManager.Instance.puzzles[puzzle] = true;
         currentPuzzleManager = null;
         completionEmitter = null;

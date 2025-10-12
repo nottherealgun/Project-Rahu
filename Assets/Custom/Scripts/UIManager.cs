@@ -213,9 +213,22 @@ public class UIManager : SerializedMonoBehaviour
     {
         return (string) uiLayers.Peek();
     }
-    
+
     public void AddUILayer(string uiLayerName)
     {
         uiLayers.Push(uiLayerName);
+    }
+
+    [Button(ButtonSizes.Large)]
+    void ListLayers()
+    {
+        Stack duplicate = (Stack)uiLayers.Clone();
+        int layerIdx = 0;
+        while (duplicate.Count > 0)
+        {
+            string layer = (string)duplicate.Pop();
+            print($"{layerIdx}: {layer}");
+            layerIdx++;
+        }
     }
 }

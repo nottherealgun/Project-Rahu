@@ -85,7 +85,7 @@ public class ScenesManager : SerializedMonoBehaviour
     {
         foreach (GameObject o in currentScene.GetRootGameObjects())
         {
-            if (o.name == "TEST OBJECTS") continue;
+            if (o.name == "Enable When Test") continue;
             o.SetActive(true);
         }
     }
@@ -115,5 +115,37 @@ public class ScenesManager : SerializedMonoBehaviour
     public bool IsLoadingComplete()
     {
         return LoadOperation == null || LoadOperation.isDone;
+    }
+
+    public static void HideSceneObjects(string sceneName)
+    {
+        Scene scene = SceneManager.GetSceneByName(sceneName);
+        if (!scene.isLoaded)
+        {
+            Debug.LogWarning($"Scene '{sceneName}' is not loaded.");
+            return;
+        }
+
+        foreach (GameObject rootObj in scene.GetRootGameObjects())
+        {
+            if (rootObj.name == "Enable When Test") continue;
+            rootObj.SetActive(false);
+        }
+    }
+
+    public static void ShowSceneObjects(string sceneName)
+    {
+        Scene scene = SceneManager.GetSceneByName(sceneName);
+        if (!scene.isLoaded)
+        {
+            Debug.LogWarning($"Scene '{sceneName}' is not loaded.");
+            return;
+        }
+
+        foreach (GameObject rootObj in scene.GetRootGameObjects())
+        {
+            if (rootObj.name == "Enable When Test") continue;
+            rootObj.SetActive(true);
+        }
     }
 }
