@@ -14,6 +14,8 @@ public class SettingsMenu : Menu
     SettingsData settingsData = new SettingsData();
     [OdinSerialize] AudioMixer audioMixer;
     bool initialized = false;
+    [OdinSerialize] List<GameObject> panelList = new List<GameObject>();
+    int currentPanelIdx = 0;
     public void Initialize()
     {
         ConnectSettingsUI();
@@ -67,9 +69,15 @@ public class SettingsMenu : Menu
         SyncSettingValues();
     }
 
-    public void OnMenu(InputValue value)
+    public void OnBack(InputValue value)
     {
         UIManager.Instance.CloseMenu();
+        ResetPanels();
+    }
+
+    public void OnNext(InputValue value)
+    {
+        GoToNextPanel();
     }
 
     // public void OnMenu(InputValue value)
@@ -137,6 +145,26 @@ public class SettingsMenu : Menu
         audioMixer.SetFloat("Music", Mathf.Log10(Mathf.Clamp(settingsData.musicVolume, 0.0001f, 100f) / 100f) * 20f);
         audioMixer.SetFloat("SFX", Mathf.Log10(Mathf.Clamp(settingsData.sfxVolume, 0.0001f, 100f) / 100f) * 20f);
         audioMixer.SetFloat("Ambience", Mathf.Log10(Mathf.Clamp(settingsData.sfxVolume, 0.0001f, 100f) / 100f) * 20f);
+    }
+
+    void ResetPanels()
+    {
+        foreach (GameObject panel in panelList)
+        {
+            panel.SetActive(false);
+        }
+        panelList[0].SetActive(true);
+        currentPanelIdx = 0;
+    }
+
+    void GoToNextPanel()
+    {
+        panelList[currentPanelIdx].SetActive(false);
+        
+        currentPanelIdx++;
+        if (currentPanelIdx == panelList.Count) currentPanelIdx = 0;
+
+        panelList[currentPanelIdx].SetActive(true);
     }
 }
 

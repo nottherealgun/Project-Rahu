@@ -226,7 +226,7 @@
                     "id": "c1f7a91b-d0fd-4a62-997e-7fb9b69bf235",
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",
-                    "processors": "InvertVector2(invertX=false),DeltaTimeScale,ScaleVector2(x=0.15,y=0.15)",
+                    "processors": "InvertVector2(invertX=false),DeltaTimeScale,ScaleVector2",
                     "groups": ";Gamepad",
                     "action": "Look",
                     "isComposite": false,
@@ -366,8 +366,8 @@
                 },
                 {
                     "name": "",
-                    "id": "fd80d402-c320-43a5-98e5-e42a7abc2a7c",
-                    "path": "<Gamepad>/rightShoulder",
+                    "id": "b875c9f5-061c-4c96-9eb1-dd352d4ab619",
+                    "path": "<Gamepad>/leftStickPress",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
@@ -454,6 +454,17 @@
                 },
                 {
                     "name": "",
+                    "id": "fcdcb24e-cfbd-414a-b054-50a612179c7d",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "ExitInteraction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "5cfc1a6f-d29c-4bb8-8a22-355ae59d82e7",
                     "path": "<Keyboard>/escape",
                     "interactions": "",
@@ -470,6 +481,28 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
+                    "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c2cb4d32-116a-4bc2-9ed1-d05c0b5581e3",
+                    "path": "<XInputController>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "83642f7f-5bb6-4dcb-82aa-8dbed5e5c5fd",
+                    "path": "<DualShockGamepad>/touchpadButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
                     "action": "Menu",
                     "isComposite": false,
                     "isPartOfComposite": false
