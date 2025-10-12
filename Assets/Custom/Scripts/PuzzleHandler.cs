@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using System.Threading.Tasks;   
+using Cysharp.Threading.Tasks;   
 
 public enum PuzzleType
 {
@@ -73,18 +73,24 @@ public class PuzzleHandler : SerializedMonoBehaviour
                 script.onKeyCrystalCollected.AddListener(SpawnCrystalProp);
                 NarrativeManager.Instance.CharacterSpeak("SC12_Nate_CandyCrush_DumbQuestion");
                 GameManager.Instance.OnPuzzleStart();
+                UIManager.Instance.AddUILayer("CrystalCrush");
                 break;
             case PuzzleType.OmegaSolution:
                 EnvironmentalAudioManager.Instance.PlayMusic("chemical_puzzle_bgm");
                 EnvironmentalAudioManager.Instance.PlayPersistingAmbience("chemical_stirring");
                 NarrativeManager.Instance.CharacterSpeak("SC12_Nate_Chemical_Joke");
                 GameManager.Instance.OnPuzzleStart();
+                UIManager.Instance.AddUILayer("OmegaSolution");
+                break;
+            default:
+                UIManager.Instance.AddUILayer("GenericPuzzle");
                 break;
         }
     }
 
     public void UnloadPuzzle()
     {
+        UIManager.Instance.CloseMenu();
         switch (puzzle)
         {
             case PuzzleType.CrystalCrush:

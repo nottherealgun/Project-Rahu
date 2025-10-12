@@ -6,10 +6,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Events;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
-
+using UnityEngine.InputSystem;
 class CrystalGameGrid : SerializedMonoBehaviour
 {
     public static Vector2 CellSize = Vector2.one * 49.55f;
@@ -133,7 +133,7 @@ class CrystalGameGrid : SerializedMonoBehaviour
         }
     }
 
-    async Task UpdateGrid()
+    async UniTask UpdateGrid()
     {
         gridIsProcessing = true;
         hasMatches = true;
@@ -645,7 +645,7 @@ public class CrystalCrushGameManager : SerializedMonoBehaviour
         PersistentDataManager.Instance.MarkEventAsPassed("gemGameFinished");
     }
 
-    [HorizontalGroup("A"),Button(ButtonSizes.Large), DisableInEditorMode]
+    [HorizontalGroup("A"), Button(ButtonSizes.Large), DisableInEditorMode]
     void Shuffle()
     {
         grid.ShuffleAndAnimate();

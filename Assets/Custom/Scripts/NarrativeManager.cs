@@ -6,7 +6,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.Video;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using System.Collections;
 
 public class ProjectRahu
@@ -94,7 +94,7 @@ public class NarrativeManager : SerializedMonoBehaviour
         };
     }
 
-    public async Task LateSetup()
+    public async UniTask LateSetup()
     {
         // Everything here happens after the scene is loaded and objects in the scene are active
 
@@ -149,7 +149,7 @@ public class NarrativeManager : SerializedMonoBehaviour
         }
     }
 
-    public async Task PlayCutsceneSequence()
+    public async UniTask PlayCutsceneSequence()
     {
         ShowCutsceneContainer();
 
@@ -159,8 +159,8 @@ public class NarrativeManager : SerializedMonoBehaviour
 
         cutscenePlayer.Play();
 
-        while (!cutscenePlayer.isPlaying) await Task.Yield();
-        while (cutscenePlayer.isPlaying) await Task.Yield();
+        while (!cutscenePlayer.isPlaying) await UniTask.Yield();
+        while (cutscenePlayer.isPlaying) await UniTask.Yield();
 
         cutsceneObj.SetActive(false);
 
@@ -175,7 +175,7 @@ public class NarrativeManager : SerializedMonoBehaviour
         ;
     }
 
-    public async Task PlaySequenceFrom(string shotID)
+    public async UniTask PlaySequenceFrom(string shotID)
     {
         currentShotID = shotID;
         await PlayCutsceneSequence();

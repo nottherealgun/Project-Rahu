@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using PrimeTween;
 using UnityEngine.Events;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Sirenix.Serialization;
 using Sirenix.OdinInspector;
 using TMPro;
@@ -89,7 +89,7 @@ public class UIManager : SerializedMonoBehaviour
             });
     }
 
-    public async Task<Tween> ManualFadeOut()
+    public async UniTask<Tween> ManualFadeOut()
     {
         Tween tween = Tween.Custom(Color.black, Color.clear, duration: 0.5f, onValueChange: newVal => _transitionPanelImage.color = newVal);
         await tween;
@@ -180,7 +180,6 @@ public class UIManager : SerializedMonoBehaviour
     {
         settingsMenu.SetActive(true);
         LockCursor(false);
-        if (playerController != null) playerController.enabled = false;
 
         uiLayers.Push("Settings");
     }
@@ -188,14 +187,14 @@ public class UIManager : SerializedMonoBehaviour
     public void CloseSettingsMenu()
     {
         settingsMenu.SetActive(false);
-        if (playerController != null) playerController.enabled = true;
+        LockCursor(false);
     }
 
     public void CloseMenu()
     {
         if (uiLayers.Count == 0) return;
 
-        string currentLayer = (string) uiLayers.Pop();
+        string currentLayer = (string)uiLayers.Pop();
         switch (currentLayer)
         {
             case "PDA":
@@ -208,5 +207,15 @@ public class UIManager : SerializedMonoBehaviour
                 CloseSettingsMenu();
                 break;
         }
+    }
+
+    public string PeekUILayer()
+    {
+        return (string) uiLayers.Peek();
+    }
+    
+    public void AddUILayer(string uiLayerName)
+    {
+        uiLayers.Push(uiLayerName);
     }
 }

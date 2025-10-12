@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Sirenix.Serialization;
 using Sirenix.OdinInspector;
 using Newtonsoft.Json;
@@ -57,7 +57,7 @@ public class VoicelineManager : SerializedMonoBehaviour
         NarrativeManager.currentScene.characters = currentVoicelinePack.characters;
     }
 
-    async Task InitializeVoicelinePackOf(string sceneName)
+    async UniTask InitializeVoicelinePackOf(string sceneName)
     {
         TextAsset jsonFile;
 
@@ -74,7 +74,7 @@ public class VoicelineManager : SerializedMonoBehaviour
             }
         };
 
-        await loadOp.Task;
+        await loadOp;
     }
 
     bool ValidateAllVoicelinePacks()
@@ -109,11 +109,11 @@ public class VoicelineManager : SerializedMonoBehaviour
         return true;
     }
 
-    public async Task<AudioClip> LoadAudio(string fileName)
+    public async UniTask<AudioClip> LoadAudio(string fileName)
     {
         string address = VoicelinesPath + $"SC{NarrativeManager.currentScene.name}/" + fileName;
         AsyncOperationHandle<AudioClip> handle = Addressables.LoadAssetAsync<AudioClip>(address);
-        await handle.Task;
+        await handle;
 
         if (handle.Status == AsyncOperationStatus.Succeeded)
         {
@@ -129,12 +129,12 @@ public class VoicelineManager : SerializedMonoBehaviour
     }
 
     [Button(ButtonSizes.Large)]
-    public async Task TestSpeak()
+    public async UniTask TestSpeak()
     {
         await CharacterSpeak(ProjectRahu.VoicelineType.RandomBased, "random");
     }
 
-    public async Task CharacterSpeak(ProjectRahu.VoicelineType voicelineType, string voicelineKey, bool removeOnUse = true)
+    public async UniTask CharacterSpeak(ProjectRahu.VoicelineType voicelineType, string voicelineKey, bool removeOnUse = true)
     {
         VoicelineData data = null;
         switch (voicelineType)

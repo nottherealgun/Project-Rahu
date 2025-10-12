@@ -102,6 +102,10 @@ public class PasscodePanel : SerializedMonoBehaviour
             UIManager.LockCursor(true);
             EnvironmentalAudioManager.Instance.PlaySFX("passcode_correct");
 
+            // replace fuse
+            oldFuse.SetActive(false);
+            newFuse.SetActive(true);
+
             if (PersistentDataManager.Instance.HasEventPassed("passcodeTerminalAccessed")) return true;
             NarrativeManager.Instance.CharacterSpeak("SC12_Fasai_Safe_Finish");
             PersistentDataManager.Instance.MarkEventAsPassed("passcodeTerminalAccessed");
@@ -123,8 +127,6 @@ public class PasscodePanel : SerializedMonoBehaviour
         if (PersistentDataManager.Instance.HasEventPassed("foundFuse"))
         {
             NarrativeManager.Instance.CharacterSpeak("SC12_Fasai_DoorPin_FuseReplaced");
-            oldFuse.SetActive(false);
-            newFuse.SetActive(true);
         }
         else if (!PersistentDataManager.Instance.HasEventPassed("checkedFuse"))
         {

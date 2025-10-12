@@ -1,10 +1,9 @@
 using System;
-using System.Threading.Tasks;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.Events;
-
+using Cysharp.Threading.Tasks;
 public class GameManager : SerializedMonoBehaviour
 {
     public static GameManager Instance { get; private set; }
@@ -43,11 +42,11 @@ public class GameManager : SerializedMonoBehaviour
         return donePuzzle1 && donePuzzle2;
     }
 
-    public async Task OnPuzzleStart()
+    public async UniTask OnPuzzleStart()
     {
         if (OnePuzzleIsDone())
         {
-            await Task.Delay(10000);
+            await UniTask.Delay(10000);
             if (PersistentDataManager.Instance.HasEventPassed("foundNewFuse")) return;
             NarrativeManager.Instance.CharacterSpeak("SC12_Nate_DuringSecondPuzzle_FoundFuse");
             PersistentDataManager.Instance.MarkEventAsPassed("foundNewFuse");
@@ -66,8 +65,9 @@ public class GameManager : SerializedMonoBehaviour
         }
         if (donePuzzle3)
         {
-            // UIManager.OnTransitioned += StartFinalCutscene;
-            StartFinalCutscene();
+            UIManager.OnTransitioned += StartFinalCutscene;
+            UIManager.Instance.ToggleTransitionPanel();
+            // StartFinalCutscene();
         }
     }
 

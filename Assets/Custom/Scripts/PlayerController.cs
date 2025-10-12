@@ -214,7 +214,7 @@ public class PlayerController : SerializedMonoBehaviour
         currentCinemachineCam.Lens.FieldOfView = maxZoom;
     }
 
-    public void OnPrimaryInteract(InputValue _value)
+    public void OnInteract(InputValue _value)
     {
         // If there's no interactable object in vicinity, do nothing
         if (interactingObject == null) return;
@@ -228,6 +228,10 @@ public class PlayerController : SerializedMonoBehaviour
 
     public void OnExitInteraction(InputValue _value)
     {
+        if (interactingObject == null) return;
+
+        if (UIManager.Instance.PeekUILayer() != interactingObject.name) return;
+
         if (isInteracting)
         {
             // If already interacting, exit interaction
@@ -241,7 +245,6 @@ public class PlayerController : SerializedMonoBehaviour
         if (UIManager.isGamePaused)
         {
             // If game was paused, resume it
-            // UIManager.Instance.ResumeGame();
             UIManager.Instance.CloseMenu();
 
             // Not setting cursor state here, because resume game function will set it to the most recent state
@@ -288,10 +291,6 @@ public class PlayerController : SerializedMonoBehaviour
             currentInteractionCamera = mainInteractionCamera;
             DisconnectFromInteractingObject();
         }
-
-        // Also let cursor be free
-        UIManager.LockCursor(false);
-
         // Record last cursor state
         // When unpaused, cursor state will be set to the last recorded state
         UIManager.lastCursorState = false;
@@ -321,10 +320,6 @@ public class PlayerController : SerializedMonoBehaviour
         // Reset mouse rotation when interaction ends
         // (mouse rotator is used to rotate the object when interacting)
         interactingObjScript.ResetRotation();
-
-        // Also lock cursor
-        UIManager.LockCursor(true);
-        UIManager.lastCursorState = true;
 
         // Camera transition out (fade)
         UIManager.Instance.ToggleTransitionPanel(false);

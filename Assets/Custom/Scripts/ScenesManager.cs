@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Sirenix.OdinInspector;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine.Events;
 using Sirenix.Serialization;
 public class ScenesManager : SerializedMonoBehaviour
@@ -32,7 +32,7 @@ public class ScenesManager : SerializedMonoBehaviour
         // loadingScreen = SceneManager.GetSceneByName("Loading Screen");
     }
 
-    public async Task LoadScene(string sceneName)
+    public async UniTask LoadScene(string sceneName)
     {
         // 1. Load loading screen
         // 2. Load & disable scene

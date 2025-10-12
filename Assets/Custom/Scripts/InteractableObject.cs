@@ -40,15 +40,19 @@ public class InteractableObject : SerializedMonoBehaviour
 
     [OdinSerialize] GameObject interactionPrompt;
 
-    public void OnInteracted(bool val)
+    public void OnInteracted(bool isBeingInteractedWith)
     {
-        isBeingInteractedWith = val;
-
+        this.isBeingInteractedWith = isBeingInteractedWith;
         if (hasInspectionCamera)
-            UIManager.OnTransitioned += () => SetInspectionCamera(val);
+            UIManager.OnTransitioned += () => SetInspectionCamera(isBeingInteractedWith);
 
         if (isBeingInteractedWith)
         {
+            if (!isInstantInteraction)
+            {
+                UIManager.Instance.AddUILayer(gameObject.name);
+                UIManager.LockCursor(false);
+            }
             DeactivatePrompt();
             onEnterInteraction?.Invoke();
             if (canBeRotated)
@@ -60,6 +64,12 @@ public class InteractableObject : SerializedMonoBehaviour
         }
         else
         {
+            if (!isInstantInteraction)
+            {
+                UIManager.Instance.CloseMenu();
+                UIManager.LockCursor(true);
+                UIManager.lastCursorState = true;
+            }
             UIManager.OnTransitioned += () => ActivatePrompt();
             // If player stops interacting with the object
             onExitedInteraction?.Invoke();
