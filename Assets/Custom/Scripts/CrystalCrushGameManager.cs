@@ -181,18 +181,33 @@ class CrystalGameGrid : SerializedMonoBehaviour
         /* handles crystal click event */
         if (selectedCrystals.Count >= 2)
         {
+            UnmarkSelectedCrystals();
             selectedCrystals.Clear();
         }
         if (selectedCrystals.Count < 2)
         {
+            crystal.GetComponent<Crystal>().Mark();
             selectedCrystals.Add(crystal);
         }
         if (SelectedCrystalsAreParallel() && SelectedCrystalsAreNeighbors())
         {
+            UnmarkSelectedCrystals();
             barrier.SetActive(true);
             await SwapCrystals();
             await UpdateGrid();
             barrier.SetActive(false);
+        }
+        else if(selectedCrystals.Count >= 2)
+        {
+            UnmarkSelectedCrystals();
+        }
+    }
+
+    void UnmarkSelectedCrystals()
+    {
+        foreach (GameObject crystal in selectedCrystals)
+        {
+            crystal.GetComponent<Crystal>().Unmark();
         }
     }
 
@@ -368,8 +383,14 @@ class CrystalGameGrid : SerializedMonoBehaviour
             }
             Tween.CompleteAll(crystal.transform);
             grid[crystalPos.x][crystalPos.y] = null;
-            // crystal.SetActive(false);
+
+            
             Destroy(crystal);
+        }
+        if(matchedCrystals.Count > 0)
+        {
+            UnmarkSelectedCrystals();
+            selectedCrystals.Clear();
             EnvironmentalAudioManager.Instance.PlaySFX("crystal_crush",true);
         }
     }
@@ -397,6 +418,7 @@ class CrystalGameGrid : SerializedMonoBehaviour
 
     Sequence AnimateVisuals()
     {
+        bool crystalIsFalling = false;
         Sequence sequence = Sequence.Create();
         /* animates the crystals to their new positions */
         for (int i = 0; i < rows; i++)
@@ -411,26 +433,26 @@ class CrystalGameGrid : SerializedMonoBehaviour
 
                 if (i == rows - 1 && crystal.GetComponent<Crystal>().crystalType == Crystal.CrystalTypes.TYPE5)
                 {
+                    // if is bottom row and a key crystal, move down
                     sequence = Sequence.Create()
-                        .Group(Tween.Position(crystal.transform, targetPos - new Vector3(0, CellSize.y * 1.5f, 0), swapSpeed, fallEaseType))
-                        .OnComplete(() =>
-                        {
-                            EnvironmentalAudioManager.Instance.PlaySFX("crystal_fall");
-                        });
+                        .Group(Tween.Position(crystal.transform, targetPos - new Vector3(0, CellSize.y * 4f, 0), swapSpeed, fallEaseType));
                 }
                 else if (crystalPos != targetPos)
                 {
+                    crystalIsFalling = true;
                     float distance = Mathf.Abs(crystalPos.y - targetPos.y);
                     float steps = Mathf.Floor(distance / CellSize.y);
                     sequence = Sequence.Create()
-                        .Group(Tween.Position(crystal.transform, targetPos, swapSpeed, fallEaseType))
-                        .ChainCallback(() =>
-                        {
-                            EnvironmentalAudioManager.Instance.PlaySFX("crystal_impact");
-                        });
+                        .Group(Tween.Position(crystal.transform, targetPos, swapSpeed, fallEaseType));
+                        
                 }
             }
         }
+        if (crystalIsFalling)
+            sequence.ChainCallback(() =>
+            {
+                EnvironmentalAudioManager.Instance.PlaySFX("crystal_impact");
+            });
         return sequence;
     }
 
@@ -446,8 +468,10 @@ class CrystalGameGrid : SerializedMonoBehaviour
                 if (i == rows - 1 && crystal.GetComponent<Crystal>().crystalType == Crystal.CrystalTypes.TYPE5)
                 {
                     grid[i][j] = null;
+
+                    if (selectedCrystals.Contains(crystal)) selectedCrystals.Remove(crystal);
                     Destroy(crystal);
-                    // crystal.SetActive(false);
+
                     KeyCrystalCollected?.Invoke();
                     continueRefill = true;
                     keyCrystalsOnScreen--;

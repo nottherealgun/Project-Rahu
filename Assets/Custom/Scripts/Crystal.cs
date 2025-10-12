@@ -46,7 +46,8 @@ public class Crystal : SerializedMonoBehaviour
             image.sprite = crystalTextures[(int)_crystalType];
         }
     }
-    Image image;
+    [OdinSerialize] Image image;
+    [OdinSerialize] Image selectingVisual;
     public bool marked = false;
 
     [OdinSerialize, ReadOnly]
@@ -66,9 +67,18 @@ public class Crystal : SerializedMonoBehaviour
         image.enabled = false;
     }
 
+    public void Mark()
+    {
+        selectingVisual.gameObject.SetActive(true);
+    }
+    
+    public void Unmark()
+    {
+        selectingVisual.gameObject.SetActive(false);
+    }
+
     void Awake()
     {
-        TryGetComponent<Image>(out image);
         testText = GetComponentInChildren<TMP_Text>();
     }
 

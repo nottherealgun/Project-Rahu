@@ -26,6 +26,8 @@ public class PasscodePanel : SerializedMonoBehaviour
     public UnityEvent onUnlocked;
     [OdinSerialize] Animator doorController;
     [OdinSerialize] bool fusedReplaced = false;
+    [OdinSerialize] GameObject oldFuse;
+    [OdinSerialize] GameObject newFuse;
 
     void Start()
     {
@@ -121,6 +123,8 @@ public class PasscodePanel : SerializedMonoBehaviour
         if (PersistentDataManager.Instance.HasEventPassed("foundFuse"))
         {
             NarrativeManager.Instance.CharacterSpeak("SC12_Fasai_DoorPin_FuseReplaced");
+            oldFuse.SetActive(false);
+            newFuse.SetActive(true);
         }
         else if (!PersistentDataManager.Instance.HasEventPassed("checkedFuse"))
         {
