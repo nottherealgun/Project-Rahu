@@ -1,5 +1,7 @@
+using System;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,10 +11,16 @@ public class InteractionPrompt : SerializedMonoBehaviour
     [OdinSerialize] GameObject inactivePrompt;
     [OdinSerialize] GameObject activePrompt;
     GameObject player;
+    [OdinSerialize, PropertyRange(1f,20f)] float fadeDist = 2.7f;
     void Start()
     {
         HidePrompt();
         player = PersistentDataManager.Instance.FindPlayer();
+    }
+
+    void OnDrawGizmos() {
+        Gizmos.color = new Color(1f,0f,0f,0.25f);
+        Gizmos.DrawSphere(transform.position, fadeDist);    
     }
 
     [Button(ButtonSizes.Large)]
@@ -47,7 +55,7 @@ public class InteractionPrompt : SerializedMonoBehaviour
         transform.localScale = new Vector3(scale, scale, scale);
 
         // fades out the inactive prompt when the player is far away
-        float alpha = Mathf.Clamp(1f - (distance / 2.7f), 0f, 1f);
+        float alpha = Mathf.Clamp(1f - (distance / fadeDist), 0f, 1f);
         Color inactiveColor = inactivePrompt.GetComponent<Image>().color;
         inactiveColor.a = alpha;
         inactivePrompt.GetComponent<Image>().color = inactiveColor;

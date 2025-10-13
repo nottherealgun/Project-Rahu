@@ -6,6 +6,8 @@ using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 
 public class OmegaSolutionGameManager : SerializedMonoBehaviour
 {
@@ -34,9 +36,9 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     // float boostAccelerationRate = 0.0005f;
     // [OdinSerialize]
     [InfoBox("How fast the Right Bar\'s indicator decelerates per frame")]
-    float boostDecelerationRate = 0.02f;
+    [OdinSerialize] float boostDecelerationRate = 0.02f;
     [InfoBox("How fast the Left Bar\'s progress RISES per frame (Max prog. is 1.0)")]
-    [OdinSerialize] float progressRiseRate = 0.0000025f;
+    [OdinSerialize] float progressRiseRate = 0.001f;
     [InfoBox("How fast the Left Bar\'s progress DROPS per frame (Max prog. is 1.0)")]
     [OdinSerialize] float progressDropRate = 0.001f;
 
@@ -61,25 +63,6 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         StartCoroutine(SetRandomYellowFillerPos());
     }
 
-    private IEnumerator SetRandomYellowFillerPos()
-    {
-        while (IsChemicalsComplete() == false)
-        {
-            Vector2 newPos = Vector2.zero;
-            while (Math.Abs(currentFillerPos.y - newPos.y) <= 150f)
-            {
-                newPos = startingFillerPos + Vector2.down * UnityEngine.Random.Range(0, 1000);
-            }
-            // yellowFiller.GetComponent<RectTransform>().anchoredPosition
-            RectTransform rt = yellowFiller.GetComponent<RectTransform>();
-            Tween t = Tween.Custom(rt.anchoredPosition, newPos, 5.0f, t => rt.anchoredPosition = t, Ease.OutSine);
-
-            currentGaugeMode = GaugeMode.DEPLETING;
-
-            yield return t;
-        }
-    }
-
     void Update()
     {
         indicatorLevel += boostAcceleration;
@@ -95,7 +78,7 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
                     gaugeFiller.fillAmount += progressRiseRate;
                     break;
                 case GaugeMode.FILLING:
-                    gaugeFiller.fillAmount += progressRiseRate / 3f;
+                    gaugeFiller.fillAmount += progressRiseRate/3;
                     break;
                 case GaugeMode.DEPLETING:
                     gaugeFiller.fillAmount -= progressDropRate;
@@ -108,6 +91,25 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     void OnDestroy()
     {
         LeaveGame();
+    }
+
+    private IEnumerator SetRandomYellowFillerPos()
+    {
+        while (IsChemicalsComplete() == false)
+        {
+            Vector2 newPos = Vector2.zero;
+            while (Math.Abs(currentFillerPos.y - newPos.y) <= 150f)
+            {
+                newPos = startingFillerPos + Vector2.down * UnityEngine.Random.Range(100, 1000);
+            }
+            // yellowFiller.GetComponent<RectTransform>().anchoredPosition
+            RectTransform rt = yellowFiller.GetComponent<RectTransform>();
+            Tween t = Tween.Custom(rt.anchoredPosition, newPos, 5.0f, t => rt.anchoredPosition = t, Ease.OutSine);
+
+            currentGaugeMode = GaugeMode.DEPLETING;
+
+            yield return t;
+        }
     }
 
     void CheckAndClampIndicatorLevel()

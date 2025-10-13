@@ -219,6 +219,8 @@ public class PlayerController : SerializedMonoBehaviour
         // If there's no interactable object in vicinity, do nothing
         if (interactingObject == null) return;
 
+        if (UIManager.isTransitioning) return;
+        
         if (isInteracting == false)
         {
             // If not interacting, start interaction
@@ -230,6 +232,7 @@ public class PlayerController : SerializedMonoBehaviour
     {
         if (interactingObject == null) return;
 
+        if (UIManager.isTransitioning) return;
         if (UIManager.Instance.PeekUILayer() != interactingObject.name) return;
 
         if (isInteracting)

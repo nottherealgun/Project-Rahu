@@ -32,6 +32,7 @@ public class UIManager : SerializedMonoBehaviour
     [Title("Subtitles")]
     private bool _subtitlesOn = true;
     [ReadOnly] public bool subtitlesOn { get { return _subtitlesOn; } set { SetSubtitles(value); } }
+    public static bool isTransitioning = false;
     void SetSubtitles(bool value)
     {
         _subtitlesOn = value;
@@ -77,6 +78,7 @@ public class UIManager : SerializedMonoBehaviour
 
     public void ToggleTransitionPanel(bool isInteracting = false)
     {
+        isTransitioning = true;
         _transitionPanelImage.raycastTarget = true;
         Sequence.Create(cycles: 1, CycleMode.Restart)
             .Chain(Tween.Custom(Color.clear, Color.black, duration: 0.5f, onValueChange: newVal => _transitionPanelImage.color = newVal))
@@ -85,7 +87,7 @@ public class UIManager : SerializedMonoBehaviour
             .OnComplete(() =>
             {
                 _transitionPanelImage.raycastTarget = false;
-                // _HUD.SetActive(isInteracting);
+                isTransitioning = false;
             });
     }
 
@@ -211,6 +213,7 @@ public class UIManager : SerializedMonoBehaviour
 
     public string PeekUILayer()
     {
+        if (uiLayers.Count == 0) return "No layers.";
         return (string) uiLayers.Peek();
     }
 
