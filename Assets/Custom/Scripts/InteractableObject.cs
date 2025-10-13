@@ -39,6 +39,8 @@ public class InteractableObject : SerializedMonoBehaviour
     }
 
     [OdinSerialize] GameObject interactionPrompt;
+    [OdinSerialize] bool thisOpensPDA = false;
+    [OdinSerialize, ShowIf("@thisOpensPDA == true")] PdaInitializer pdaInitializer;
 
     public void OnInteracted(bool isBeingInteractedWith)
     {
@@ -60,7 +62,10 @@ public class InteractableObject : SerializedMonoBehaviour
                 // Tween.PositionY(itemMesh.transform, endValue: initialPosition.y + 0.15f, duration: 1, ease: Ease.OutCubic);
                 Tween.PositionY(transform, endValue: initialPosition.y + 0.15f, duration: 1, ease: Ease.OutCubic);
             }
-
+            if (thisOpensPDA)
+            {
+                pdaInitializer.OpenPDA();
+            }
         }
         else
         {
@@ -70,9 +75,17 @@ public class InteractableObject : SerializedMonoBehaviour
                 UIManager.LockCursor(true);
                 UIManager.lastCursorState = true;
             }
-            UIManager.OnTransitioned += () => ActivatePrompt();
+
+            if(gameObject.TryGetComponent(out PuzzleHandler puzzleHandler) == false)
+            {
+                UIManager.OnTransitioned += () => ActivatePrompt();
+            }
             // If player stops interacting with the object
             onExitedInteraction?.Invoke();
+            if (thisOpensPDA)
+            {
+                pdaInitializer.ClosePDA();
+            }
         }
     }
 
@@ -138,6 +151,11 @@ public class InteractableObject : SerializedMonoBehaviour
     public GameObject GetInspectionCamera()
     {
         return customInspectionCamera;
+    }
+
+    public InteractionPrompt GetInteractionPrompt()
+    {
+        return interactionPrompt.GetComponent<InteractionPrompt>();
     }
 
     void OnTriggerEnter(Collider other)
