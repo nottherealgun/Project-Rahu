@@ -41,8 +41,14 @@ public class MainMenu : Menu
     async void StartNewGame()
     {
         ScenesManager.Instance.ShowLoadingScreen();
-        await ScenesManager.Instance.LoadScene("Demo_Intro_SC12");
+        await ScenesManager.Instance.LoadScene("CH02_SC12");
         ScenesManager.Instance.HideLoadingScreen();
+        await NarrativeManager.Instance.PlayCutsceneSequence(true);
+        UIManager.LockCursor(true);
+        PersistentDataManager.Instance.ResetPuzzleData();
         ScenesManager.Instance.ShowScene();
+        await UIManager.Instance.ManualFadeOut();
+        PersistentDataManager.Instance.FindPlayer();
+        await NarrativeManager.Instance.LateSetup();
     }
 }

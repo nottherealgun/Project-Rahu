@@ -28,7 +28,7 @@ public class ProjectRahu
 public class NarrativeManager : SerializedMonoBehaviour
 {
     const string AnimaticsPath = "Animatics/";
-    const string AnimationsPath = "Animations/";
+    const string AnimationsPath = "Animation/";
 
     public static NarrativeManager Instance { get; private set; }
     [OdinSerialize] AudioSource cutsceneAudioSource;
@@ -77,7 +77,7 @@ public class NarrativeManager : SerializedMonoBehaviour
 
     void Start()
     {
-        SetupScene("12","01");
+        SetupScene("12", "01");
     }
 
     public void SetupScene(string setupSceneName, string setupStartingShotID = "01")
@@ -149,7 +149,7 @@ public class NarrativeManager : SerializedMonoBehaviour
         }
     }
 
-    public async UniTask PlayCutsceneSequence()
+    public async UniTask PlayCutsceneSequence(bool withFadeIn = false)
     {
         ShowCutsceneContainer();
 
@@ -165,9 +165,14 @@ public class NarrativeManager : SerializedMonoBehaviour
         cutsceneObj.SetActive(false);
 
         currentShotID = currentShot.nextShotID;
-        
+
         // if shotQueue is not empty, play next shot
-        if (currentShot.shotType == ShotType.EVENT || currentShot.isFinalShot) HideCutsceneContainer();
+        if (currentShot.shotType == ShotType.EVENT || currentShot.isFinalShot)
+        {
+            if(withFadeIn)
+                await UIManager.Instance.ManualFadeIn();
+            HideCutsceneContainer();
+        }
         else
         {
             await PlayCutsceneSequence();
@@ -190,7 +195,7 @@ public class NarrativeManager : SerializedMonoBehaviour
     AsyncOperationHandle<VideoClip> PrepareShot(CutsceneStore.Shot nextShot, VideoPlayer vp)
     {
         string nextfilePath = nextShot.fileName;
-        AsyncOperationHandle<VideoClip> handle = Addressables.LoadAssetAsync<VideoClip>($"{AnimaticsPath}{nextfilePath}.mp4");
+        AsyncOperationHandle<VideoClip> handle = Addressables.LoadAssetAsync<VideoClip>($"{AnimationsPath}{nextfilePath}.mp4");
         handle.Completed += (op) =>
         {
             vp.clip = op.Result;

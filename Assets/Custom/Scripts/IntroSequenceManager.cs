@@ -41,13 +41,10 @@ public class IntroSequenceManager : SerializedMonoBehaviour
     async UniTask StartDemo()
     {
         ScenesManager.Instance.ShowLoadingScreen();
-        await ScenesManager.Instance.LoadScene("CH02_SC12");
+        await ScenesManager.Instance.LoadScene("MainMenu");
         ScenesManager.Instance.HideLoadingScreen();
-        await NarrativeManager.Instance.PlayCutsceneSequence();
-        UIManager.LockCursor(true);
-        PersistentDataManager.Instance.ResetPuzzleData();
         ScenesManager.Instance.ShowScene();
-        PersistentDataManager.Instance.FindPlayer();
-        await NarrativeManager.Instance.LateSetup();
+
+        await UIManager.Instance.ManualFadeOut();
     }
 }
