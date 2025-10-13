@@ -29,17 +29,7 @@ public class PasscodePanel : SerializedMonoBehaviour
     [OdinSerialize] GameObject oldFuse;
     [OdinSerialize] GameObject newFuse;
 
-    void Start()
-    {
-        GameManager.Instance.onPasscodePanelUnlocked += TurnOffPanel;
-    }
-
-    void OnDestroy()
-    {
-        GameManager.Instance.onPasscodePanelUnlocked -= TurnOffPanel;
-    }
-
-    public void TurnOffPanel()
+    public void RemoveBlocker()
     {
         screenBlocker.SetActive(false);
     }
@@ -102,10 +92,6 @@ public class PasscodePanel : SerializedMonoBehaviour
             UIManager.LockCursor(true);
             EnvironmentalAudioManager.Instance.PlaySFX("passcode_correct");
 
-            // replace fuse
-            oldFuse.SetActive(false);
-            newFuse.SetActive(true);
-
             if (PersistentDataManager.Instance.HasEventPassed("passcodeTerminalAccessed")) return true;
             NarrativeManager.Instance.CharacterSpeak("SC12_Fasai_Safe_Finish");
             PersistentDataManager.Instance.MarkEventAsPassed("passcodeTerminalAccessed");
@@ -124,8 +110,12 @@ public class PasscodePanel : SerializedMonoBehaviour
 
     public void CheckFuse()
     {
-        if (PersistentDataManager.Instance.HasEventPassed("foundFuse"))
+        if (PersistentDataManager.Instance.HasEventPassed("foundNewFuse"))
         {
+            RemoveBlocker();
+            // replace fuse
+            oldFuse.SetActive(false);
+            newFuse.SetActive(true);
             NarrativeManager.Instance.CharacterSpeak("SC12_Fasai_DoorPin_FuseReplaced");
         }
         else if (!PersistentDataManager.Instance.HasEventPassed("checkedFuse"))

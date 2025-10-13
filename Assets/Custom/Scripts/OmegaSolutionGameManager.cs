@@ -6,8 +6,6 @@ using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.UI;
-using Cysharp.Threading.Tasks;
-using System.Threading.Tasks;
 
 public class OmegaSolutionGameManager : SerializedMonoBehaviour
 {
@@ -52,6 +50,7 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     Vector2 currentFillerPos;
 
     int round = 0;
+    Tween? tween;
 
     void Start()
     {
@@ -90,6 +89,7 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
 
     void OnDestroy()
     {
+        if (tween != null & tween.Value.isAlive) tween.Value.Stop();
         LeaveGame();
     }
 
@@ -104,11 +104,11 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
             }
             // yellowFiller.GetComponent<RectTransform>().anchoredPosition
             RectTransform rt = yellowFiller.GetComponent<RectTransform>();
-            Tween t = Tween.Custom(rt.anchoredPosition, newPos, 5.0f, t => rt.anchoredPosition = t, Ease.OutSine);
+            tween = Tween.Custom(rt.anchoredPosition, newPos, 5.0f, t => rt.anchoredPosition = t, Ease.OutSine);
 
             currentGaugeMode = GaugeMode.DEPLETING;
 
-            yield return t;
+            yield return tween;
         }
     }
 

@@ -7,13 +7,9 @@ public class PdaInitializer : SerializedMonoBehaviour
     [TextArea(10, 20)] public string body;
     [PreviewField(50), AssetsOnly] public Sprite image;
 
-    public void SetupPDA()
-    {
-        UIManager.Instance.SetupPDA(header, body, image);
-    }
-
     public void OpenPDA()
     {
+        UIManager.Instance.SetupPDA(header, body, image);
         UIManager.OnTransitioned +=  UIManager.Instance.OpenPDA;
     }
 
