@@ -41,6 +41,11 @@ public class UIManager : SerializedMonoBehaviour
     }
     [OdinSerialize] TMP_Text subtitleText;
 
+    [Title("Interaction Prompt HUD")]
+    [OdinSerialize] GameObject interactionPromptHUD;
+
+    [Title("Quest-Task HUD")]
+
     Stack uiLayers = new Stack();
 
     void Awake()
@@ -91,23 +96,26 @@ public class UIManager : SerializedMonoBehaviour
             });
     }
 
-    public async UniTask<Tween> ManualFadeOut()
-    {
-        Tween tween = Tween.Custom(Color.black, Color.clear, duration: 0.5f, onValueChange: newVal => _transitionPanelImage.color = newVal);
-        await tween;
-        RunOnTransitioned();
-        return tween;
-    }
-
     public void RunOnTransitioned()
     {
         OnTransitioned?.Invoke();
         OnTransitioned = null;
     }
 
-    public Tween ManualFadeIn()
+    public async UniTask ManualFadeIn()
     {
-        return Tween.Custom(Color.clear, Color.black, duration: 0.5f, onValueChange: newVal => _transitionPanelImage.color = newVal);
+        isTransitioning = true;
+        _transitionPanelImage.raycastTarget = true;
+        await Tween.Custom(Color.clear, Color.black, duration: 0.5f, onValueChange: newVal => _transitionPanelImage.color = newVal);
+    }
+
+    public async UniTask ManualFadeOut()
+    {
+        RunOnTransitioned();
+        Tween tween = Tween.Custom(Color.black, Color.clear, duration: 0.5f, onValueChange: newVal => _transitionPanelImage.color = newVal);
+        await tween;
+        _transitionPanelImage.raycastTarget = false;
+        isTransitioning = false;
     }
 
     public void PauseGame()
@@ -139,8 +147,6 @@ public class UIManager : SerializedMonoBehaviour
         pdaMenu.SetActive(true);
         LockCursor(false);
         if (playerController != null) playerController.enabled = false;
-
-        uiLayers.Push("PDA");
     }
 
     public void ClosePDA()
@@ -192,6 +198,16 @@ public class UIManager : SerializedMonoBehaviour
         LockCursor(false);
     }
 
+    public void OpenInteractionHUD()
+    {
+        interactionPromptHUD.SetActive(true);
+    }
+
+    public void CloseInteractionHUD()
+    {
+        interactionPromptHUD.SetActive(false);
+    }
+
     public void CloseMenu()
     {
         if (uiLayers.Count == 0) return;
@@ -199,9 +215,6 @@ public class UIManager : SerializedMonoBehaviour
         string currentLayer = (string)uiLayers.Pop();
         switch (currentLayer)
         {
-            case "PDA":
-                ClosePDA();
-                break;
             case "PauseMenu":
                 ResumeGame();
                 break;
