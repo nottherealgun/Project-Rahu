@@ -40,24 +40,9 @@ public class MainMenu : Menu
 
     async void StartNewGame()
     {
-
         ScenesManager.Instance.ShowLoadingScreen();
-        await ScenesManager.Instance.LoadScene("CH02_SC12");
+        await ScenesManager.Instance.LoadScene("Demo_Intro_SC12");
         ScenesManager.Instance.HideLoadingScreen();
-        await NarrativeManager.Instance.PlayCutsceneSequence();
-        UIManager.LockCursor(true);
-        PersistentDataManager.Instance.ResetPuzzleData();
         ScenesManager.Instance.ShowScene();
-        PersistentDataManager.Instance.FindPlayer();
-
-        await NarrativeManager.Instance.LateSetup();
     }
-
-    // async void OpenSettingsMenu()
-    // {
-    //     ScenesManager.Instance.ShowLoadingScreen();
-    //     await ScenesManager.Instance.LoadScene("Settings");
-    //     ScenesManager.Instance.HideLoadingScreen();
-    //     ScenesManager.Instance.ShowScene();
-    // }
 }
