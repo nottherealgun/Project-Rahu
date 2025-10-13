@@ -84,13 +84,13 @@ public class PuzzleHandler : SerializedMonoBehaviour
                 CrystalCrushGameManager script = currentPuzzleManager.GetComponent<CrystalCrushGameManager>();
                 script.onKeyCrystalCollected.AddListener(SpawnCrystalProp);
                 NarrativeManager.Instance.CharacterSpeak("SC12_Nate_CandyCrush_DumbQuestion");
-                GameManager.Instance.OnPuzzleStart();
+                await GameManager.Instance.OnPuzzleStart();
                 break;
             case PuzzleType.OmegaSolution:
                 EnvironmentalAudioManager.Instance.PlayMusic("chemical_puzzle_bgm");
                 EnvironmentalAudioManager.Instance.PlayPersistingAmbience("chemical_stirring");
                 NarrativeManager.Instance.CharacterSpeak("SC12_Nate_Chemical_Joke");
-                GameManager.Instance.OnPuzzleStart();
+                await GameManager.Instance.OnPuzzleStart();
                 break;
         }
     }
@@ -123,6 +123,8 @@ public class PuzzleHandler : SerializedMonoBehaviour
                 EnvironmentalAudioManager.Instance.StopPersistingAmbience("chemical_stirring");
                 break;
         }
+
+        EnvironmentalAudioManager.Instance.PlaySFX("puzzle_complete");
 
         UIManager.OnTransitioned += () => ScenesManager.Instance.UnloadPuzzleScene(puzzleSceneName);
         puzzleLoaded = false;
