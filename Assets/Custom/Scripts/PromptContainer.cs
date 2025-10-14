@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Microsoft.Unity.VisualStudio.Editor;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;

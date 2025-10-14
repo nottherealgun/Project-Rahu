@@ -118,7 +118,7 @@ public class PasscodePanel : SerializedMonoBehaviour
             newFuse.SetActive(true);
             NarrativeManager.Instance.CharacterSpeak("SC12_Fasai_DoorPin_FuseReplaced");
         }
-        else if (!PersistentDataManager.Instance.HasEventPassed("checkedFuse"))
+        else if (!PersistentDataManager.Instance.HasEventPassed("foundNewFuse") && !PersistentDataManager.Instance.HasEventPassed("checkedFuse"))
         {
             NarrativeManager.Instance.CharacterSpeak("SC12_Fasai_Random_FuseBlown");
             PersistentDataManager.Instance.MarkEventAsPassed("checkedFuse");

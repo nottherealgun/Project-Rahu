@@ -55,6 +55,7 @@ public class InteractableObject : SerializedMonoBehaviour
                 UIManager.Instance.AddUILayer(gameObject.name);
                 UIManager.LockCursor(false);
             }
+            UIManager.OnTransitioned += () => UIManager.Instance.OpenInteractionHUD();
             DeactivatePrompt();
             onEnterInteraction?.Invoke();
             if (canBeRotated)
@@ -76,10 +77,11 @@ public class InteractableObject : SerializedMonoBehaviour
                 UIManager.lastCursorState = true;
             }
 
-            if(gameObject.TryGetComponent(out PuzzleHandler puzzleHandler) == false)
+            if (gameObject.TryGetComponent(out PuzzleHandler puzzleHandler) == false)
             {
                 UIManager.OnTransitioned += () => ActivatePrompt();
             }
+            UIManager.OnTransitioned += () => UIManager.Instance.CloseInteractionHUD();
             // If player stops interacting with the object
             onExitedInteraction?.Invoke();
             if (thisOpensPDA)

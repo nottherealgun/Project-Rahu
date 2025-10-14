@@ -223,7 +223,7 @@ public class PlayerController : SerializedMonoBehaviour
         
         if (isInteracting == false)
         {
-            UIManager.OnTransitioned += () => UIManager.Instance.OpenInteractionHUD();
+            // UIManager.OnTransitioned += () => UIManager.Instance.OpenInteractionHUD();
             // If not interacting, start interaction
             EnterInteractionWithObject();
         }
@@ -238,7 +238,7 @@ public class PlayerController : SerializedMonoBehaviour
 
         if (isInteracting)
         {
-            UIManager.OnTransitioned += () => UIManager.Instance.CloseInteractionHUD();
+            // UIManager.OnTransitioned += () => UIManager.Instance.CloseInteractionHUD();
             // If already interacting, exit interaction
             ExitInteractionWithObject();
         }
