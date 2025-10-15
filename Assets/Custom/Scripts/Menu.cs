@@ -8,8 +8,6 @@ public abstract class Menu : SerializedMonoBehaviour
 {
     [OdinSerialize] GameObject firstSelected;
 
-    [OdinSerialize] public Dictionary<string, InputAction> UI;
-
     void Awake()
     {
         if (firstSelected == null)

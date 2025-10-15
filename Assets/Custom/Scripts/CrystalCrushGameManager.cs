@@ -77,6 +77,7 @@ class CrystalGameGrid : SerializedMonoBehaviour
         // GenerateUnplayableGame();
         barrier.SetActive(true);
         await UpdateGrid();
+        await AnimateVisuals();
         barrier.SetActive(false);
     }
 
@@ -87,7 +88,7 @@ class CrystalGameGrid : SerializedMonoBehaviour
 
         if (gridPos.x == 0)
         {
-            position.y += CellSize.y * 1.5f;
+            position.y += CellSize.y * 2f;
         }
         GameObject _crystalPrefab = Instantiate(crystalPrefab, position, Quaternion.identity, crystalContainer.transform);
         _crystalPrefab.transform.SetAsFirstSibling();

@@ -100,13 +100,13 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
             Vector2 newPos = Vector2.zero;
             while (Math.Abs(currentFillerPos.y - newPos.y) <= 150f)
             {
-                newPos = startingFillerPos + Vector2.down * UnityEngine.Random.Range(100, 1000);
+                newPos = startingFillerPos + Vector2.down * UnityEngine.Random.Range(100, 340);
             }
             // yellowFiller.GetComponent<RectTransform>().anchoredPosition
             RectTransform rt = yellowFiller.GetComponent<RectTransform>();
             tween = Tween.Custom(rt.anchoredPosition, newPos, 5.0f, t => rt.anchoredPosition = t, Ease.OutSine);
 
-            currentGaugeMode = GaugeMode.DEPLETING;
+            // currentGaugeMode = GaugeMode.DEPLETING;
 
             yield return tween;
         }
@@ -157,19 +157,13 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         PlayBoilingSFX(HIGH_BOILING_POINT_IDX);
     }
 
-    public void OnGreenFillExited(GameObject triggerObj)
-    {
-        currentGaugeMode = GaugeMode.FILLING;
-        PlayBoilingSFX(MID_BOILING_POINT_IDX);
-    }
-
     public void OnYellowFillEntered(GameObject triggerObj)
     {
         currentGaugeMode = GaugeMode.FILLING;
         PlayBoilingSFX(MID_BOILING_POINT_IDX);
     }
 
-    public void OnYellowFillExited(GameObject triggerObj)
+    public void OnRedFillEntered(GameObject triggerObj)
     {
         currentGaugeMode = GaugeMode.DEPLETING;
         PlayBoilingSFX(LOW_BOILING_POINT_IDX);
@@ -180,7 +174,7 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         float newY = indicatorLevel * Mathf.Abs(topTransform.anchoredPosition.y - bottomTransformAnchorPos.y) / maxLevel;
         indicator.GetComponent<RectTransform>().anchoredPosition = bottomTransformAnchorPos + new Vector2(0f, newY);
 
-        gaugeFiller.GetComponent<Image>().color = new Color(1f, 1f, 1f, gaugeFiller.fillAmount);
+        gaugeFiller.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.1f+gaugeFiller.fillAmount);
         beakerFiller.GetComponent<Image>().color = new Color(1f, gaugeFiller.fillAmount, gaugeFiller.fillAmount, 1f);
     }
 
