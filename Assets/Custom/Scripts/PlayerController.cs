@@ -246,6 +246,9 @@ public class PlayerController : SerializedMonoBehaviour
 
     public void OnMenu(InputValue value)
     {
+        if (UIManager.isTransitioning) return;
+        if (isInteracting) return;
+        
         // On Windows PC, Menu = ESC
         if (UIManager.isGamePaused)
         {

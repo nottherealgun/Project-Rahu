@@ -40,8 +40,9 @@ public class InteractableObject : SerializedMonoBehaviour
 
     [OdinSerialize] GameObject interactionPrompt;
     [OdinSerialize] bool thisOpensPDA = false;
+    [OdinSerialize] bool thisOpensHUD = true;
     [OdinSerialize, ShowIf("@thisOpensPDA == true")] PdaInitializer pdaInitializer;
-
+    [OdinSerialize] bool customPromptActivationEnabled = false;
     public void OnInteracted(bool isBeingInteractedWith)
     {
         this.isBeingInteractedWith = isBeingInteractedWith;
@@ -55,7 +56,8 @@ public class InteractableObject : SerializedMonoBehaviour
                 UIManager.Instance.AddUILayer(gameObject.name);
                 UIManager.LockCursor(false);
             }
-            UIManager.OnTransitioned += () => UIManager.Instance.OpenInteractionHUD();
+            if(thisOpensHUD)
+                UIManager.OnTransitioned += () => UIManager.Instance.OpenInteractionHUD();
             DeactivatePrompt();
             onEnterInteraction?.Invoke();
             if (canBeRotated)
@@ -75,12 +77,10 @@ public class InteractableObject : SerializedMonoBehaviour
                 UIManager.Instance.CloseMenu();
                 UIManager.LockCursor(true);
                 UIManager.lastCursorState = true;
+                if(!customPromptActivationEnabled)
+                    UIManager.OnTransitioned += () => ActivatePrompt();
             }
 
-            if (gameObject.TryGetComponent(out PuzzleHandler puzzleHandler) == false)
-            {
-                UIManager.OnTransitioned += () => ActivatePrompt();
-            }
             UIManager.OnTransitioned += () => UIManager.Instance.CloseInteractionHUD();
             // If player stops interacting with the object
             onExitedInteraction?.Invoke();
@@ -176,13 +176,13 @@ public class InteractableObject : SerializedMonoBehaviour
         }
     }
 
-    void ActivatePrompt()
+    public void ActivatePrompt()
     {
         if (interactionPrompt == null) return;
         interactionPrompt.SetActive(true);
     }
 
-    void DeactivatePrompt()
+    public void DeactivatePrompt()
     {
         if (interactionPrompt == null) return;
         interactionPrompt.SetActive(false);

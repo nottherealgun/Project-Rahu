@@ -443,6 +443,17 @@
                 },
                 {
                     "name": "",
+                    "id": "b1ee012a-537e-4c5a-b0e4-f81333254c67",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "ExitInteraction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "5cfc1a6f-d29c-4bb8-8a22-355ae59d82e7",
                     "path": "<Keyboard>/escape",
                     "interactions": "",

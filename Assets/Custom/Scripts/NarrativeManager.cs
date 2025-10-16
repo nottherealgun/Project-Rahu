@@ -62,6 +62,7 @@ public class NarrativeManager : SerializedMonoBehaviour
             this.characters = characters;
         }
     }
+    [OdinSerialize] bool testSetup = false;
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -77,7 +78,8 @@ public class NarrativeManager : SerializedMonoBehaviour
 
     void Start()
     {
-        SetupScene("12", "01");
+        if(testSetup)
+            SetupScene("12", "01");
     }
 
     public void SetupScene(string setupSceneName, string setupStartingShotID = "01")

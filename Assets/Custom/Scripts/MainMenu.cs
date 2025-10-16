@@ -9,6 +9,8 @@ public class MainMenu : Menu
     void Start()
     {
         UIManager.LockCursor(false);
+        UIManager.Instance.CloseInteractionHUD();
+        NarrativeManager.Instance.SetupScene("12", "01");
         EnvironmentalAudioManager.Instance.PlayMusic("main_menu_music");
         gameVersionText.text = "build " + Application.version;
         gameVersionText.text += "\nUnity: " + Application.unityVersion;

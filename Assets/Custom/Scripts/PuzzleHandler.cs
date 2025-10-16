@@ -23,9 +23,11 @@ public class PuzzleHandler : SerializedMonoBehaviour
     PuzzleCompletionEmitter completionEmitter;
     [OdinSerialize] UnityEvent onPuzzleCompleted;
     [OdinSerialize, ReadOnly] bool puzzleLoaded = false;
+    [ReadOnly] public bool puzzleCompleted = false;
     void Start()
     {
         onPuzzleCompleted.AddListener(UnloadPuzzle);
+        onPuzzleCompleted.AddListener(() => print("PUZZLE COMPLETED."));
         onPuzzleCompleted.AddListener(GameManager.Instance.OnPuzzleComplete);
 
         switch (puzzle)
@@ -58,6 +60,32 @@ public class PuzzleHandler : SerializedMonoBehaviour
         {
             UIManager.OnTransitioned += SetupPuzzle;
         }
+
+        switch (puzzle)
+        {
+            case PuzzleType.CrystalCrush:
+                EnvironmentalAudioManager.Instance.PlayMusic("crystal_puzzle_bgm");
+                break;
+            case PuzzleType.OmegaSolution:
+                EnvironmentalAudioManager.Instance.PlayMusic("chemical_puzzle_bgm");
+                EnvironmentalAudioManager.Instance.PlayPersistingAmbience("chemical_stirring");
+                break;
+        }
+    }
+
+    public void LeavePuzzle()
+    {
+        UIManager.OnTransitioned += HidePuzzle;
+        UIManager.OnTransitioned += EnvironmentalAudioManager.Instance.StopMusic;
+        if (!puzzleCompleted)
+            UIManager.OnTransitioned += gameObject.GetComponent<InteractableObject>().ActivatePrompt;
+        
+        switch (puzzle)
+        {
+            case PuzzleType.OmegaSolution:
+                EnvironmentalAudioManager.Instance.StopPersistingAmbience("chemical_stirring");
+                break;
+        }
     }
 
     async void SetupPuzzle()
@@ -72,6 +100,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
         completionEmitter = currentPuzzleManager.GetComponent<PuzzleCompletionEmitter>();
         completionEmitter.onPuzzleCompleted.AddListener(() =>
         {
+            puzzleCompleted = true;
             playerController.ForceExitInteraction();
             playerController.DisconnectFromInteractingObject();
             PersistentDataManager.Instance.puzzles[puzzle] = true;
@@ -87,8 +116,6 @@ public class PuzzleHandler : SerializedMonoBehaviour
                 await GameManager.Instance.OnPuzzleStart();
                 break;
             case PuzzleType.OmegaSolution:
-                EnvironmentalAudioManager.Instance.PlayMusic("chemical_puzzle_bgm");
-                EnvironmentalAudioManager.Instance.PlayPersistingAmbience("chemical_stirring");
                 NarrativeManager.Instance.CharacterSpeak("SC12_Nate_Chemical_Joke");
                 await GameManager.Instance.OnPuzzleStart();
                 break;
@@ -105,11 +132,6 @@ public class PuzzleHandler : SerializedMonoBehaviour
         ScenesManager.HideSceneObjects(puzzleSceneName);
     }
 
-    public void LeavePuzzle()
-    {
-        UIManager.OnTransitioned += HidePuzzle;
-    }
-
     public void UnloadPuzzle()
     {
         switch (puzzle)
@@ -117,7 +139,6 @@ public class PuzzleHandler : SerializedMonoBehaviour
             case PuzzleType.CrystalCrush:
                 CrystalCrushGameManager script = currentPuzzleManager.GetComponent<CrystalCrushGameManager>();
                 script.onKeyCrystalCollected.RemoveAllListeners();
-                EnvironmentalAudioManager.Instance.StopMusic();
                 break;
             case PuzzleType.OmegaSolution:
                 EnvironmentalAudioManager.Instance.StopPersistingAmbience("chemical_stirring");
@@ -132,7 +153,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
         currentPuzzleManager = null;
         completionEmitter = null;
 
-        if(GameManager.Instance.TwoPuzzlesAreDone())
+        if (GameManager.Instance.TwoPuzzlesAreDone())
         {
             if (PersistentDataManager.Instance.HasEventPassed("replacedFuse")) return;
             NarrativeManager.Instance.CharacterSpeak("SC12_Fasai_After2ndPuzzle_Foundfuse");

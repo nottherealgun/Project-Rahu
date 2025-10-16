@@ -74,10 +74,10 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
             switch (currentGaugeMode)
             {
                 case GaugeMode.FILLING_FAST:
-                    gaugeFiller.fillAmount += progressRiseRate;
+                    gaugeFiller.fillAmount += progressRiseRate/3;
                     break;
                 case GaugeMode.FILLING:
-                    gaugeFiller.fillAmount += progressRiseRate/3;
+                    gaugeFiller.fillAmount += progressRiseRate/9;
                     break;
                 case GaugeMode.DEPLETING:
                     gaugeFiller.fillAmount -= progressDropRate;
