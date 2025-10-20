@@ -56,19 +56,16 @@ public class InteractableObject : SerializedMonoBehaviour
                 UIManager.Instance.AddUILayer(gameObject.name);
                 UIManager.LockCursor(false);
             }
-            if(thisOpensHUD)
-                UIManager.OnTransitioned += () => UIManager.Instance.OpenInteractionHUD();
-            DeactivatePrompt();
-            onEnterInteraction?.Invoke();
+            if(thisOpensHUD) UIManager.OnTransitioned += () => UIManager.Instance.EnableInteractionHUD();
             if (canBeRotated)
             {
                 // Tween.PositionY(itemMesh.transform, endValue: initialPosition.y + 0.15f, duration: 1, ease: Ease.OutCubic);
                 Tween.PositionY(transform, endValue: initialPosition.y + 0.15f, duration: 1, ease: Ease.OutCubic);
             }
-            if (thisOpensPDA)
-            {
-                pdaInitializer.OpenPDA();
-            }
+            if (thisOpensPDA) pdaInitializer.OpenPDA();
+            DeactivatePrompt();
+            UIManager.Instance.DisableQuestHUD();
+            onEnterInteraction?.Invoke();
         }
         else
         {
@@ -80,14 +77,11 @@ public class InteractableObject : SerializedMonoBehaviour
                 if(!customPromptActivationEnabled)
                     UIManager.OnTransitioned += () => ActivatePrompt();
             }
-
-            UIManager.OnTransitioned += () => UIManager.Instance.CloseInteractionHUD();
+            if (thisOpensPDA) pdaInitializer.ClosePDA();
+            if (thisOpensHUD) UIManager.OnTransitioned += () => UIManager.Instance.DisableInteractionHUD();
+            UIManager.OnTransitioned += UIManager.Instance.EnableQuestHUD;
             // If player stops interacting with the object
             onExitedInteraction?.Invoke();
-            if (thisOpensPDA)
-            {
-                pdaInitializer.ClosePDA();
-            }
         }
     }
 

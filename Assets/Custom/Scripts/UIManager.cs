@@ -45,8 +45,10 @@ public class UIManager : SerializedMonoBehaviour
     [OdinSerialize] GameObject interactionPromptHUD;
 
     [Title("Quest-Task HUD")]
+    [OdinSerialize] GameObject questHUD;
 
     Stack uiLayers = new Stack();
+    Sequence? sequence;
 
     void Awake()
     {
@@ -65,6 +67,10 @@ public class UIManager : SerializedMonoBehaviour
 
     void Start()
     {
+        if (GameManager.Instance.StartsAsTest)
+        {
+            EnableQuestHUD();
+        }
         PersistentDataManager.Instance.OnPlayerFound += OnPlayerSearchStatus;
         settingsMenu.GetComponent<SettingsMenu>().Initialize();
     }
@@ -135,6 +141,26 @@ public class UIManager : SerializedMonoBehaviour
         Time.timeScale = 1f;
     }
 
+    public void EnableQuestHUD()
+    {
+        if (sequence != null && sequence.Value.isAlive) sequence.Value.Stop();
+        sequence = Sequence.Create();
+        sequence.Value
+            .Group(Tween.PositionX(questHUD.GetComponent<RectTransform>(), 0f, 1f))
+            .Group(Tween.Alpha(questHUD.GetComponent<CanvasGroup>(), 1f, 1f))
+            .ChainDelay(7.5f)
+            .Chain(Tween.PositionX(questHUD.GetComponent<RectTransform>(), -150f, 0.5f))
+            .Group(Tween.Alpha(questHUD.GetComponent<CanvasGroup>(), 0f, 0.5f));
+    }
+    public void DisableQuestHUD()
+    {
+        if (sequence != null && sequence.Value.isAlive) sequence.Value.Stop();
+        sequence = Sequence.Create();
+        sequence.Value
+            .Group(Tween.PositionX(questHUD.GetComponent<RectTransform>(), -150f, 0.5f))
+            .Group(Tween.Alpha(questHUD.GetComponent<CanvasGroup>(), 0f, 0.5f));
+    }
+
     public void SetupPDA(string header, string body, Sprite image)
     {
         pdaHeader.text = header;
@@ -142,14 +168,14 @@ public class UIManager : SerializedMonoBehaviour
         pdaImage.sprite = image;
     }
 
-    public void OpenPDA()
+    public void EnablePDA()
     {
         pdaMenu.SetActive(true);
         LockCursor(false);
         if (playerController != null) playerController.enabled = false;
     }
 
-    public void ClosePDA()
+    public void DisablePDA()
     {
         pdaMenu.SetActive(false);
         LockCursor(lastCursorState);
@@ -198,12 +224,12 @@ public class UIManager : SerializedMonoBehaviour
         LockCursor(false);
     }
 
-    public void OpenInteractionHUD()
+    public void EnableInteractionHUD()
     {
         interactionPromptHUD.SetActive(true);
     }
 
-    public void CloseInteractionHUD()
+    public void DisableInteractionHUD()
     {
         interactionPromptHUD.SetActive(false);
     }

@@ -9,7 +9,7 @@ public class MainMenu : Menu
     void Start()
     {
         UIManager.LockCursor(false);
-        UIManager.Instance.CloseInteractionHUD();
+        UIManager.Instance.DisableInteractionHUD();
         NarrativeManager.Instance.SetupScene("12", "01");
         EnvironmentalAudioManager.Instance.PlayMusic("main_menu_music");
         gameVersionText.text = "build " + Application.version;
@@ -44,13 +44,18 @@ public class MainMenu : Menu
     {
         ScenesManager.Instance.ShowLoadingScreen();
         await ScenesManager.Instance.LoadScene("CH02_SC12");
+
         ScenesManager.Instance.HideLoadingScreen();
         await NarrativeManager.Instance.PlayCutsceneSequence(true);
+
         UIManager.LockCursor(true);
         PersistentDataManager.Instance.ResetPuzzleData();
         ScenesManager.Instance.ShowScene();
         await UIManager.Instance.ManualFadeOut();
+
         PersistentDataManager.Instance.FindPlayer();
         await NarrativeManager.Instance.LateSetup();
+
+        UIManager.Instance.EnableQuestHUD();
     }
 }

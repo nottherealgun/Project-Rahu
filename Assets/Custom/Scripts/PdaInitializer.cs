@@ -10,11 +10,11 @@ public class PdaInitializer : SerializedMonoBehaviour
     public void OpenPDA()
     {
         UIManager.Instance.SetupPDA(header, body, image);
-        UIManager.OnTransitioned +=  UIManager.Instance.OpenPDA;
+        UIManager.OnTransitioned +=  UIManager.Instance.EnablePDA;
     }
 
     public void ClosePDA()
     {
-        UIManager.OnTransitioned +=  UIManager.Instance.ClosePDA;
+        UIManager.OnTransitioned +=  UIManager.Instance.DisablePDA;
     }
 }

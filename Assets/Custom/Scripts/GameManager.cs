@@ -9,6 +9,7 @@ public class GameManager : SerializedMonoBehaviour
     public static GameManager Instance { get; private set; }
     [OdinSerialize] PersistentDataManager persistentDataManager;
     public UnityAction onPasscodePanelUnlocked;
+    public bool StartsAsTest = false;
 
     void Awake()
     {

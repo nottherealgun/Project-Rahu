@@ -4,6 +4,7 @@ using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
+using PixelCrushers.DialogueSystem;
 
 public class PersistentDataManager : SerializedMonoBehaviour
 {
@@ -31,24 +32,14 @@ public class PersistentDataManager : SerializedMonoBehaviour
         { PuzzleType.OmegaSolution   , false },
         { PuzzleType.Platinum        , false }
     };
-
-    [OdinSerialize, TabGroup("tab1", "Game Data")]
-    [DictionaryDrawerSettings(KeyLabel = "Event", ValueLabel = "Is Completed?")]
-    public Dictionary<string, bool> oneShotEvent = new Dictionary<string, bool>
-    {
-        { "checkedFuse" , false },
-        { "foundNewFuse" , false },
-        { "replacedFuse" , false },
-        { "gemGameFinished", false },
-        { "chemicalGameFinished", false },
-        { "passcodeTerminalAccessed", false }
-    };
     [ShowInInspector, ReadOnly] public static GameObject Player = null;
     [ShowInInspector, ReadOnly] public static bool isPlayerActive = false;
     [HideInInspector] public UnityAction<bool> OnPlayerFound;
+    DialogueDatabase dialogueDatabase;
 
     void Start()
     {
+        dialogueDatabase = DialogueManager.masterDatabase;
         FindPlayer();
     }
 
@@ -78,15 +69,11 @@ public class PersistentDataManager : SerializedMonoBehaviour
 
     public bool HasEventPassed(string eventName)
     {
-        if (oneShotEvent.ContainsKey(eventName))
-            return oneShotEvent[eventName];
-        else
-            return false;
+        return DialogueLua.GetVariable(eventName).AsBool;
     }
 
     public void MarkEventAsPassed(string eventName)
     {
-        if (oneShotEvent.ContainsKey(eventName))
-            oneShotEvent[eventName] = true;
+        DialogueLua.SetVariable(eventName,true);
     }
 }

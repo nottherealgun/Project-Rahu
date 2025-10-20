@@ -62,7 +62,7 @@ public class NarrativeManager : SerializedMonoBehaviour
             this.characters = characters;
         }
     }
-    [OdinSerialize] bool testSetup = false;
+    bool testSetup { get { return GameManager.Instance.StartsAsTest; } } 
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -78,7 +78,7 @@ public class NarrativeManager : SerializedMonoBehaviour
 
     void Start()
     {
-        if(testSetup)
+        if (testSetup)
             SetupScene("12", "01");
     }
 
@@ -171,7 +171,7 @@ public class NarrativeManager : SerializedMonoBehaviour
         // if shotQueue is not empty, play next shot
         if (currentShot.shotType == ShotType.EVENT || currentShot.isFinalShot)
         {
-            if(withFadeIn)
+            if (withFadeIn)
                 await UIManager.Instance.ManualFadeIn();
             HideCutsceneContainer();
         }
