@@ -151,6 +151,7 @@ public class NarrativeManager : SerializedMonoBehaviour
         }
     }
 
+    [Button(ButtonSizes.Large)]
     public async UniTask PlayCutsceneSequence(bool withFadeIn = false)
     {
         ShowCutsceneContainer();

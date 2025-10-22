@@ -5,8 +5,8 @@ using UnityEngine.InputSystem;
 using System;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
-using UnityEngine.UI;
-using UnityEngine.Events;
+using System.Collections.Generic;
+using System.Linq;
 
 public class PlayerController : SerializedMonoBehaviour
 {
@@ -90,6 +90,7 @@ public class PlayerController : SerializedMonoBehaviour
     #endregion
     // player
     private bool isInteracting = false;
+    bool hasActiveChoicePrompt { get { return ActiveChoicePromptExists(); } }
     private float _speed;
     private float _animationBlend;
     private float _targetRotation = 0.0f;
@@ -440,13 +441,23 @@ public class PlayerController : SerializedMonoBehaviour
             _cinemachineTargetYaw, 0.0f);
     }
 
+    public void LockCamera()
+    {
+        LockCameraPosition = true;
+    }
+
+    public void UnlockCamera()
+    {
+        LockCameraPosition = false;
+    }
+
     void Move()
     {
         // set target speed based on move speed, sprint speed and if sprint is pressed
         float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
         if (_input.move == Vector2.zero) targetSpeed = 0.0f;
 
-        if (isInteracting)
+        if (isInteracting || hasActiveChoicePrompt)
         {
             targetSpeed = 0.0f;
             _input.move = Vector2.zero;
@@ -615,5 +626,10 @@ public class PlayerController : SerializedMonoBehaviour
     void OnDestroy()
     {
         UIManager.LockCursor(false);
+    }
+
+    bool ActiveChoicePromptExists()
+    {
+        return FindAnyObjectByType<ChoicePrompt>() != null;
     }
 }

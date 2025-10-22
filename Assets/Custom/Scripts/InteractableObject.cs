@@ -56,7 +56,13 @@ public class InteractableObject : SerializedMonoBehaviour
                 UIManager.Instance.AddUILayer(gameObject.name);
                 UIManager.LockCursor(false);
             }
-            if(thisOpensHUD) UIManager.OnTransitioned += () => UIManager.Instance.EnableInteractionHUD();
+
+            if (thisOpensHUD)
+            {
+                if (canBeRotated) UIManager.OnTransitioned += () => UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.ROTATABLE);
+                else UIManager.OnTransitioned += () => UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.INTERACTABLE);
+            }
+            
             if (canBeRotated)
             {
                 // Tween.PositionY(itemMesh.transform, endValue: initialPosition.y + 0.15f, duration: 1, ease: Ease.OutCubic);

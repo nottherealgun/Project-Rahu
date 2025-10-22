@@ -50,6 +50,8 @@ public class UIManager : SerializedMonoBehaviour
     Stack uiLayers = new Stack();
     Sequence? sequence;
 
+    public enum InteractionHUDPreset { DEFAULT, INTERACTABLE, ROTATABLE, CHOICE, QTE, CUSTOM }
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -80,6 +82,12 @@ public class UIManager : SerializedMonoBehaviour
     {
         // true = locked, false = unlocked
         Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
+        Cursor.visible = !newState;
+    }
+
+    public static void RevertCursorState()
+    {
+        LockCursor(lastCursorState);
     }
 
     void OnPlayerSearchStatus(bool found)
@@ -231,7 +239,17 @@ public class UIManager : SerializedMonoBehaviour
 
     public void DisableInteractionHUD()
     {
+        interactionPromptHUD.GetComponent<InteractionPromptHUD>().DisablePrompts();
         interactionPromptHUD.SetActive(false);
+    }
+
+    public void EnableInteractionHUD(InteractionHUDPreset preset)
+    {
+        InteractionPromptHUD interactionPromptHUDScript = interactionPromptHUD.GetComponent<InteractionPromptHUD>();
+
+        interactionPromptHUDScript.EnablePrompts(preset);
+
+        EnableInteractionHUD();
     }
 
     public void CloseMenu()

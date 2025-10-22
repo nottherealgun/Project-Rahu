@@ -7,4 +7,9 @@ public class LayoutFixer : MonoBehaviour
     {
         LayoutRebuilder.ForceRebuildLayoutImmediate(this.transform as RectTransform);
     }
+
+    void OnValidate()
+    {
+        LayoutRebuilder.ForceRebuildLayoutImmediate(this.transform as RectTransform);
+    }
 }
