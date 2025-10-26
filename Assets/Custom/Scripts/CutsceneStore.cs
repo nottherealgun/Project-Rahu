@@ -7,17 +7,18 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.Video;
 
 public enum SubType { NONE, A, B }
-public enum ShotType { LINEAR, EVENT }
+public enum ShotType { LINEAR, EVENT, CHOICE }
 
 [CreateAssetMenu(fileName = "CutsceneStore", menuName = "Project Rahu/CutsceneStore")]
 public class CutsceneStore : SerializedScriptableObject
 {
     public struct Shot
     {
-        [OdinSerialize, EnumToggleButtons] public ShotType shotType;
+        [EnumToggleButtons]
+        public ShotType shotType;
         public string fileName;
-        [OdinSerialize, ShowIf("@shotType == ShotType.LINEAR")] public string nextShotID;
-        [OdinSerialize, ShowIf("@shotType == ShotType.LINEAR")] public bool isFinalShot;
+        public string nextShotID;
+        public bool isFinalShot;
         public Shot(string nextShotID, string fileName, ShotType shotType, bool isFinalShot = false)
         {
             this.fileName = fileName;
@@ -31,15 +32,15 @@ public class CutsceneStore : SerializedScriptableObject
     Dictionary<string, Shot> shotStore = new Dictionary<string, Shot>
     {
 
-        { "A", new Shot("B","TestShot1", ShotType.LINEAR ) },
-        { "B", new Shot("C","TestShot2", ShotType.LINEAR ) },
-        { "C", new Shot("","TestShot3", ShotType.LINEAR, true ) },
+        { "A_01",   new Shot("B_01" ,"TestShot1", ShotType.LINEAR ) },
+        { "B_01",   new Shot("C_01" ,"TestShot2", ShotType.CHOICE ) },
+        { "C_01",   new Shot(""     ,"TestShot3", ShotType.LINEAR, true ) },
 
-        { "01_01", new Shot("01_02","CH01_SC01_SH01", ShotType.LINEAR ) },
-        { "01_02", new Shot("","CH01_SC01_SH02", ShotType.EVENT ) },
-        { "01_03", new Shot("","CH01_SC01_SH03", ShotType.EVENT ) },
-        { "01_04", new Shot("","CH01_SC01_SH04", ShotType.EVENT ) },
-        { "01_05", new Shot("","CH01_SC01_SH05", ShotType.EVENT ) },
+        { "01_01",  new Shot("01_02","CH01_SC01_SH01", ShotType.LINEAR ) },
+        { "01_02",  new Shot("","CH01_SC01_SH02", ShotType.EVENT ) },
+        { "01_03",  new Shot("","CH01_SC01_SH03", ShotType.EVENT ) },
+        { "01_04",  new Shot("","CH01_SC01_SH04", ShotType.EVENT ) },
+        { "01_05",  new Shot("","CH01_SC01_SH05", ShotType.EVENT ) },
 
         { "01_06", new Shot("02_01","CH01_SC01_SH06", ShotType.LINEAR ) },
 
@@ -104,7 +105,8 @@ public class CutsceneStore : SerializedScriptableObject
         { "10_02", new Shot("10_03","CH02_SC10_SH02", ShotType.LINEAR ) },
         { "10_03", new Shot("","CH02_SC10_SH03", ShotType.EVENT ) },
         // 10_04 is Puzzle 2
-        { "10_05", new Shot("","CH02_SC10_SH05", ShotType.EVENT ) },
+        { "10_05", new Shot("","CH02_SC10_SH05", ShotType.CHOICE ) },
+        // Choice Prompt
         { "10_06A", new Shot("10_07A","CH02_SC10_SH06A", ShotType.LINEAR ) },
         { "10_07A", new Shot("11_01", "CH02_SC10_SH07A", ShotType.LINEAR ) },
         { "10_06B", new Shot("10_07B","CH02_SC10_SH06B", ShotType.LINEAR ) },
@@ -114,6 +116,7 @@ public class CutsceneStore : SerializedScriptableObject
         { "10_10B", new Shot("10_11B","CH02_SC10_SH10B", ShotType.LINEAR ) },
         { "10_11B", new Shot("10_12B","CH02_SC10_SH11B", ShotType.LINEAR ) },
         { "10_12B", new Shot("","CH02_SC10_SH12B", ShotType.EVENT ) },
+        // QTE
 
         { "10_13B", new Shot("10_15B","CH02_SC10_SH13B", ShotType.LINEAR ) },
         { "10_14B", new Shot("10_15B","CH02_SC10_SH14B", ShotType.LINEAR ) },
@@ -148,7 +151,8 @@ public class CutsceneStore : SerializedScriptableObject
         { "13_15", new Shot("13_16","CH02_SC13_SH15", ShotType.LINEAR ) },
         { "13_16", new Shot("13_17","CH02_SC13_SH16", ShotType.LINEAR ) },
         { "13_17", new Shot("13_18","CH02_SC13_SH17", ShotType.LINEAR ) },
-        { "13_18", new Shot("","CH02_SC13_SH18", ShotType.EVENT ) },
+        { "13_18", new Shot("","CH02_SC13_SH18", ShotType.CHOICE ) },
+        // Choice Prompt
 
         { "13_19A", new Shot("13_20A","CH02_SC13_SH19A", ShotType.LINEAR ) },
         { "13_20A", new Shot("13_21A","CH02_SC13_SH20A", ShotType.LINEAR ) },
@@ -158,9 +162,10 @@ public class CutsceneStore : SerializedScriptableObject
         { "13_24A", new Shot("13_25A","CH02_SC13_SH24A", ShotType.LINEAR ) },
         { "13_25A", new Shot("13_26A","CH02_SC13_SH25A", ShotType.LINEAR ) },
         { "13_26A", new Shot("","CH02_SC13_SH26A", ShotType.EVENT ) },
-        
+
         { "13_19B", new Shot("13_20B","CH02_SC13_SH19B", ShotType.LINEAR ) },
         { "13_20B", new Shot("","CH02_SC13_SH20B", ShotType.EVENT ) },
+        // QTE
 
         { "13_21B2", new Shot("13_22B2","CH02_SC13_SH21B2", ShotType.LINEAR ) },
         { "13_22B2", new Shot("13_23B2","CH02_SC13_SH22B2", ShotType.LINEAR ) },
@@ -174,7 +179,8 @@ public class CutsceneStore : SerializedScriptableObject
         { "13_26B1", new Shot("13_27B1","CH02_SC13_SH26B1", ShotType.LINEAR ) },
         { "13_27B1", new Shot("13_28B1","CH02_SC13_SH27B1", ShotType.LINEAR ) },
         { "13_28B1", new Shot("13_29B1","CH02_SC13_SH28B1", ShotType.LINEAR ) },
-        { "13_29B1", new Shot("13_30B1","CH02_SC13_SH29B1", ShotType.EVENT ) },
+        { "13_29B1", new Shot("13_30B1","CH02_SC13_SH29B1", ShotType.CHOICE ) },
+        // Choice Prompt
 
         { "13_30B1", new Shot("ENDING","CH02_SC13_SH30B1", ShotType.LINEAR ) },
 
@@ -184,5 +190,37 @@ public class CutsceneStore : SerializedScriptableObject
     public Shot GetShot(string shotID)
     {
         return shotStore[shotID];
+    }
+
+    public struct ChoicePromptData
+    {
+        public string leftHeader;
+        public string leftBody;
+        public string rightHeader;
+        public string rightBody;
+
+        public ChoicePromptData(string leftHeader, string leftBody, string rightHeader, string rightBody)
+        {
+            this.leftHeader = leftHeader;
+            this.leftBody = leftBody;
+            this.rightHeader = rightHeader;
+            this.rightBody = rightBody;
+        }
+    }
+
+    [OdinSerialize, ReadOnly, DictionaryDrawerSettings(KeyLabel = "ChoicePrompt Name", ValueLabel = "ChoicePrompt Data")]
+    Dictionary<string, ChoicePromptData> choicePromptStore = new Dictionary<string, ChoicePromptData>
+    {
+        { "05_03",      new ChoicePromptData("STERILISED PROTOCOL", "Side With Somchai", "HANDS-ON EMERGENCY", "Side With Rueangsak")},
+        { "10_05",      new ChoicePromptData("INSECURE", "Contact Professor Somchai", "ADVENTUROUS", "Investigate The Corridor") },
+        { "13_18",      new ChoicePromptData("GET TO SAFETY", "Run Away", "TAKE THE PLUNGE", "Fight Back") },
+        { "13_29B1",    new ChoicePromptData("THANKFUL", "Thanks for asking, Nate.", "COLD", "Take care of yourself.") },
+
+        { "B_01",    new ChoicePromptData("TEST CHOICE A", "DESCRIPTION A", "TEST CHOICE B", "DESCRIPTION B") },
+    };
+
+    public ChoicePromptData GetChoicePromptData(string shotID)
+    {
+        return choicePromptStore[shotID];
     }
 }

@@ -271,7 +271,7 @@ public class UIManager : SerializedMonoBehaviour
     public string PeekUILayer()
     {
         if (uiLayers.Count == 0) return "No layers.";
-        return (string) uiLayers.Peek();
+        return (string)uiLayers.Peek();
     }
 
     public void AddUILayer(string uiLayerName)

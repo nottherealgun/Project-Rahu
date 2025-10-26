@@ -4,6 +4,7 @@ using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using TMPro;
 using Unity.Cinemachine;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -17,6 +18,7 @@ public class ChoicePrompt : SerializedMonoBehaviour
     [OdinSerialize] CinemachineCamera choiceCamera;
     [Title("Left Choice")]
     public UnityEvent onLeftChosen;
+    [OdinSerialize] CanvasGroup leftCanvasGroup;
     [OdinSerialize] GameObject leftChoosingCircle;
     [OdinSerialize] TMP_Text leftChoiceHeader;
     [OdinSerialize] TMP_Text leftChoiceBody;
@@ -24,6 +26,7 @@ public class ChoicePrompt : SerializedMonoBehaviour
     [OdinSerialize, ShowIf("@leftChoiceBody != null")] string leftChoiceTextBody;
     [Title("Right Choice")]
     public UnityEvent onRightChosen;
+    [OdinSerialize] CanvasGroup rightCanvasGroup;
     [OdinSerialize] GameObject rightChoosingCircle;
     [OdinSerialize] TMP_Text rightChoiceHeader;
     [OdinSerialize] TMP_Text rightChoiceBody;
@@ -61,6 +64,19 @@ public class ChoicePrompt : SerializedMonoBehaviour
         // DontDestroyOnLoad(this.gameObject);
     }
     
+    public void SetupTexts(string leftHeader, string leftBody, string rightHeader, string rightBody)
+    {
+        leftChoiceTextHeader = leftHeader;
+        rightChoiceTextHeader = rightHeader;
+        leftChoiceTextBody = leftBody;
+        rightChoiceTextBody = rightBody;
+
+        leftChoiceHeader.text = leftChoiceTextHeader;
+        rightChoiceHeader.text = rightChoiceTextHeader;
+        leftChoiceBody.text = leftChoiceTextBody;
+        rightChoiceBody.text = rightChoiceTextBody;
+    }
+
     void Start()
     {
         if (PersistentDataManager.Player != null)
@@ -92,7 +108,7 @@ public class ChoicePrompt : SerializedMonoBehaviour
                 onLeftChosen.AddListener(async () =>
                 {
                     await Tween.Scale(leftChoosingCircle.transform,1.3f,0.1f);
-                    await Tween.Scale(leftChoosingCircle.transform,1f,1f);
+                    await Tween.Scale(leftChoosingCircle.transform, 1f, 1f);
                 }); 
                 onLeftChosen?.Invoke();
             }
@@ -161,9 +177,25 @@ public class ChoicePrompt : SerializedMonoBehaviour
         rightTween?.Stop();
 
         choiceCamera.gameObject.SetActive(false);
+        // await sequence.Chain(Tween.Alpha(GetComponent<CanvasGroup>(), 0f, 2f));
 
-        Sequence sequence = Sequence.Create();
-        await sequence.Chain(Tween.Alpha(GetComponent<CanvasGroup>(), 0f, 2f));
+        CanvasGroup chosenCanvasGroup;
+        CanvasGroup unchosenCanvasGroup;
+
+        if (choice == ChoiceType.LEFT)
+        {
+            chosenCanvasGroup = leftCanvasGroup;
+            unchosenCanvasGroup = rightCanvasGroup;
+        }
+        else
+        {
+            chosenCanvasGroup = rightCanvasGroup;
+            unchosenCanvasGroup = leftCanvasGroup;
+        }
+
+        await Tween.Alpha(unchosenCanvasGroup, 0f, 1f);
+        await UniTask.Delay(1500);
+        await Tween.Alpha(chosenCanvasGroup, 0f, 1f);
 
         UIManager.RevertCursorState();
         PersistentDataManager.Player?.GetComponent<PlayerController>().UnlockCamera();

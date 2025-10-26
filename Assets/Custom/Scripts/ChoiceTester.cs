@@ -1,7 +1,6 @@
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ChoiceTester : SerializedMonoBehaviour
@@ -23,7 +22,7 @@ public class ChoiceTester : SerializedMonoBehaviour
         PersistentDataManager.Instance.FindPlayer();
         await NarrativeManager.Instance.LateSetup();
 
-        UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.CHOICE);
-        choicePrompt?.gameObject.SetActive(true);
+        // UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.CHOICE);
+        // choicePrompt?.gameObject.SetActive(true);
     }
 }

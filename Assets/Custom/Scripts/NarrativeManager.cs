@@ -8,6 +8,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class ProjectRahu
 {
@@ -62,7 +63,9 @@ public class NarrativeManager : SerializedMonoBehaviour
             this.characters = characters;
         }
     }
-    bool testSetup { get { return GameManager.Instance.StartsAsTest; } } 
+    bool testSetup { get { return GameManager.Instance.StartsAsTest; } }
+    [OdinSerialize] Transform choicePromptContainer;
+    [OdinSerialize, AssetsOnly] GameObject choicePromptPrefab;
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -79,7 +82,9 @@ public class NarrativeManager : SerializedMonoBehaviour
     void Start()
     {
         if (testSetup)
-            SetupScene("12", "01");
+        {
+            SetupScene(GameManager.Instance.testSceneID, GameManager.Instance.testShotID);
+        }
     }
 
     public void SetupScene(string setupSceneName, string setupStartingShotID = "01")
@@ -142,6 +147,11 @@ public class NarrativeManager : SerializedMonoBehaviour
             VideoPlayer cutscenePlayer = newCutscene.transform.Find("CutscenePlayer").GetComponent<VideoPlayer>();
             PrepareShot(currentShot, cutscenePlayer);
 
+            if (currentShot.shotType == ShotType.CHOICE)
+            {
+                cutscenePlayer.isLooping = true;
+                CreateChoicePrompt(nextShotID);
+            }
             if (currentShot.isFinalShot || currentShot.nextShotID == "")
             {
                 break;
@@ -162,8 +172,17 @@ public class NarrativeManager : SerializedMonoBehaviour
 
         cutscenePlayer.Play();
 
-        while (!cutscenePlayer.isPlaying) await UniTask.Yield();
-        while (cutscenePlayer.isPlaying) await UniTask.Yield();
+        while (!cutscenePlayer.isPlaying) { await UniTask.Yield(); }
+
+        if (currentShot.shotType == ShotType.CHOICE)
+        {
+            ShowChoicePrompt(currentShotID);
+            ChoicePrompt choicePrompt = GetChoicePrompt(currentShotID);
+            choicePrompt.onLeftChosen.AddListener(cutscenePlayer.Stop);
+            choicePrompt.onRightChosen.AddListener(cutscenePlayer.Stop);
+        }
+
+        while (cutscenePlayer.isPlaying) { await UniTask.Yield(); }
 
         cutsceneObj.SetActive(false);
 
@@ -217,5 +236,33 @@ public class NarrativeManager : SerializedMonoBehaviour
     {
         cutsceneContainer.gameObject.TryGetComponent<CanvasGroup>(out CanvasGroup _cg);
         _cg.alpha = 0;
+    }
+
+    GameObject CreateChoicePrompt(string shotID)
+    {
+        GameObject newChoicePrompt = Instantiate(choicePromptPrefab, choicePromptContainer);
+        newChoicePrompt.SetActive(false);
+        newChoicePrompt.name = shotID;
+
+        CutsceneStore.ChoicePromptData choicePromptData = cutsceneStore.GetChoicePromptData(shotID);
+
+        GetChoicePrompt(shotID).SetupTexts(
+            choicePromptData.leftHeader,
+            choicePromptData.leftBody,
+            choicePromptData.rightHeader,
+            choicePromptData.rightBody
+        );
+
+        return newChoicePrompt;
+    }
+
+    ChoicePrompt GetChoicePrompt(string shotID)
+    {
+        return choicePromptContainer.Find(shotID).GetComponent<ChoicePrompt>();
+    }
+
+    void ShowChoicePrompt(string shotID)
+    {
+        choicePromptContainer.Find(shotID).gameObject.SetActive(true);
     }
 }

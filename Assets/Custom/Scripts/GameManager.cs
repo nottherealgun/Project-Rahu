@@ -10,6 +10,8 @@ public class GameManager : SerializedMonoBehaviour
     [OdinSerialize] PersistentDataManager persistentDataManager;
     public UnityAction onPasscodePanelUnlocked;
     public bool StartsAsTest = false;
+    [ShowIf("@StartsAsTest == true")] public string testSceneID = "12";
+    [ShowIf("@StartsAsTest == true")] public string testShotID = "01";
 
     void Awake()
     {
