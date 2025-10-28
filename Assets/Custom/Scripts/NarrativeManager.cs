@@ -9,6 +9,7 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Collections;
 using Unity.VisualScripting;
+using UnityEngine.Events;
 
 public class ProjectRahu
 {
@@ -65,7 +66,12 @@ public class NarrativeManager : SerializedMonoBehaviour
     }
     bool testSetup { get { return GameManager.Instance.StartsAsTest; } }
     [OdinSerialize] Transform choicePromptContainer;
+    [OdinSerialize] Transform qtePromptContainer;
     [OdinSerialize, AssetsOnly] GameObject choicePromptPrefab;
+    [OdinSerialize, AssetsOnly] GameObject qtePromptPrefab;
+    delegate void OnScreenPromptDelegate();
+    OnScreenPromptDelegate choiceChosen;
+    OnScreenPromptDelegate qteCompleted;
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -90,10 +96,11 @@ public class NarrativeManager : SerializedMonoBehaviour
     public void SetupScene(string setupSceneName, string setupStartingShotID = "01")
     {
         currentScene = new SceneData(setupSceneName, new List<string>());
+        currentShotID = $"{setupSceneName}_{setupStartingShotID}";
 
         // Before entering a scene, call this function to setup the scene data and prepare the cutscene sequence
         PrepareCutsceneSequenceFrom($"{setupSceneName}_{setupStartingShotID}");
-
+        
         VoicelineManager.Instance.Setup();
         VoicelineManager.Instance.OnVoicelinePackDictEmpty += () =>
         {
@@ -152,6 +159,11 @@ public class NarrativeManager : SerializedMonoBehaviour
                 cutscenePlayer.isLooping = true;
                 CreateChoicePrompt(nextShotID);
             }
+            else if (currentShot.shotType == ShotType.QTE)
+            {
+                CreateQTEPrompt(nextShotID);
+            }
+            
             if (currentShot.isFinalShot || currentShot.nextShotID == "")
             {
                 break;
@@ -164,42 +176,77 @@ public class NarrativeManager : SerializedMonoBehaviour
     [Button(ButtonSizes.Large)]
     public async UniTask PlayCutsceneSequence(bool withFadeIn = false)
     {
+        // Show cutscenes
         ShowCutsceneContainer();
 
+        // Retrieve fields
         CutsceneStore.Shot currentShot = shotDict[currentShotID].shotData;
         GameObject cutsceneObj = shotDict[currentShotID].cutsceneObj;
         VideoPlayer cutscenePlayer = cutsceneObj.transform.Find("CutscenePlayer").GetComponent<VideoPlayer>();
 
+        // Prepare (if needed) & start playing cutscene
         cutscenePlayer.Play();
-
         while (!cutscenePlayer.isPlaying) { await UniTask.Yield(); }
 
-        if (currentShot.shotType == ShotType.CHOICE)
+        // On start playing, enable relevant prompts
+        switch (currentShot.shotType)
         {
-            ShowChoicePrompt(currentShotID);
-            ChoicePrompt choicePrompt = GetChoicePrompt(currentShotID);
-            choicePrompt.onLeftChosen.AddListener(cutscenePlayer.Stop);
-            choicePrompt.onRightChosen.AddListener(cutscenePlayer.Stop);
+            case ShotType.CHOICE:
+                EnableChoicePrompt(currentShot, cutscenePlayer);
+                break;
+            case ShotType.QTE:
+                EnableQTEPrompt(currentShot, cutscenePlayer);
+                break;
         }
-
         while (cutscenePlayer.isPlaying) { await UniTask.Yield(); }
 
+        // On cutscene finishes, deactivate cutscene object
         cutsceneObj.SetActive(false);
 
+        // Set next shot ID
         currentShotID = currentShot.nextShotID;
-
-        // if shotQueue is not empty, play next shot
+        
         if (currentShot.shotType == ShotType.EVENT || currentShot.isFinalShot)
         {
+            // If next shot is an Event OR is final shot, fade in and hide cutscenes
             if (withFadeIn)
                 await UIManager.Instance.ManualFadeIn();
             HideCutsceneContainer();
         }
         else
         {
+            // if shotQueue is not empty, play next shot
             await PlayCutsceneSequence();
         }
         ;
+    }
+
+    void EnableChoicePrompt(CutsceneStore.Shot currentShot, VideoPlayer cutscenePlayer)
+    {
+        UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.CHOICE);
+        ShowChoicePrompt(currentShotID);
+        ChoicePrompt choicePrompt = GetChoicePrompt(currentShotID);
+
+        choiceChosen += cutscenePlayer.Stop;
+        choiceChosen += UIManager.Instance.DisableInteractionHUD;
+        choiceChosen += () => choiceChosen = null;
+
+        choicePrompt.onLeftChosen.AddListener(() => choiceChosen());
+        choicePrompt.onRightChosen.AddListener(() => choiceChosen());
+    }
+    
+    void EnableQTEPrompt(CutsceneStore.Shot currentShot, VideoPlayer cutscenePlayer)
+    {
+        UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.QTE);
+        ShowQTEPrompt(currentShotID);
+        QTEPrompt qtePrompt = GetQTEPrompt(currentShotID);
+
+        qteCompleted += cutscenePlayer.Stop;
+        qteCompleted += UIManager.Instance.DisableInteractionHUD;
+        qteCompleted += () => qteCompleted = null;
+
+        qtePrompt.onQTECompleted.AddListener(() => qteCompleted());
+        qtePrompt.Show();
     }
 
     public async UniTask PlaySequenceFrom(string shotID)
@@ -264,5 +311,28 @@ public class NarrativeManager : SerializedMonoBehaviour
     void ShowChoicePrompt(string shotID)
     {
         choicePromptContainer.Find(shotID).gameObject.SetActive(true);
+    }
+
+    GameObject CreateQTEPrompt(string shotID)
+    {
+        GameObject newQTEPrompt = Instantiate(qtePromptPrefab, qtePromptContainer);
+        newQTEPrompt.SetActive(false);
+        newQTEPrompt.name = shotID;
+
+        CutsceneStore.QTEPromptData qtePromptData = cutsceneStore.GetQTEPromptData(shotID);
+
+        GetQTEPrompt(shotID).Setup(qtePromptData.onScreenPosition,qtePromptData.keyPrompt);
+
+        return newQTEPrompt;
+    }
+
+    QTEPrompt GetQTEPrompt(string shotID)
+    {
+        return qtePromptContainer.Find(shotID).GetComponent<QTEPrompt>();
+    }
+
+    void ShowQTEPrompt(string shotID)
+    {
+        qtePromptContainer.Find(shotID).gameObject.SetActive(true);
     }
 }

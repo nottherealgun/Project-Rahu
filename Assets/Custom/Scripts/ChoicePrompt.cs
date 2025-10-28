@@ -4,14 +4,12 @@ using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using TMPro;
 using Unity.Cinemachine;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 public class ChoicePrompt : SerializedMonoBehaviour
 {
-    public static ChoicePrompt Instance { get; private set; }
     enum ChoiceType { LEFT, RIGHT, NONE }
     [OdinSerialize, ReadOnly] ChoiceType choice = ChoiceType.NONE;
     bool choiceSelected { get { return choice != ChoiceType.NONE; } }
@@ -49,19 +47,6 @@ public class ChoicePrompt : SerializedMonoBehaviour
         rightChoiceHeader.text = rightChoiceTextHeader;
         leftChoiceBody.text = leftChoiceTextBody;
         rightChoiceBody.text = rightChoiceTextBody;
-    }
-
-    void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(this.gameObject);
-            return;
-        }
-
-        Instance = this;
-
-        // DontDestroyOnLoad(this.gameObject);
     }
     
     public void SetupTexts(string leftHeader, string leftBody, string rightHeader, string rightBody)
@@ -130,7 +115,6 @@ public class ChoicePrompt : SerializedMonoBehaviour
                     await Tween.Scale(rightChoosingCircle.transform,1f,1f);
                 }); 
                 onRightChosen?.Invoke();
-                
             }
         }
     }

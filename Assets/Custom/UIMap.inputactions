@@ -122,24 +122,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "Left",
-                    "type": "Value",
-                    "id": "eec993b5-482d-4a3a-a033-16bff46a5529",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "Press(behavior=2)",
-                    "initialStateCheck": true
-                },
-                {
-                    "name": "Right",
-                    "type": "Value",
-                    "id": "b498ee30-fc50-41f1-89d1-1cd245cc6824",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "Press(behavior=2)",
-                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -692,32 +674,212 @@
                     "action": "Next",
                     "isComposite": false,
                     "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "QTE",
+            "id": "e10e4299-6584-4ca6-b203-4dd61e194d13",
+            "actions": [
+                {
+                    "name": "QTE1",
+                    "type": "Button",
+                    "id": "346ac6d5-1112-430e-bae6-03dec2174748",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "QTE2",
+                    "type": "Button",
+                    "id": "a564cd74-616d-4b00-9927-65ef9a193541",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "QTE3",
+                    "type": "Button",
+                    "id": "7944a552-80b5-4fcf-be0b-c878f95a1bdb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "QTE4",
+                    "type": "Button",
+                    "id": "62389785-1705-4248-87a8-5a12c3968cdd",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "3ab66900-a08d-479d-88d2-cfce92779f1d",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "QTE1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "33b92fa1-dcaa-48e6-a039-55baf967faa9",
+                    "id": "35210b40-6524-46a1-bc3e-67bff00e961a",
+                    "path": "<XInputController>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "QTE1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a48b1484-fb04-49a7-9dd2-7c8b817d29ae",
+                    "path": "<DualShockGamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "QTE1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1ee125d7-57ab-4ae3-a906-474b45aaec6d",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "QTE2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6cdab512-e45a-4898-a8a1-b24fb9a6744f",
+                    "path": "<XInputController>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "QTE2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0101ab87-fd10-42c7-a654-58e90d689915",
+                    "path": "<DualShockGamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "QTE2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "929d9f0b-c27f-4d2d-904f-ba2ceffdd16a",
                     "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Left",
+                    "action": "QTE3",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "17ab44cc-d9cd-4385-b895-83a7f164e3ff",
-                    "path": "<Gamepad>/leftStick/left",
+                    "id": "0dc0cfe8-8a50-4198-9ca2-ee13a6910e5a",
+                    "path": "<XInputController>/buttonWest",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "Left",
+                    "action": "QTE3",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "f3ef8204-8703-460f-9c22-3a7439adb596",
+                    "id": "231bed49-6d3d-49f7-a93c-c0ee6f3a6f48",
+                    "path": "<DualShockGamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "QTE3",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9242f809-a86f-4993-98de-49e346071b0b",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "QTE4",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "da4f9f3e-57fb-429b-b95e-8c682f8ecd99",
+                    "path": "<XInputController>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "QTE4",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d912f461-7c0e-4779-8f47-b2cb52929213",
+                    "path": "<DualShockGamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "QTE4",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Choice",
+            "id": "bec363ee-7222-46db-b332-5f5d61b954ae",
+            "actions": [
+                {
+                    "name": "Left",
+                    "type": "Value",
+                    "id": "9e2652ea-6ac0-4ef6-8b26-0509c2d7c3f0",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Press(behavior=2)",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Right",
+                    "type": "Value",
+                    "id": "fa999fbb-a0c2-445d-b47c-52810dc416b4",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Press(behavior=2)",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "1c6a3520-8ef8-45a3-8589-be4fbb0abb1c",
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
@@ -728,12 +890,34 @@
                 },
                 {
                     "name": "",
-                    "id": "36504826-3fb7-448a-9722-a9cee9a4aade",
+                    "id": "2c2814c0-f9a7-40fa-971b-ace264b06165",
                     "path": "<Gamepad>/leftStick/right",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "Right",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "14c40f7c-dc19-4a26-965f-23ba1136684f",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Left",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "40979bb2-073c-4be7-b723-96df15735e46",
+                    "path": "<Gamepad>/leftStick/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Left",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

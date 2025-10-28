@@ -7,7 +7,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.Video;
 
 public enum SubType { NONE, A, B }
-public enum ShotType { LINEAR, EVENT, CHOICE }
+public enum ShotType { LINEAR, EVENT, CHOICE, QTE }
 
 [CreateAssetMenu(fileName = "CutsceneStore", menuName = "Project Rahu/CutsceneStore")]
 public class CutsceneStore : SerializedScriptableObject
@@ -33,7 +33,7 @@ public class CutsceneStore : SerializedScriptableObject
     {
 
         { "A_01",   new Shot("B_01" ,"TestShot1", ShotType.LINEAR ) },
-        { "B_01",   new Shot("C_01" ,"TestShot2", ShotType.CHOICE ) },
+        { "B_01",   new Shot("C_01" ,"TestShot2", ShotType.QTE ) },
         { "C_01",   new Shot(""     ,"TestShot3", ShotType.LINEAR, true ) },
 
         { "01_01",  new Shot("01_02","CH01_SC01_SH01", ShotType.LINEAR ) },
@@ -222,5 +222,29 @@ public class CutsceneStore : SerializedScriptableObject
     public ChoicePromptData GetChoicePromptData(string shotID)
     {
         return choicePromptStore[shotID];
+    }
+
+    public struct QTEPromptData
+    {
+        public QTEPrompt.KeyPrompt keyPrompt;
+        public Vector3 onScreenPosition;
+        public QTEPromptData(QTEPrompt.KeyPrompt keyPrompt, Vector3 onScreenPosition)
+        {
+            this.keyPrompt = keyPrompt;
+            this.onScreenPosition = onScreenPosition;
+        }
+    }
+
+    [OdinSerialize, ReadOnly, DictionaryDrawerSettings(KeyLabel = "QTEPrompt Name", ValueLabel = "QTEPrompt Data")]
+    Dictionary<string, QTEPromptData> qtePromptStore = new Dictionary<string, QTEPromptData>
+    {
+        { "B_01", new QTEPromptData(QTEPrompt.KeyPrompt.QTE1, new Vector3(-483,-120,0)) },
+        { "10_12B", new QTEPromptData(QTEPrompt.KeyPrompt.QTE1, new Vector3(-483,-120,0)) },
+        { "10_20B", new QTEPromptData(QTEPrompt.KeyPrompt.QTE1, new Vector3(0,0,0)) }
+    };
+
+    public QTEPromptData GetQTEPromptData(string shotID)
+    {
+        return qtePromptStore[shotID];
     }
 }

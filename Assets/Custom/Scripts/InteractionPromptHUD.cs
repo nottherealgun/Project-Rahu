@@ -68,9 +68,16 @@ public class InteractionPromptHUD : SerializedMonoBehaviour
             case UIManager.InteractionHUDPreset.CHOICE:
                 promptsToTurnOn = "selectleft,selectright";
                 break;
+            case UIManager.InteractionHUDPreset.QTE:
+                break;
             default:
                 // IntereactionHUDPreset.DEFAULT
                 break;
+        }
+
+        if (promptsToTurnOn == "")
+        {
+            return;
         }
 
         string[] splitPromptsArray = promptsToTurnOn.Split(",");
