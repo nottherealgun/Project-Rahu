@@ -31,10 +31,10 @@ public class CutsceneStore : SerializedScriptableObject
     [OdinSerialize, ReadOnly, DictionaryDrawerSettings(KeyLabel = "Shot Reference", ValueLabel = "Cinematic Shot Data")]
     Dictionary<string, Shot> shotStore = new Dictionary<string, Shot>
     {
-
-        { "A_01",   new Shot("B_01" ,"TestShot1", ShotType.LINEAR ) },
-        { "B_01",   new Shot("C_01" ,"TestShot2", ShotType.QTE ) },
-        { "C_01",   new Shot(""     ,"TestShot3", ShotType.LINEAR, true ) },
+        { "A_01",   new Shot("B_01"         ,"TestShot1", ShotType.LINEAR ) },
+        { "B_01",   new Shot("C_01,D_01"    ,"TestShot2", ShotType.QTE ) },
+        { "C_01",   new Shot(""             ,"TestShot3", ShotType.LINEAR, true ) },
+        { "D_01",   new Shot(""             ,"TestShot3", ShotType.LINEAR, true ) },
 
         { "01_01",  new Shot("01_02","CH01_SC01_SH01", ShotType.LINEAR ) },
         { "01_02",  new Shot("","CH01_SC01_SH02", ShotType.EVENT ) },
@@ -105,17 +105,18 @@ public class CutsceneStore : SerializedScriptableObject
         { "10_02", new Shot("10_03","CH02_SC10_SH02", ShotType.LINEAR ) },
         { "10_03", new Shot("","CH02_SC10_SH03", ShotType.EVENT ) },
         // 10_04 is Puzzle 2
-        { "10_05", new Shot("","CH02_SC10_SH05", ShotType.CHOICE ) },
+        { "10_05", new Shot("10_06A,10_06B","CH02_SC10_SH05", ShotType.CHOICE ) },
         // Choice Prompt
         { "10_06A", new Shot("10_07A","CH02_SC10_SH06A", ShotType.LINEAR ) },
         { "10_07A", new Shot("11_01", "CH02_SC10_SH07A", ShotType.LINEAR ) },
+
         { "10_06B", new Shot("10_07B","CH02_SC10_SH06B", ShotType.LINEAR ) },
         { "10_07B", new Shot("10_08B","CH02_SC10_SH07B", ShotType.LINEAR ) },
         { "10_08B", new Shot("10_09B","CH02_SC10_SH08B", ShotType.LINEAR ) },
         { "10_09B", new Shot("10_10B","CH02_SC10_SH09B", ShotType.LINEAR ) },
         { "10_10B", new Shot("10_11B","CH02_SC10_SH10B", ShotType.LINEAR ) },
         { "10_11B", new Shot("10_12B","CH02_SC10_SH11B", ShotType.LINEAR ) },
-        { "10_12B", new Shot("","CH02_SC10_SH12B", ShotType.EVENT ) },
+        { "10_12B", new Shot("10_13B,10_14B","CH02_SC10_SH12B", ShotType.QTE ) },
         // QTE
 
         { "10_13B", new Shot("10_15B","CH02_SC10_SH13B", ShotType.LINEAR ) },
@@ -151,7 +152,7 @@ public class CutsceneStore : SerializedScriptableObject
         { "13_15", new Shot("13_16","CH02_SC13_SH15", ShotType.LINEAR ) },
         { "13_16", new Shot("13_17","CH02_SC13_SH16", ShotType.LINEAR ) },
         { "13_17", new Shot("13_18","CH02_SC13_SH17", ShotType.LINEAR ) },
-        { "13_18", new Shot("","CH02_SC13_SH18", ShotType.CHOICE ) },
+        { "13_18", new Shot("13_19A,13_19B","CH02_SC13_SH18", ShotType.CHOICE ) },
         // Choice Prompt
 
         { "13_19A", new Shot("13_20A","CH02_SC13_SH19A", ShotType.LINEAR ) },
@@ -164,7 +165,7 @@ public class CutsceneStore : SerializedScriptableObject
         { "13_26A", new Shot("","CH02_SC13_SH26A", ShotType.EVENT ) },
 
         { "13_19B", new Shot("13_20B","CH02_SC13_SH19B", ShotType.LINEAR ) },
-        { "13_20B", new Shot("","CH02_SC13_SH20B", ShotType.EVENT ) },
+        { "13_20B", new Shot("13_21B2,13_21B1","CH02_SC13_SH20B", ShotType.QTE ) },
         // QTE
 
         { "13_21B2", new Shot("13_22B2","CH02_SC13_SH21B2", ShotType.LINEAR ) },
@@ -179,7 +180,7 @@ public class CutsceneStore : SerializedScriptableObject
         { "13_26B1", new Shot("13_27B1","CH02_SC13_SH26B1", ShotType.LINEAR ) },
         { "13_27B1", new Shot("13_28B1","CH02_SC13_SH27B1", ShotType.LINEAR ) },
         { "13_28B1", new Shot("13_29B1","CH02_SC13_SH28B1", ShotType.LINEAR ) },
-        { "13_29B1", new Shot("13_30B1","CH02_SC13_SH29B1", ShotType.CHOICE ) },
+        { "13_29B1", new Shot("13_30B1,13_30B1","CH02_SC13_SH29B1", ShotType.CHOICE ) },
         // Choice Prompt
 
         { "13_30B1", new Shot("ENDING","CH02_SC13_SH30B1", ShotType.LINEAR ) },

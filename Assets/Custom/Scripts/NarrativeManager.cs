@@ -69,9 +69,8 @@ public class NarrativeManager : SerializedMonoBehaviour
     [OdinSerialize] Transform qtePromptContainer;
     [OdinSerialize, AssetsOnly] GameObject choicePromptPrefab;
     [OdinSerialize, AssetsOnly] GameObject qtePromptPrefab;
-    delegate void OnScreenPromptDelegate();
-    OnScreenPromptDelegate choiceChosen;
-    OnScreenPromptDelegate qteCompleted;
+    UnityAction choiceChosen;
+    UnityAction qteCompleted;
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -100,7 +99,6 @@ public class NarrativeManager : SerializedMonoBehaviour
 
         // Before entering a scene, call this function to setup the scene data and prepare the cutscene sequence
         PrepareCutsceneSequenceFrom($"{setupSceneName}_{setupStartingShotID}");
-        
         VoicelineManager.Instance.Setup();
         VoicelineManager.Instance.OnVoicelinePackDictEmpty += () =>
         {
@@ -142,12 +140,16 @@ public class NarrativeManager : SerializedMonoBehaviour
 
     public void PrepareCutsceneSequence()
     {
-        string nextShotID = currentShotID;
-        while (true)
+        Queue<string> shotstoPrepare = new Queue<string>();
+
+        EnqueueCutsceneNode(currentShotID, ref shotstoPrepare);
+
+        string nextShotID;
+        while (shotstoPrepare.Count > 0)
         {
             // enqueue loop until the shot is an EVENT shot, nextPlayer final shot or nextShot doesn't exist
+            nextShotID = shotstoPrepare.Dequeue();
             CutsceneStore.Shot currentShot = cutsceneStore.GetShot(nextShotID);
-            // shotQueue.Enqueue((nextShotID, currentShot));
             GameObject newCutscene = CreateBlankCutscene();
             shotDict[nextShotID] = new Cutscene(nextShotID, currentShot, newCutscene);
             newCutscene.name = $"Cutscene_{nextShotID}";
@@ -163,13 +165,23 @@ public class NarrativeManager : SerializedMonoBehaviour
             {
                 CreateQTEPrompt(nextShotID);
             }
-            
-            if (currentShot.isFinalShot || currentShot.nextShotID == "")
-            {
-                break;
-            }
+        }
+    }
+    
+    void EnqueueCutsceneNode(string rootShotID, ref Queue<string> shotQueue)
+    {
+        if (rootShotID == "") { return; }
+        if (rootShotID.Contains(","))
+        {
+            string[] idSplit = rootShotID.Split(",");
+            foreach (string id in idSplit) EnqueueCutsceneNode(id, ref shotQueue);
+        }
+        else
+        {
+            CutsceneStore.Shot currentShot = cutsceneStore.GetShot(rootShotID);
 
-            nextShotID = currentShot.nextShotID;
+            shotQueue.Enqueue(rootShotID);
+            EnqueueCutsceneNode(currentShot.nextShotID, ref shotQueue);
         }
     }
 
@@ -188,24 +200,35 @@ public class NarrativeManager : SerializedMonoBehaviour
         cutscenePlayer.Play();
         while (!cutscenePlayer.isPlaying) { await UniTask.Yield(); }
 
+        string[] shotIDSplit = new string[2];
+
+        if (currentShot.nextShotID.Contains(","))
+        {
+            shotIDSplit = currentShot.nextShotID.Split(",");
+        }
+
+        string choiceID1 = shotIDSplit[0];
+        string choiceID2 = shotIDSplit[1];
+
         // On start playing, enable relevant prompts
         switch (currentShot.shotType)
         {
             case ShotType.CHOICE:
-                EnableChoicePrompt(currentShot, cutscenePlayer);
+                await EnableChoicePrompt(currentShot, cutscenePlayer, (choiceID1, choiceID2));
                 break;
             case ShotType.QTE:
-                EnableQTEPrompt(currentShot, cutscenePlayer);
+                await EnableQTEPrompt(currentShot, cutscenePlayer, (choiceID1, choiceID2));
+                break;
+            default:
+                // Otherwise, simply set next shot ID
+                currentShotID = currentShot.nextShotID;
+                while (cutscenePlayer.isPlaying) { await UniTask.Yield(); }
                 break;
         }
-        while (cutscenePlayer.isPlaying) { await UniTask.Yield(); }
-
+        
         // On cutscene finishes, deactivate cutscene object
         cutsceneObj.SetActive(false);
 
-        // Set next shot ID
-        currentShotID = currentShot.nextShotID;
-        
         if (currentShot.shotType == ShotType.EVENT || currentShot.isFinalShot)
         {
             // If next shot is an Event OR is final shot, fade in and hide cutscenes
@@ -221,21 +244,27 @@ public class NarrativeManager : SerializedMonoBehaviour
         ;
     }
 
-    void EnableChoicePrompt(CutsceneStore.Shot currentShot, VideoPlayer cutscenePlayer)
+    async UniTask EnableChoicePrompt(CutsceneStore.Shot currentShot, VideoPlayer cutscenePlayer, (string id1, string id2) shotTuple)
     {
         UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.CHOICE);
         ShowChoicePrompt(currentShotID);
         ChoicePrompt choicePrompt = GetChoicePrompt(currentShotID);
 
+        bool isChoiceChosen = false;
         choiceChosen += cutscenePlayer.Stop;
         choiceChosen += UIManager.Instance.DisableInteractionHUD;
-        choiceChosen += () => choiceChosen = null;
+        choiceChosen += () => isChoiceChosen = true;
 
+        choicePrompt.onLeftChosen.AddListener(() => currentShotID = shotTuple.id1);
         choicePrompt.onLeftChosen.AddListener(() => choiceChosen());
+
+        choicePrompt.onRightChosen.AddListener(() => currentShotID = shotTuple.id2);
         choicePrompt.onRightChosen.AddListener(() => choiceChosen());
+
+        await UniTask.WaitUntil(() => isChoiceChosen = true);
     }
-    
-    void EnableQTEPrompt(CutsceneStore.Shot currentShot, VideoPlayer cutscenePlayer)
+
+    async UniTask EnableQTEPrompt(CutsceneStore.Shot currentShot, VideoPlayer cutscenePlayer, (string id1, string id2) shotTuple)
     {
         UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.QTE);
         ShowQTEPrompt(currentShotID);
@@ -243,10 +272,13 @@ public class NarrativeManager : SerializedMonoBehaviour
 
         qteCompleted += cutscenePlayer.Stop;
         qteCompleted += UIManager.Instance.DisableInteractionHUD;
-        qteCompleted += () => qteCompleted = null;
 
+        qtePrompt.onQTEFailed.AddListener(() => currentShotID = shotTuple.id1);
+        qtePrompt.onQTESucceed.AddListener(() => currentShotID = shotTuple.id1);
         qtePrompt.onQTECompleted.AddListener(() => qteCompleted());
         qtePrompt.Show();
+
+        await qtePrompt.onQTECompleted;
     }
 
     public async UniTask PlaySequenceFrom(string shotID)
@@ -321,7 +353,7 @@ public class NarrativeManager : SerializedMonoBehaviour
 
         CutsceneStore.QTEPromptData qtePromptData = cutsceneStore.GetQTEPromptData(shotID);
 
-        GetQTEPrompt(shotID).Setup(qtePromptData.onScreenPosition,qtePromptData.keyPrompt);
+        GetQTEPrompt(shotID).Setup(qtePromptData.onScreenPosition, qtePromptData.keyPrompt);
 
         return newQTEPrompt;
     }

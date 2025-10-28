@@ -12,7 +12,6 @@ using System.Collections;
 public class VoicelineManager : SerializedMonoBehaviour
 {
     public static VoicelineManager Instance { get; private set; }
-
     const string VoicelinesPath = "Voicelines/";
     string currentRawVoicepackData;
     [OdinSerialize] VoicelinePack currentVoicelinePack;
@@ -53,6 +52,7 @@ public class VoicelineManager : SerializedMonoBehaviour
 
     public async void Setup()
     {
+        print("B "+NarrativeManager.currentScene.name);
         await InitializeVoicelinePackOf(NarrativeManager.currentScene.name);
         NarrativeManager.currentScene.characters = currentVoicelinePack.characters;
     }
