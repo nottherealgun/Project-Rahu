@@ -274,7 +274,7 @@ public class NarrativeManager : SerializedMonoBehaviour
         qteCompleted += UIManager.Instance.DisableInteractionHUD;
 
         qtePrompt.onQTEFailed.AddListener(() => currentShotID = shotTuple.id1);
-        qtePrompt.onQTESucceed.AddListener(() => currentShotID = shotTuple.id1);
+        qtePrompt.onQTESucceed.AddListener(() => currentShotID = shotTuple.id2);
         qtePrompt.onQTECompleted.AddListener(() => qteCompleted());
         qtePrompt.Show();
 

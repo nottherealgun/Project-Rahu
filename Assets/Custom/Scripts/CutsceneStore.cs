@@ -30,11 +30,24 @@ public class CutsceneStore : SerializedScriptableObject
 
     [OdinSerialize, ReadOnly, DictionaryDrawerSettings(KeyLabel = "Shot Reference", ValueLabel = "Cinematic Shot Data")]
     Dictionary<string, Shot> shotStore = new Dictionary<string, Shot>
-    {
-        { "A_01",   new Shot("B_01"         ,"TestShot1", ShotType.LINEAR ) },
-        { "B_01",   new Shot("C_01,D_01"    ,"TestShot2", ShotType.QTE ) },
-        { "C_01",   new Shot(""             ,"TestShot3", ShotType.LINEAR, true ) },
-        { "D_01",   new Shot(""             ,"TestShot3", ShotType.LINEAR, true ) },
+    {   // testShotID       nextShotID      fileName     shotType         isFinalShot
+        //            Choice: left,right
+        //            QTE: failed,succeeded
+        { "A_01",   new Shot("A_02"         ,"TestShot1", ShotType.LINEAR ) },
+        { "A_02",   new Shot("A_03"         ,"TestShot2", ShotType.LINEAR ) },
+        { "A_03",   new Shot(""             ,"TestShot3", ShotType.LINEAR, true ) },
+
+        { "A_04",   new Shot("A_05"         ,"TestShot1", ShotType.LINEAR ) },
+        { "A_05",   new Shot("A_06,A_07"    ,"TestShot2", ShotType.CHOICE ) },
+        { "A_06",   new Shot("A_08"         ,"ChoiceA", ShotType.LINEAR ) },
+        { "A_07",   new Shot("A_08"         ,"ChoiceB", ShotType.LINEAR ) },
+        { "A_08",   new Shot(""             ,"TestShot1", ShotType.LINEAR, true ) },
+
+        { "A_09",   new Shot("A_10"         ,"TestShot1", ShotType.LINEAR ) },
+        { "A_10",   new Shot("A_11,A_12"    ,"QTE", ShotType.QTE ) },
+        { "A_11",   new Shot("A_13"         ,"ChoiceA", ShotType.LINEAR ) },
+        { "A_12",   new Shot("A_13"         ,"ChoiceB", ShotType.LINEAR ) },
+        { "A_13",   new Shot(""             ,"TestShot2", ShotType.LINEAR, true ) },
 
         { "01_01",  new Shot("01_02","CH01_SC01_SH01", ShotType.LINEAR ) },
         { "01_02",  new Shot("","CH01_SC01_SH02", ShotType.EVENT ) },
@@ -217,7 +230,7 @@ public class CutsceneStore : SerializedScriptableObject
         { "13_18",      new ChoicePromptData("GET TO SAFETY", "Run Away", "TAKE THE PLUNGE", "Fight Back") },
         { "13_29B1",    new ChoicePromptData("THANKFUL", "Thanks for asking, Nate.", "COLD", "Take care of yourself.") },
 
-        { "B_01",    new ChoicePromptData("TEST CHOICE A", "DESCRIPTION A", "TEST CHOICE B", "DESCRIPTION B") },
+        { "A_05",    new ChoicePromptData("TEST CHOICE A", "DESCRIPTION A", "TEST CHOICE B", "DESCRIPTION B") },
     };
 
     public ChoicePromptData GetChoicePromptData(string shotID)
@@ -239,7 +252,7 @@ public class CutsceneStore : SerializedScriptableObject
     [OdinSerialize, ReadOnly, DictionaryDrawerSettings(KeyLabel = "QTEPrompt Name", ValueLabel = "QTEPrompt Data")]
     Dictionary<string, QTEPromptData> qtePromptStore = new Dictionary<string, QTEPromptData>
     {
-        { "B_01", new QTEPromptData(QTEPrompt.KeyPrompt.QTE1, new Vector3(-483,-120,0)) },
+        { "A_10", new QTEPromptData(QTEPrompt.KeyPrompt.QTE1, new Vector3(-483,-120,0)) },
         { "10_12B", new QTEPromptData(QTEPrompt.KeyPrompt.QTE1, new Vector3(-483,-120,0)) },
         { "10_20B", new QTEPromptData(QTEPrompt.KeyPrompt.QTE1, new Vector3(0,0,0)) }
     };
