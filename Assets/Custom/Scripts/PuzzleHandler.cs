@@ -9,7 +9,7 @@ using Cysharp.Threading.Tasks;
 public enum PuzzleType
 {
     MaraInvasion,
-    Pipes,
+    Wirebox,
     CrystalCrush,
     OmegaSolution,
     Platinum
@@ -35,8 +35,8 @@ public class PuzzleHandler : SerializedMonoBehaviour
             case PuzzleType.MaraInvasion:
                 puzzleSceneName = "Puzzle01MaraInvasion";
                 break;
-            case PuzzleType.Pipes:
-                puzzleSceneName = "Puzzle02Pipes";
+            case PuzzleType.Wirebox:
+                puzzleSceneName = "Puzzle02Wirebox";
                 break;
             case PuzzleType.CrystalCrush:
                 puzzleSceneName = "Puzzle03CrystalCrush";

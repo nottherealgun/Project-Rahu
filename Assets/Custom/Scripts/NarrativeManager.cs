@@ -8,7 +8,6 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine.Events;
 
 public class ProjectRahu

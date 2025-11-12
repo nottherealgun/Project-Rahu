@@ -27,7 +27,7 @@ public class PersistentDataManager : SerializedMonoBehaviour
     public Dictionary<PuzzleType, bool> puzzles = new Dictionary<PuzzleType, bool>
     {
         { PuzzleType.MaraInvasion    , false },
-        { PuzzleType.Pipes           , false },
+        { PuzzleType.Wirebox           , false },
         { PuzzleType.CrystalCrush    , false },
         { PuzzleType.OmegaSolution   , false },
         { PuzzleType.Platinum        , false }
@@ -60,7 +60,7 @@ public class PersistentDataManager : SerializedMonoBehaviour
         puzzles = new Dictionary<PuzzleType, bool>
         {
             { PuzzleType.MaraInvasion    , false },
-            { PuzzleType.Pipes           , false },
+            { PuzzleType.Wirebox           , false },
             { PuzzleType.CrystalCrush    , false },
             { PuzzleType.OmegaSolution   , false },
             { PuzzleType.Platinum        , false }
