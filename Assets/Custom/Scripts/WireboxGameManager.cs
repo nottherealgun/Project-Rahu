@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -5,14 +6,42 @@ using UnityEngine.Events;
 
 public class WireboxGameManager : SerializedMonoBehaviour
 {
-    [SerializeField] Transform wireContainerObject;
     UnityEvent onWireboxPuzzleCompleted;
-
+    [SerializeField] Transform wireContainerObject;
+    [SerializeField] List<Wire> requiredBlueWires;
+    [SerializeField] List<Wire> requiredGreenWires;
+    [SerializeField] List<Wire> requiredRedWires;
+    [SerializeField] List<Wire> requiredYellowWires;
+    [SerializeField] List<Wire> doneBlueWires = new List<Wire>();
+    [SerializeField] List<Wire> doneGreenWires = new List<Wire>();
+    [SerializeField] List<Wire> doneRedWires = new List<Wire>();
+    [SerializeField] List<Wire> doneYellowWires = new List<Wire>();
+    WirePort wirePort;
+    [SerializeField] GameObject raycastBlocker;
     void Start()
     {
         onWireboxPuzzleCompleted?.AddListener(EndGame);
+
+        foreach (Wire wire in requiredBlueWires)
+        {
+            wire.onWireTurned.AddListener((w, d) => OnRequiredWireRotated(w, "blue"));
+        }
+        foreach (Wire wire in requiredGreenWires)
+        {
+            wire.onWireTurned.AddListener((w, d) => OnRequiredWireRotated(w, "green"));
+        }
+        foreach (Wire wire in requiredRedWires)
+        {
+            wire.onWireTurned.AddListener((w, d) => OnRequiredWireRotated(w, "red"));
+        }
+        foreach (Wire wire in requiredYellowWires)
+        {
+            wire.onWireTurned.AddListener((w, d) => OnRequiredWireRotated(w, "yellow"));
+        }
+
+        wirePort = GetComponent<WirePort>();
     }
-    
+
     public void OnWireClicked(int wireIndex, Wire wire)
     {
         CheckWires();
@@ -35,6 +64,7 @@ public class WireboxGameManager : SerializedMonoBehaviour
         if (allWiresCorrect)
         {
             Debug.Log("All wires are correct!");
+            raycastBlocker.SetActive(true);
             onWireboxPuzzleCompleted?.Invoke();
         }
     }
@@ -43,5 +73,104 @@ public class WireboxGameManager : SerializedMonoBehaviour
     {
         GetComponent<PuzzleCompletionEmitter>().onPuzzleCompleted?.Invoke();
         UIManager.LockCursor(true);
+    }
+
+    void OnRequiredWireRotated(Wire wire, string color)
+    {
+        if (wire.IsInValidDirection())
+        {
+            AddWireToDoneList(wire, color);
+        }
+        else
+        {
+            RemoveWireFromDoneList(wire, color);
+        }
+
+        CheckPorts();
+    }
+
+    void AddWireToDoneList(Wire wire, string color)
+    {
+        switch (color)
+        {
+            case "blue":
+                if (doneBlueWires.Contains(wire)) return;
+                doneBlueWires.Add(wire);
+                break;
+            case "green":
+                if (doneGreenWires.Contains(wire)) return;
+                doneGreenWires.Add(wire);
+                break;
+            case "red":
+                if (doneRedWires.Contains(wire)) return;
+                doneRedWires.Add(wire);
+                break;
+            case "yellow":
+                if (doneYellowWires.Contains(wire)) return;
+                doneYellowWires.Add(wire);
+                break;
+        }
+    }
+
+    void RemoveWireFromDoneList(Wire wire, string color)
+    {
+        switch (color)
+        {
+            case "blue":
+                if (doneBlueWires.Contains(wire) == false) return;
+                doneBlueWires.Remove(wire);
+                break;
+            case "green":
+                if (doneGreenWires.Contains(wire) == false) return;
+                doneGreenWires.Remove(wire);
+                break;
+            case "red":
+                if (doneRedWires.Contains(wire) == false) return;
+                doneRedWires.Remove(wire);
+                break;
+            case "yellow":
+                if (doneYellowWires.Contains(wire) == false) return;
+                doneYellowWires.Remove(wire);
+                break;
+        }
+    }
+
+    void CheckPorts()
+    {
+        if (doneBlueWires.Count == requiredBlueWires.Count)
+        {
+            wirePort.EnableGlow("blue");
+        }
+        else
+        {
+            wirePort.DisableGlow("blue");
+        }
+
+        if (doneGreenWires.Count == requiredGreenWires.Count)
+        {
+            wirePort.EnableGlow("green");
+        }
+        else
+        {
+            wirePort.DisableGlow("green");
+        }
+
+        if (doneRedWires.Count == requiredRedWires.Count)
+        {
+            wirePort.EnableGlow("red");
+        }
+        else
+        {
+            wirePort.DisableGlow("red");
+        }
+
+        if (doneYellowWires.Count == requiredYellowWires.Count)
+        {
+            wirePort.EnableGlow("yellow");
+        }
+        else
+        {
+            wirePort.DisableGlow("yellow");
+        }
     }
 }

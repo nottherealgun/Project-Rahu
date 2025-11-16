@@ -29,6 +29,8 @@ public class Wire : SerializedMonoBehaviour
     [SerializeField] bool directionDoesntMatter = false;
     [SerializeField] Vector3 targetRotation = Vector3.zero;
 
+    public UnityEvent<Wire,Direction> onWireTurned;
+
     [Button("Force Turn", ButtonSizes.Large)]
     void ForceTurn()
     {
@@ -47,6 +49,7 @@ public class Wire : SerializedMonoBehaviour
     public void Start()
     {
         GetComponent<Button>().onClick.AddListener(OnWireClicked);
+        onWireTurned?.Invoke(this, currentDirection);
     }
 
     void OnWireClicked()
@@ -54,7 +57,10 @@ public class Wire : SerializedMonoBehaviour
         currentDirection = directions[((int)currentDirection + 1) % 4];
         int dirIdx = System.Array.IndexOf(directions, currentDirection);
         targetRotation = new Vector3(0, 0, -90 * dirIdx);
-        Tween.Rotation(transform, targetRotation, 0.25f);
+        Tween.Rotation(transform, targetRotation, 0.25f).OnComplete(() =>
+        {
+            onWireTurned?.Invoke(this, currentDirection);
+        });
         gameManager.OnWireClicked(idxInParent, this);
     }
     
