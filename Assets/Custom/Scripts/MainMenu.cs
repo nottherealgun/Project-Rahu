@@ -2,15 +2,16 @@ using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
+using System.Threading.Tasks;
 public class MainMenu : Menu
 {
     UnityAction onButtonPressed;
     [OdinSerialize] TMP_Text gameVersionText;
-    void Start()
+    async void Start()
     {
         UIManager.LockCursor(false);
         UIManager.Instance.DisableInteractionHUD();
-        NarrativeManager.Instance.SetupScene("12", "01");
+        await NarrativeManager.Instance.SetupScene("10", "01");
         EnvironmentalAudioManager.Instance.PlayMusic("main_menu_music");
         gameVersionText.text = "build " + Application.version;
         gameVersionText.text += "\nUnity: " + Application.unityVersion;
@@ -23,11 +24,11 @@ public class MainMenu : Menu
             case "continue":
                 break;
             case "new_game":
-                onButtonPressed += StartNewGame;
+                onButtonPressed += NarrativeManager.Instance.StartNewGame;
                 break;
             case "settings":
                 // onButtonPressed += OpenSettingsMenu;
-                onButtonPressed += () => UIManager.Instance.OpenSettingsMenu();
+                onButtonPressed += UIManager.Instance.OpenSettingsMenu;
                 break;
             case "quit":
                 Application.Quit();
@@ -38,24 +39,5 @@ public class MainMenu : Menu
         }
         onButtonPressed?.Invoke();
         onButtonPressed = null;
-    }
-
-    async void StartNewGame()
-    {
-        ScenesManager.Instance.ShowLoadingScreen();
-        await ScenesManager.Instance.LoadScene("CH02_SC12");
-
-        ScenesManager.Instance.HideLoadingScreen();
-        await NarrativeManager.Instance.PlayCutsceneSequence(true);
-
-        UIManager.LockCursor(true);
-        PersistentDataManager.Instance.ResetPuzzleData();
-        ScenesManager.Instance.ShowScene();
-        await UIManager.Instance.ManualFadeOut();
-
-        PersistentDataManager.Instance.FindPlayer();
-        await NarrativeManager.Instance.LateSetup();
-
-        UIManager.Instance.EnableQuestHUD();
     }
 }

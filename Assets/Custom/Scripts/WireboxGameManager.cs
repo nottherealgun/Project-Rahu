@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -18,6 +19,7 @@ public class WireboxGameManager : SerializedMonoBehaviour
     [SerializeField] List<Wire> doneYellowWires = new List<Wire>();
     WirePort wirePort;
     [SerializeField] GameObject raycastBlocker;
+    public UnityEvent onPuzzleCompleted;
     void Start()
     {
         onWireboxPuzzleCompleted?.AddListener(EndGame);
@@ -66,13 +68,19 @@ public class WireboxGameManager : SerializedMonoBehaviour
             Debug.Log("All wires are correct!");
             raycastBlocker.SetActive(true);
             onWireboxPuzzleCompleted?.Invoke();
+
+            UniTask.Delay(3000).ContinueWith(() =>
+            {
+                EndGame();
+            });
         }
     }
 
     void EndGame()
     {
-        GetComponent<PuzzleCompletionEmitter>().onPuzzleCompleted?.Invoke();
         UIManager.LockCursor(true);
+        EnvironmentalAudioManager.Instance.PlaySFX("puzzle_complete");
+        onPuzzleCompleted?.Invoke();
     }
 
     void OnRequiredWireRotated(Wire wire, string color)

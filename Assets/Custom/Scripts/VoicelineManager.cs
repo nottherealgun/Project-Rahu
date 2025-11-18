@@ -52,7 +52,6 @@ public class VoicelineManager : SerializedMonoBehaviour
 
     public async void Setup()
     {
-        print("B "+NarrativeManager.currentScene.name);
         await InitializeVoicelinePackOf(NarrativeManager.currentScene.name);
         NarrativeManager.currentScene.characters = currentVoicelinePack.characters;
     }
@@ -155,7 +154,6 @@ public class VoicelineManager : SerializedMonoBehaviour
                         OnVoicelinePackDictEmpty?.Invoke();
                         return;
                     }
-                    
 
                     int randomIndex = Random.Range(0, voicelines.Count);
                     data = voicelines[randomIndex];
@@ -163,6 +161,12 @@ public class VoicelineManager : SerializedMonoBehaviour
                     if (removeOnUse) currentVoicelinePack.randomBased[voicelineKey].RemoveAt(randomIndex);
                 }
                 break;
+        }
+
+        if (data == null)
+        {
+            Debug.LogWarning($"Voiceline key '{voicelineKey}' not found in {voicelineType} voicelines.");
+            return;
         }
 
         // Load audio

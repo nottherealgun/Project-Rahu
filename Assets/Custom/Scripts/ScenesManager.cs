@@ -107,9 +107,9 @@ public class ScenesManager : SerializedMonoBehaviour
         OnSceneLoaded?.Invoke();
     }
 
-    public void UnloadPuzzleScene(string sceneName)
+    public AsyncOperation UnloadPuzzleScene(string sceneName)
     {
-        SceneManager.UnloadSceneAsync(sceneName);
+        return SceneManager.UnloadSceneAsync(sceneName);
     }
 
     public bool IsLoadingComplete()

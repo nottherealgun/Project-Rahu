@@ -50,7 +50,7 @@ public class UIManager : SerializedMonoBehaviour
     Stack uiLayers = new Stack();
     Sequence? sequence;
 
-    public enum InteractionHUDPreset { DEFAULT, INTERACTABLE, ROTATABLE, CHOICE, QTE, CUSTOM }
+    public enum InteractionHUDPreset { DEFAULT, INTERACTABLE, ROTATABLE, CHOICE, QTE, PUZZLE }
 
     void Awake()
     {

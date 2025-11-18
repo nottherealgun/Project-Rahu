@@ -106,7 +106,7 @@ public class CutsceneStore : SerializedScriptableObject
         { "08_02", new Shot("08_03","CH02_SC08_SH02", ShotType.LINEAR ) },
         { "08_03", new Shot("08_04","CH02_SC08_SH03", ShotType.LINEAR ) },
         { "08_04", new Shot("09_01","CH02_SC08_SH04", ShotType.LINEAR ) },
-
+// Capstone Scope Starts here
         { "09_01", new Shot("09_02","CH02_SC09_SH01", ShotType.LINEAR ) },
         { "09_02", new Shot("09_03","CH02_SC09_SH02", ShotType.LINEAR ) },
         { "09_03", new Shot("09_04","CH02_SC09_SH03", ShotType.LINEAR ) },
@@ -116,9 +116,10 @@ public class CutsceneStore : SerializedScriptableObject
 
         { "10_01", new Shot("10_02","CH02_SC10_SH01", ShotType.LINEAR ) },
         { "10_02", new Shot("10_03","CH02_SC10_SH02", ShotType.LINEAR ) },
-        { "10_03", new Shot("","CH02_SC10_SH03", ShotType.EVENT ) },
-        // 10_04 is Puzzle 2
-        { "10_05", new Shot("10_06A,10_06B","CH02_SC10_SH05", ShotType.CHOICE ) },
+        { "10_03", new Shot("10_04","CH02_SC10_SH03", ShotType.LINEAR ) },
+        { "10_04", new Shot("","CH02_SC10_SH04", ShotType.EVENT ) },
+        // 10_05 is Puzzle 2
+        { "10_06", new Shot("10_06A,10_06B","CH02_SC10_SH06", ShotType.CHOICE ) },
         // Choice Prompt
         { "10_06A", new Shot("10_07A","CH02_SC10_SH06A", ShotType.LINEAR ) },
         { "10_07A", new Shot("11_01", "CH02_SC10_SH07A", ShotType.LINEAR ) },
@@ -147,7 +148,7 @@ public class CutsceneStore : SerializedScriptableObject
 
         { "12_01", new Shot("12_02","CH02_SC12_SH01", ShotType.EVENT ) },
         { "12_02", new Shot("","CH02_SC12_SH02", ShotType.LINEAR, true ) },
-
+// Capstone Scope Ends here
         { "13_01", new Shot("13_02","CH02_SC13_SH01", ShotType.LINEAR ) },
         { "13_02", new Shot("13_03","CH02_SC13_SH02", ShotType.LINEAR ) },
         { "13_03", new Shot("13_04","CH02_SC13_SH03", ShotType.LINEAR ) },
@@ -226,8 +227,8 @@ public class CutsceneStore : SerializedScriptableObject
     Dictionary<string, ChoicePromptData> choicePromptStore = new Dictionary<string, ChoicePromptData>
     {
         { "05_03",      new ChoicePromptData("STERILISED PROTOCOL", "Side With Somchai", "HANDS-ON EMERGENCY", "Side With Rueangsak")},
-        { "10_05",      new ChoicePromptData("INSECURE", "Contact Professor Somchai", "ADVENTUROUS", "Investigate The Corridor") },
-        { "13_18",      new ChoicePromptData("GET TO SAFETY", "Run Away", "TAKE THE PLUNGE", "Fight Back") },
+        { "10_06",      new ChoicePromptData("INSECURE", "Contact Professor Somchai", "ADVENTUROUS", "Investigate The Corridor") },
+        { "13_18",      new ChoicePromptData("ESCAPE", "Get To Safety", "RESCUE", "Risk Saving Your Friend") },
         { "13_29B1",    new ChoicePromptData("THANKFUL", "Thanks for asking, Nate.", "COLD", "Take care of yourself.") },
 
         { "A_05",    new ChoicePromptData("TEST CHOICE A", "DESCRIPTION A", "TEST CHOICE B", "DESCRIPTION B") },
