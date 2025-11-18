@@ -287,7 +287,7 @@ public class UIManager : SerializedMonoBehaviour
         while (duplicate.Count > 0)
         {
             string layer = (string)duplicate.Pop();
-            print($"{layerIdx}: {layer}");
+            Debug.Log($"{layerIdx}: {layer}");
             layerIdx++;
         }
     }

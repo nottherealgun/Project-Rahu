@@ -10,16 +10,17 @@ public class InteractionPromptHUD : SerializedMonoBehaviour
     [OdinSerialize]
     Dictionary<string, GameObject> prompts = new Dictionary<string, GameObject>();
     [OdinSerialize, Required] GameObject promptContainer;
+    bool resetPrompts = true;
 
     [Button(ButtonSizes.Large)]
     void PrintPrompt()
     {
-        print($"{prompts.Count} prompts registered.");
+        Debug.Log($"{prompts.Count} prompts registered.");
         foreach (string str in prompts.Keys)
         {
-            print(str);
+            Debug.Log(str);
         }
-        print($"==============");
+        Debug.Log($"==============");
     }
 
     void OnValidate()
@@ -51,10 +52,16 @@ public class InteractionPromptHUD : SerializedMonoBehaviour
             if (prompts[promptName].activeInHierarchy == false) continue;
             prompts[promptName].SetActive(false);
         }
+        resetPrompts = true;
     }
     
     public void EnablePrompts(UIManager.InteractionHUDPreset preset = UIManager.InteractionHUDPreset.DEFAULT)
     {
+        if(resetPrompts == false)
+        {
+            DisablePrompts();
+        }
+        resetPrompts = false;
         string promptsToTurnOn = "";
         switch (preset)
         {
@@ -68,6 +75,9 @@ public class InteractionPromptHUD : SerializedMonoBehaviour
                 promptsToTurnOn = "selectleft,selectright";
                 break;
             case UIManager.InteractionHUDPreset.QTE:
+                break;
+            case UIManager.InteractionHUDPreset.PUZZLE:
+                promptsToTurnOn = "interact";
                 break;
             default:
                 // IntereactionHUDPreset.DEFAULT

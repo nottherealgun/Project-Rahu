@@ -37,4 +37,12 @@ public class SpeakerComponent : SerializedMonoBehaviour
 
         isSpeaking = false;
     }
+
+    void OnDestroy()
+    {
+        if(voiceSource != null && voiceSource.isPlaying)
+        {
+            voiceSource.Stop();
+        }
+    }
 }

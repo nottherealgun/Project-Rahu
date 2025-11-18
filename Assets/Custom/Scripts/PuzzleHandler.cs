@@ -27,7 +27,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
     void Start()
     {
         onPuzzleCompleted.AddListener(UnloadPuzzle);
-        onPuzzleCompleted.AddListener(() => print("PUZZLE COMPLETED."));
+        onPuzzleCompleted.AddListener(() => Debug.Log("PUZZLE COMPLETED."));
         onPuzzleCompleted.AddListener(GameManager.Instance.OnPuzzleComplete);
 
         switch (puzzle)

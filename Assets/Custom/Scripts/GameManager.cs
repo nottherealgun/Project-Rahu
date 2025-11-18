@@ -68,6 +68,7 @@ public class GameManager : SerializedMonoBehaviour
         }
         if (donePuzzle3)
         {
+            NarrativeManager.Instance.SetupScene("12", "02");
             UIManager.OnTransitioned += StartFinalCutscene;
             UIManager.Instance.ToggleTransitionPanel();
             // StartFinalCutscene();
@@ -76,7 +77,6 @@ public class GameManager : SerializedMonoBehaviour
 
     async void StartFinalCutscene()
     {
-        UIManager.LockCursor(false);
         await NarrativeManager.Instance.PlayCutsceneSequence();
         ScenesManager.Instance.ShowLoadingScreen();
         await ScenesManager.Instance.LoadScene("MainMenu");

@@ -7,7 +7,6 @@ using UnityEngine.Events;
 
 public class WireboxGameManager : SerializedMonoBehaviour
 {
-    UnityEvent onWireboxPuzzleCompleted;
     [SerializeField] Transform wireContainerObject;
     [SerializeField] List<Wire> requiredBlueWires;
     [SerializeField] List<Wire> requiredGreenWires;
@@ -22,8 +21,6 @@ public class WireboxGameManager : SerializedMonoBehaviour
     public UnityEvent onPuzzleCompleted;
     void Start()
     {
-        onWireboxPuzzleCompleted?.AddListener(EndGame);
-
         foreach (Wire wire in requiredBlueWires)
         {
             wire.onWireTurned.AddListener((w, d) => OnRequiredWireRotated(w, "blue"));
@@ -57,7 +54,7 @@ public class WireboxGameManager : SerializedMonoBehaviour
         {
             if (!wire.IsInValidDirection())
             {
-                // print(wire.name + " is in invalid direction");
+                // Debug.Log(wire.name + " is in invalid direction");
                 allWiresCorrect = false;
                 break;
             }
@@ -67,7 +64,7 @@ public class WireboxGameManager : SerializedMonoBehaviour
         {
             Debug.Log("All wires are correct!");
             raycastBlocker.SetActive(true);
-            onWireboxPuzzleCompleted?.Invoke();
+            EnvironmentalAudioManager.Instance.PlaySFX("puzzle_complete");
 
             UniTask.Delay(3000).ContinueWith(() =>
             {
@@ -76,10 +73,10 @@ public class WireboxGameManager : SerializedMonoBehaviour
         }
     }
 
+    [Button(ButtonSizes.Large)]
     void EndGame()
     {
         UIManager.LockCursor(true);
-        EnvironmentalAudioManager.Instance.PlaySFX("puzzle_complete");
         onPuzzleCompleted?.Invoke();
     }
 

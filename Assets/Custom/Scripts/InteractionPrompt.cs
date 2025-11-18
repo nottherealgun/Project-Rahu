@@ -65,6 +65,6 @@ public class InteractionPrompt : SerializedMonoBehaviour
     public void TellDistance()
     {
         float distance = Vector3.Distance(player.transform.position, transform.position);
-        print($"Distance from player: {distance}");
+        Debug.Log($"Distance from player: {distance}");
     }
 }

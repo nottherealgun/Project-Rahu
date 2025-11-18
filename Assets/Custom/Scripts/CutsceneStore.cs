@@ -145,8 +145,8 @@ public class CutsceneStore : SerializedScriptableObject
         { "11_07", new Shot("11_08","CH02_SC11_SH07", ShotType.LINEAR ) },
         { "11_08", new Shot("12_01","CH02_SC11_SH08", ShotType.LINEAR ) },
 
-        { "12_01", new Shot("12_02","CH02_SC12_SH01", ShotType.EVENT ) },
-        { "12_02", new Shot("","CH02_SC12_SH02", ShotType.LINEAR, true ) },
+        { "12_01", new Shot("","CH02_SC12_SH01", ShotType.EVENT ) },
+        { "12_02", new Shot("","CH02_SC12_SH02", ShotType.EVENT ) },
 // Capstone Scope Ends here
         { "13_01", new Shot("13_02","CH02_SC13_SH01", ShotType.LINEAR ) },
         { "13_02", new Shot("13_03","CH02_SC13_SH02", ShotType.LINEAR ) },

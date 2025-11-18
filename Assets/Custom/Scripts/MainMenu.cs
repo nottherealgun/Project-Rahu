@@ -2,7 +2,8 @@ using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
+
 public class MainMenu : Menu
 {
     UnityAction onButtonPressed;
@@ -11,8 +12,11 @@ public class MainMenu : Menu
     {
         UIManager.LockCursor(false);
         UIManager.Instance.DisableInteractionHUD();
-        NarrativeManager.Instance.SetupScene("10", "01");
         EnvironmentalAudioManager.Instance.PlayMusic("main_menu_music");
+
+        await NarrativeManager.Instance.RemoveAllCutscenes();
+        NarrativeManager.Instance.SetupScene("10", "01");
+
         gameVersionText.text = "build " + Application.version;
         gameVersionText.text += "\nUnity: " + Application.unityVersion;
     }
@@ -34,7 +38,7 @@ public class MainMenu : Menu
                 Application.Quit();
                 break;
             case "feedback":
-                Application.OpenURL("https://docs.google.com/forms/d/e/1FAIpQLSfgrIaDWybumbbBhgbqLWZgmpVR268cR1YK7johQJViCf0Uvw/viewform?usp=header");
+                Application.OpenURL("https://forms.gle/BxbxsNNHqJg1quaq5");
                 break;
         }
         onButtonPressed?.Invoke();

@@ -116,7 +116,7 @@ public class VoicelineManager : SerializedMonoBehaviour
 
         if (handle.Status == AsyncOperationStatus.Succeeded)
         {
-            print("Playing audio: " + fileName);
+            Debug.Log("Playing audio: " + fileName);
             return handle.Result;
         }
         else

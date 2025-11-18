@@ -46,7 +46,7 @@ public class ScenesManager : SerializedMonoBehaviour
         float startTime = Time.realtimeSinceStartup;
 
         await SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-        print("Loaded scene: " + sceneName);
+        Debug.Log("Loaded scene: " + sceneName);
 
         Scene newScene = SceneManager.GetSceneByName(sceneName);
         foreach (GameObject o in newScene.GetRootGameObjects())

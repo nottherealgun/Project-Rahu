@@ -17,7 +17,7 @@ public class IntroSequenceManager : SerializedMonoBehaviour
         EnvironmentalAudioManager.Instance.PlayMusic("main_menu_music");
         playableDirector.stopped += async (director) => await StartDemo();
 
-        videoPlayer.loopPointReached += (vp) => print("Loading demo...");
+        videoPlayer.loopPointReached += (vp) => Debug.Log("Loading demo...");
         videoPlayer.Prepare();
         videoPlayer.prepareCompleted += (vp) => Play();
     }
