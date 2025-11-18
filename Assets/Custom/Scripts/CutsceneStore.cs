@@ -130,12 +130,11 @@ public class CutsceneStore : SerializedScriptableObject
         { "10_09B", new Shot("10_10B","CH02_SC10_SH09B", ShotType.LINEAR ) },
         { "10_10B", new Shot("10_11B","CH02_SC10_SH10B", ShotType.LINEAR ) },
         { "10_11B", new Shot("10_12B","CH02_SC10_SH11B", ShotType.LINEAR ) },
-        { "10_12B", new Shot("10_13B,10_14B","CH02_SC10_SH12B", ShotType.QTE ) },
+        { "10_12B", new Shot("10_13B2,10_13B1","CH02_SC10_SH12B", ShotType.QTE ) },
         // QTE
-
-        { "10_13B", new Shot("10_15B","CH02_SC10_SH13B", ShotType.LINEAR ) },
-        { "10_14B", new Shot("10_15B","CH02_SC10_SH14B", ShotType.LINEAR ) },
-        { "10_15B", new Shot("11_01", "CH02_SC10_SH15B", ShotType.LINEAR ) },
+        { "10_13B1", new Shot("11_01","CH02_SC10_SH13B1", ShotType.LINEAR ) },
+        { "10_13B2", new Shot("10_14B","CH02_SC10_SH13B2", ShotType.LINEAR ) },
+        { "10_14B", new Shot("11_01","CH02_SC10_SH14B", ShotType.LINEAR ) },
 
         { "11_01", new Shot("11_02","CH02_SC11_SH01", ShotType.LINEAR ) },
         { "11_02", new Shot("11_03","CH02_SC11_SH02", ShotType.LINEAR ) },

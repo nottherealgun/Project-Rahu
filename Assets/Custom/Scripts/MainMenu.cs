@@ -11,7 +11,7 @@ public class MainMenu : Menu
     {
         UIManager.LockCursor(false);
         UIManager.Instance.DisableInteractionHUD();
-        await NarrativeManager.Instance.SetupScene("10", "01");
+        NarrativeManager.Instance.SetupScene("10", "01");
         EnvironmentalAudioManager.Instance.PlayMusic("main_menu_music");
         gameVersionText.text = "build " + Application.version;
         gameVersionText.text += "\nUnity: " + Application.unityVersion;
