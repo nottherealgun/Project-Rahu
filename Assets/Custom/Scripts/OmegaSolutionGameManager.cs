@@ -27,6 +27,7 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
 
     [OdinSerialize] GameObject yellowFiller;
     [OdinSerialize] Button ejectButton;
+    [OdinSerialize] Button boostButton;
     [OdinSerialize, ReadOnly] GaugeMode currentGaugeMode = GaugeMode.NONE;
     [Title("Progress Rates")]
     // [OdinSerialize]
@@ -36,9 +37,9 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
     [InfoBox("How fast the Right Bar\'s indicator decelerates per frame")]
     [OdinSerialize] float boostDecelerationRate = 0.02f;
     [InfoBox("How fast the Left Bar\'s progress RISES per frame (Max prog. is 1.0)")]
-    [OdinSerialize] float progressRiseRate = 0.001f;
+    [OdinSerialize] float progressRiseRate = 0.0025f;
     [InfoBox("How fast the Left Bar\'s progress DROPS per frame (Max prog. is 1.0)")]
-    [OdinSerialize] float progressDropRate = 0.001f;
+    [OdinSerialize] float progressDropRate = 0.0025f;
 
     string currentlyPlayingBoilingSFX = "";
     const int HIGH_BOILING_POINT_IDX = 2;
@@ -194,10 +195,13 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         {
             // StartNewRound();
             round++;
-            if (IsChemicalsComplete())
+            if (IsChemicalsComplete() && isGaugeFilled == false)
             {
+                EnvironmentalAudioManager.Instance.PlaySFX("puzzle_complete");
+                tween?.Stop();
                 isGaugeFilled = true;
                 ejectButton.interactable = true;
+                boostButton.interactable = false;
                 return;
             }
         }
