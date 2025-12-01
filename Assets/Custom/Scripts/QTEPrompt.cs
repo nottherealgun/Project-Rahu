@@ -62,7 +62,7 @@ public class QTEPrompt : SerializedMonoBehaviour
         Sequence sequence = Sequence.Create()
             .Chain(Tween.Scale(uiContainer,1.3f,0.2f))
             .Chain(Tween.Scale(uiContainer,1f,0.5f));
-        failTween = Tween.Custom(0f, 1f, 5f, onValueChange: (value) => progressBar.fillAmount = value, Ease.Linear)
+        failTween = Tween.Custom(0f, 1f, 2.5f, onValueChange: (value) => progressBar.fillAmount = value, Ease.Linear)
         .OnComplete(async () =>
         {
             // If didn't press anything, fail
