@@ -602,7 +602,7 @@ public class CrystalCrushGameManager : SerializedMonoBehaviour
     [OdinSerialize, TabGroup("tab1", "General"), SceneObjectsOnly] GameObject barrier;
     [OdinSerialize, TabGroup("tab1", "General")] TMP_Text keyCrystalAmntDisplay;
     [OdinSerialize, TabGroup("tab1", "General"), HideInInspector] public int collectedKeyCrystals = 0;
-    [OdinSerialize, TabGroup("tab1", "General")] int keyCrystalAmntLimit = 10;
+    [OdinSerialize, TabGroup("tab1", "General")] int keyCrystalAmntLimit = 5;
 
     [InfoBox("How fast the crystals move/swap; Default is 0.5")]
     [OdinSerialize, TabGroup("tab1", "Appearance", SdfIconType.PaletteFill, TextColor = "orange"), PropertyRange(0.0f, 5.0f)]
