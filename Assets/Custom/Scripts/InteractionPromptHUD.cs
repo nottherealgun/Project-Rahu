@@ -69,7 +69,7 @@ public class InteractionPromptHUD : SerializedMonoBehaviour
                 promptsToTurnOn = "leave";
                 break;
             case UIManager.InteractionHUDPreset.ROTATABLE:
-                promptsToTurnOn = "leave,rotate";
+                promptsToTurnOn = "leave,rotate,resetrotation";
                 break;
             case UIManager.InteractionHUDPreset.CHOICE:
                 promptsToTurnOn = "selectleft,selectright";

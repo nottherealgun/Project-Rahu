@@ -328,7 +328,7 @@ public class PlayerController : SerializedMonoBehaviour
 
         // Reset mouse rotation when interaction ends
         // (mouse rotator is used to rotate the object when interacting)
-        interactingObjScript.ResetRotation();
+        interactingObjScript.ResetInspectionTransform();
 
         // Camera transition out (fade)
         UIManager.Instance.ToggleTransitionPanel(false);

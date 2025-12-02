@@ -7,6 +7,10 @@ using Sirenix.Serialization;
 public class InteractableObject : SerializedMonoBehaviour
 {
     [OdinSerialize] bool canBeRotated = true;
+    [Tooltip("Adjusts the speed of rotation for interacting objects. Higher values mean faster rotation.")]
+    [OdinSerialize] float objectRotationSpeed = 5f;
+    [OdinSerialize] bool resetToInitialRotValue = true;
+    [OdinSerialize, ShowIf("@resetToInitialRotValue == false")] Vector3 rotOnReset = Vector3.zero;
     public bool isInstantInteraction = false;
     [OdinSerialize, SceneObjectsOnly] GameObject customInspectionCamera;
     [SceneObjectsOnly] public GameObject itemMesh;
@@ -23,15 +27,13 @@ public class InteractableObject : SerializedMonoBehaviour
     {
         get { return _playerCharacter.GetComponent<PlayerController>(); }
     }
-    MouseRotator mouseRotator;
     bool holdingMouse;
     Quaternion deltaRotation;
-    [Tooltip("Adjusts the speed of rotation for interacting objects. Higher values mean faster rotation.")]
-    float _objectRotationSpeed = 0.05f;
     [Tooltip("Inverts vertical mouse movement for object rotation.")]
     bool _invertXObjectRotation = false;
     [Tooltip("Inverts horizontal mouse movement for object rotation.")]
     bool _invertYObjectRotation = true;
+    Vector3 previousMousePos;
 
     public bool hasInspectionCamera
     {
@@ -62,7 +64,7 @@ public class InteractableObject : SerializedMonoBehaviour
                 if (canBeRotated) UIManager.OnTransitioned += () => UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.ROTATABLE);
                 else UIManager.OnTransitioned += () => UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.INTERACTABLE);
             }
-            
+
             if (canBeRotated)
             {
                 // Tween.PositionY(itemMesh.transform, endValue: initialPosition.y + 0.15f, duration: 1, ease: Ease.OutCubic);
@@ -80,7 +82,7 @@ public class InteractableObject : SerializedMonoBehaviour
                 UIManager.Instance.CloseMenu();
                 UIManager.LockCursor(true);
                 UIManager.lastCursorState = true;
-                if(!customPromptActivationEnabled)
+                if (!customPromptActivationEnabled)
                     UIManager.OnTransitioned += () => ActivatePrompt();
             }
             if (thisOpensPDA) pdaInitializer.ClosePDA();
@@ -93,28 +95,16 @@ public class InteractableObject : SerializedMonoBehaviour
 
     void Start()
     {
-        // initialPosition = itemMesh.transform.position;
         initialPosition = transform.position;
         initialRotation = itemMesh.transform.rotation;
-
-        mouseRotator = new MouseRotator(Input.mousePosition);
-        mouseRotator.RotationSpeed = _objectRotationSpeed;
-        mouseRotator.InvertXRotation = _invertXObjectRotation;
-        mouseRotator.InvertYRotation = _invertYObjectRotation;
     }
 
     void Update()
     {
         UpdateInputHandling();
-        UpdateInteractingObjectRotation();
-    }
-
-    void UpdateInteractingObjectRotation()
-    {
-        if (this.isBeingInteractedWith && this.canBeRotated)
+        if (isBeingInteractedWith && canBeRotated)
         {
-            deltaRotation = mouseRotator.UpdateRotation(Input.mousePosition, holdingMouse);
-            itemMesh.transform.rotation = initialRotation * deltaRotation;
+            UpdateInteractingObjectRotation();
         }
     }
 
@@ -132,22 +122,56 @@ public class InteractableObject : SerializedMonoBehaviour
         }
     }
 
+    void UpdateInteractingObjectRotation()
+    {
+        // if (this.isBeingInteractedWith && this.canBeRotated)
+        // {
+        //     deltaRotation = mouseRotator.UpdateRotation(Input.mousePosition, holdingMouse);
+        //     itemMesh.transform.rotation = initialRotation * deltaRotation;
+        // }
+        if (Input.GetMouseButtonDown(0))
+        {
+            previousMousePos = Input.mousePosition;
+        }
+        if (Input.GetMouseButton(0))
+        {
+            Vector3 deltaMousePos = Input.mousePosition - previousMousePos;
+            float rotX = deltaMousePos.y * objectRotationSpeed * Time.deltaTime;
+            float rotY = deltaMousePos.x * objectRotationSpeed * Time.deltaTime;
+
+            Quaternion rotation = Quaternion.Euler(rotX, rotY, 0);
+            itemMesh.transform.rotation *= rotation;
+
+            previousMousePos = Input.mousePosition;
+        }
+    }
+
     void SetInspectionCamera(bool val)
     {
         customInspectionCamera.SetActive(val);
     }
 
+    public void OnReset() // Reset BY the Player instead of when the player leaves the inspection
+    {
+        ResetRotation();
+    }
+
     public void ResetRotation()
     {
-        if (canBeRotated)
+        if (canBeRotated == false) return;
+        if (resetToInitialRotValue)
+        { Tween.Rotation(itemMesh.transform, endValue: initialRotation, duration: 1, ease: Ease.OutCubic); }
+        else
         {
-            // Tween.PositionY(itemMesh.transform, endValue: initialPosition.y, duration: 1, ease: Ease.OutCubic);
-            Tween.PositionY(transform, endValue: initialPosition.y, duration: 1, ease: Ease.OutCubic);
-            Tween.Rotation(itemMesh.transform, endValue: initialRotation, duration: 1, ease: Ease.OutCubic).OnComplete(() =>
-            {
-                mouseRotator.ResetRotation();
-            });
+            Tween.Rotation(itemMesh.transform, endValue: rotOnReset, duration: 1, ease: Ease.OutCubic);
         }
+    }
+
+    public void ResetInspectionTransform() // When the player leaves inspection (right click)
+    {
+        if (canBeRotated == false) return;
+        Tween.PositionY(transform, endValue: initialPosition.y, duration: 1, ease: Ease.OutCubic);
+        Tween.Rotation(itemMesh.transform, endValue: initialRotation, duration: 1, ease: Ease.OutCubic);
     }
 
     public GameObject GetInspectionCamera()
@@ -198,55 +222,5 @@ public class InteractableObject : SerializedMonoBehaviour
     {
         if (interactionPrompt == null) return;
         interactionPrompt.GetComponent<InteractionPrompt>().HidePrompt();
-    }
-}
-
-public class MouseRotator
-{
-
-    public float RotationSpeed { get; set; } = 0.5f;
-    public bool InvertXRotation { get; set; } = false;
-    public bool InvertYRotation { get; set; } = false;
-    private Vector2 _lastMousePosition;
-
-    private Quaternion _currentRotation = Quaternion.identity; // Using Quaternion.identity for Unity
-
-    public MouseRotator(Vector2 initialMousePosition)
-    {
-        _lastMousePosition = initialMousePosition;
-    }
-
-    public Quaternion UpdateRotation(Vector2 currentMousePosition, bool isDragging)
-    {
-        if (isDragging)
-        {
-            // Calculate the change in mouse position since the last frame
-            Vector2 mouseDelta = currentMousePosition - _lastMousePosition;
-
-            float rotationAmountX = mouseDelta.y * RotationSpeed * (InvertXRotation ? -1f : 1f);
-            float rotationAmountY = mouseDelta.x * RotationSpeed * (InvertYRotation ? -1f : 1f);
-
-            Quaternion pitchRotation = Quaternion.AngleAxis(rotationAmountX, Vector3.right); // Rotate around object's local right
-            Quaternion yawRotation = Quaternion.AngleAxis(rotationAmountY, Vector3.up);    // Rotate around world up (for turntable)
-
-            _currentRotation = yawRotation * pitchRotation * _currentRotation;
-
-            _currentRotation = Quaternion.Normalize(_currentRotation);
-        }
-        _lastMousePosition = currentMousePosition;
-
-        return _currentRotation;
-    }
-    public void ResetRotation()
-    {
-        _currentRotation = Quaternion.identity;
-    }
-    public void SetRotation(Quaternion newRotation)
-    {
-        _currentRotation = newRotation;
-    }
-    public Quaternion GetCurrentRotation()
-    {
-        return _currentRotation;
     }
 }

@@ -68,6 +68,7 @@ public class GameManager : SerializedMonoBehaviour
         }
         if (donePuzzle3)
         {
+            UIManager.Instance.DisableQuestHUD();
             NarrativeManager.Instance.SetupScene("12", "02");
             UIManager.OnTransitioned += StartFinalCutscene;
             UIManager.Instance.ToggleTransitionPanel();

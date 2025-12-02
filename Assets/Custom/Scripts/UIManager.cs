@@ -155,10 +155,10 @@ public class UIManager : SerializedMonoBehaviour
         sequence = Sequence.Create();
         sequence.Value
             .Group(Tween.PositionX(questHUD.GetComponent<RectTransform>(), 0f, 1f))
-            .Group(Tween.Alpha(questHUD.GetComponent<CanvasGroup>(), 1f, 1f))
-            .ChainDelay(7.5f)
-            .Chain(Tween.PositionX(questHUD.GetComponent<RectTransform>(), -150f, 0.5f))
-            .Group(Tween.Alpha(questHUD.GetComponent<CanvasGroup>(), 0f, 0.5f));
+            .Group(Tween.Alpha(questHUD.GetComponent<CanvasGroup>(), 1f, 1f));
+            // .ChainDelay(7.5f)
+            // .Chain(Tween.PositionX(questHUD.GetComponent<RectTransform>(), -150f, 0.5f))
+            // .Group(Tween.Alpha(questHUD.GetComponent<CanvasGroup>(), 0f, 0.5f));
     }
     public void DisableQuestHUD()
     {
