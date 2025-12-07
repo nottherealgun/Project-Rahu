@@ -1,7 +1,496 @@
 {
     "version": 1,
-    "name": "UIMap",
+    "name": "MainInputMap",
     "maps": [
+        {
+            "name": "Player",
+            "id": "a4e646a7-36a5-4d47-bba3-dce7772a55ca",
+            "actions": [
+                {
+                    "name": "Move",
+                    "type": "Value",
+                    "id": "93a8826c-740d-4cab-afe6-f0101b19b5e2",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Look",
+                    "type": "Value",
+                    "id": "764e6e58-d2b3-49ff-97f7-ee89df8f3c65",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Interact",
+                    "type": "Button",
+                    "id": "4d335c46-e2ab-44dd-ba64-ead18a1fcd6d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ExitInteraction",
+                    "type": "Button",
+                    "id": "2bbf7ccf-19ea-41c8-ad32-14b693e74f62",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Menu",
+                    "type": "Button",
+                    "id": "327b1645-4996-4bbd-aa41-4178e47ccb36",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Reset",
+                    "type": "Button",
+                    "id": "e7216e39-0d22-4fb6-83b4-cb451f8227b4",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Sprint",
+                    "type": "Value",
+                    "id": "79324066-32d1-4183-95a5-8bbdefa193fc",
+                    "expectedControlType": "Digital",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "732784ac-9008-4537-afc4-3d0b7d20a82e",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "WASD",
+                    "id": "7b929cb3-c26f-428f-9179-78d499d06976",
+                    "path": "Dpad",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "e1c1e653-ae06-4fa8-8f1d-ff8fa918563f",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "up",
+                    "id": "607e75b0-d4ab-4461-8f9f-b6b3f0910d1d",
+                    "path": "<Keyboard>/upArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "6f0ad35f-572f-43e6-b4aa-7af32f2aea3a",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "57d9d78a-af72-47da-b80b-0948ad53a43e",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "e94f1a94-8055-491a-b7e5-7264e7774ecd",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "a3fe6ac4-125c-4309-9903-1700c478356b",
+                    "path": "<Keyboard>/leftArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "9c6021e9-2cb6-4057-b7cf-aa58dc98a1c9",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "7a01f46d-aed5-4c67-9691-78169fa42cf4",
+                    "path": "<Keyboard>/rightArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "b2009325-ed3c-4439-8341-8df9b5543e87",
+                    "path": "<XRController>/{Primary2DAxis}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8c0d578e-5238-4834-9093-516fb87ee82c",
+                    "path": "<Joystick>/stick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "62b02dfb-e056-4831-9bc1-1e211e9d8a04",
+                    "path": "<XInputController>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Xbox",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b8ca1f23-67cd-49a5-90a2-7cf9b8d586b9",
+                    "path": "<DualShockGamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DualShock",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7a6e9221-71b4-46d3-a6a8-fb86e9cf5164",
+                    "path": "<Gamepad>/rightStick",
+                    "interactions": "",
+                    "processors": "InvertVector2(invertX=false),DeltaTimeScale,ScaleVector2",
+                    "groups": ";Gamepad",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d237df7a-1255-4f3a-b134-50f2a5e3a174",
+                    "path": "<Pointer>/delta",
+                    "interactions": "",
+                    "processors": "InvertVector2(invertX=false),DeltaTimeScale,ScaleVector2(x=0.05,y=0.05)",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cbbf66a9-ca97-4a17-baef-4e80f223d7b5",
+                    "path": "<Joystick>/{Hatswitch}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "156a81f2-3ba5-4941-8947-09c80f6e8e84",
+                    "path": "<XInputController>/rightStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Xbox",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "69f92e03-78de-4ba9-b7ca-7ed20843c69f",
+                    "path": "<DualShockGamepad>/rightStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DualShock",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bca62bd2-113a-4b87-897c-b8043f57b42f",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b56ed936-fa07-4f66-90ac-d9a2176bc434",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ec41c418-2460-4c93-b026-794138196327",
+                    "path": "<XInputController>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Xbox",
+                    "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2cd435eb-fb72-449d-a684-4b6842230765",
+                    "path": "<DualShockGamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DualShock",
+                    "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4ee58134-b065-4b8c-9412-2fd1e56e7133",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ExitInteraction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "97e1c251-f740-41c3-9318-739cfc5c13aa",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad;DualShock;Xbox",
+                    "action": "ExitInteraction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "50657582-0dc3-4615-b00e-9009c575a393",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "ExitInteraction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "98841a56-8ccf-43cb-80ed-cbe7e8ad74bd",
+                    "path": "<XInputController>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Xbox",
+                    "action": "ExitInteraction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a0a3e20b-ffb7-4d04-865b-3f48ba8b8fee",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e190eff2-24c6-4b73-b062-765efe8a5d25",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad;DualShock;Xbox",
+                    "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "228a92f1-f649-4a09-aa10-b3710d87b5a3",
+                    "path": "<XInputController>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "338dbdde-e69e-4364-82e1-59ff89dc1927",
+                    "path": "<DualShockGamepad>/touchpadButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d2aebf19-e49c-47ca-baa9-02d51ae6d27d",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Reset",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "82d671ce-e854-49cf-868d-5d1273d66991",
+                    "path": "<XInputController>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Xbox",
+                    "action": "Reset",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4369a84f-1472-4793-9360-2fdc11eabb4a",
+                    "path": "<DualShockGamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DualShock",
+                    "action": "Reset",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4404a6f6-100e-4066-a763-8973c976b6c0",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Reset",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b423886b-9e73-4c45-a15c-ccb4e5a2d36d",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Sprint",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "89d2ab40-4bfc-4192-bc91-e58d6247ffaf",
+                    "path": "<XInputController>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Xbox",
+                    "action": "Sprint",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8ab45891-35d5-4056-ba1e-37a5a0362adb",
+                    "path": "<DualShockGamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DualShock",
+                    "action": "Sprint",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
         {
             "name": "UI",
             "id": "272f6d14-89ba-496f-b7ff-215263d3219f",
@@ -16,24 +505,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Submit",
-                    "type": "Button",
-                    "id": "7607c7b6-cd76-4816-beef-bd0341cfe950",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Cancel",
-                    "type": "Button",
-                    "id": "15cef263-9014-4fd5-94d9-4e4a6234a6ef",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Point",
                     "type": "PassThrough",
                     "id": "32b35790-4ed0-4e9a-aa41-69ac6d629449",
@@ -43,7 +514,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Click",
+                    "name": "Primary",
                     "type": "PassThrough",
                     "id": "3c7022bf-7922-4f7c-a998-c437916075ad",
                     "expectedControlType": "Button",
@@ -52,18 +523,9 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "RightClick",
+                    "name": "Secondary",
                     "type": "PassThrough",
                     "id": "44b200b1-1557-4083-816c-b22cbdf77ddf",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "MiddleClick",
-                    "type": "PassThrough",
-                    "id": "dad70c86-b58c-4b17-88ad-f5e53adf419e",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -475,50 +937,6 @@
                 },
                 {
                     "name": "",
-                    "id": "9e92bb26-7e3b-4ec4-b06b-3c8f8e498ddc",
-                    "path": "<Gamepad>/buttonSouth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse;Gamepad;Touch;Joystick;XR",
-                    "action": "Submit",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "d98da650-f0f2-445f-a54c-c3220718f15a",
-                    "path": "<XInputController>/buttonSouth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Xbox",
-                    "action": "Submit",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "4a5ea796-9b04-4d49-8774-83410fe2a79d",
-                    "path": "<Gamepad>/buttonEast",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "Cancel",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "2a8e9c6b-9151-46a4-936b-1ab210b89297",
-                    "path": "<XInputController>/buttonEast",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Xbox",
-                    "action": "Cancel",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "c52c8e0b-8179-41d3-b8a1-d149033bbe86",
                     "path": "<Mouse>/position",
                     "interactions": "",
@@ -557,7 +975,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Click",
+                    "action": "Primary",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -568,7 +986,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Click",
+                    "action": "Primary",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -579,7 +997,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Touch",
-                    "action": "Click",
+                    "action": "Primary",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -590,7 +1008,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "XR",
-                    "action": "Click",
+                    "action": "Primary",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -601,7 +1019,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "Click",
+                    "action": "Primary",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -612,7 +1030,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Click",
+                    "action": "Primary",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -645,7 +1063,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
-                    "action": "RightClick",
+                    "action": "Secondary",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -656,18 +1074,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Xbox",
-                    "action": "RightClick",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "24066f69-da47-44f3-a07e-0015fb02eb2e",
-                    "path": "<Mouse>/middleButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "MiddleClick",
+                    "action": "Secondary",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1133,7 +1540,7 @@
             "id": "bd523c78-f978-4ab3-9775-196b6ce83f21",
             "actions": [
                 {
-                    "name": "Click",
+                    "name": "Boost",
                     "type": "PassThrough",
                     "id": "f22b242b-7b39-4c46-b28b-072dceed7e0e",
                     "expectedControlType": "Button",
@@ -1142,9 +1549,27 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "RightClick",
+                    "name": "Eject",
                     "type": "PassThrough",
                     "id": "4036300f-e918-49f8-b4c5-75592b884289",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Click",
+                    "type": "PassThrough",
+                    "id": "10dbf087-5e93-4bab-aec4-cc314a0c080f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "RightClick",
+                    "type": "PassThrough",
+                    "id": "a6d0604d-f4b2-4f71-8388-c5dc75a03293",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -1177,7 +1602,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Click",
+                    "action": "Boost",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1188,7 +1613,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Click",
+                    "action": "Boost",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1199,7 +1624,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Touch",
-                    "action": "Click",
+                    "action": "Boost",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1210,7 +1635,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "XR",
-                    "action": "Click",
+                    "action": "Boost",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1221,13 +1646,79 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Xbox",
-                    "action": "Click",
+                    "action": "Boost",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
                     "id": "ec6d59e3-89f9-4d44-b8f1-e6916a071a47",
+                    "path": "<DualShockGamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DualShock",
+                    "action": "Boost",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5feeb450-c739-4731-8c4d-622db37e36c1",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b34370cf-9142-4bce-aa33-50e40d052f09",
+                    "path": "<Pen>/tip",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ec41dc50-eec6-4412-8c48-43770e9f4921",
+                    "path": "<Touchscreen>/touch*/press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Touch",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d5be93ce-8f77-4106-8f9b-c502e4f5006b",
+                    "path": "<XRController>/trigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "51b8ab9a-8fd1-4360-abe8-5c09c032df24",
+                    "path": "<XInputController>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Xbox",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8bcee212-1ee8-4230-be6e-10c4f9efdcec",
                     "path": "<DualShockGamepad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
@@ -1243,7 +1734,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
-                    "action": "RightClick",
+                    "action": "Eject",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1254,13 +1745,46 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Xbox",
-                    "action": "RightClick",
+                    "action": "Eject",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
                     "id": "b984deb8-98ec-4eb3-ace2-26c4432e08a7",
+                    "path": "<DualShockGamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DualShock",
+                    "action": "Eject",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "484e7d1b-f47a-4427-866b-f2a194d60699",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "RightClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "74329a07-9ce2-4a54-ae95-0c9622387e2c",
+                    "path": "<XInputController>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Xbox",
+                    "action": "RightClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "de731d06-c882-4cbc-85c5-5f90e0d1f3c4",
                     "path": "<DualShockGamepad>/buttonEast",
                     "interactions": "",
                     "processors": "",

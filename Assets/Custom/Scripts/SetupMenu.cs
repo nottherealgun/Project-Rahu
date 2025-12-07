@@ -12,7 +12,7 @@ public class SetupMenu : Menu
     void Start()
     {
         EnvironmentalAudioManager.Instance.PlayMusic("main_menu_music");
-        UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.CUSTOM,"next");
+        UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.CUSTOM,"next,selectscheme");
     }
     public async void StartDemo()
     {

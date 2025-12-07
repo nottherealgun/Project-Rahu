@@ -7,6 +7,7 @@ using UnityEngine.InputSystem.DualShock;
 using UnityEngine.InputSystem.Users;
 using UnityEngine.InputSystem.XInput;
 using Cysharp.Threading.Tasks;
+using System.Linq;
 
 public class CurrentActiveDeviceManager : SerializedMonoBehaviour
 {
@@ -169,5 +170,18 @@ public class CurrentActiveDeviceManager : SerializedMonoBehaviour
                 }
             }
         }
+    }
+
+    private void OnDisable() {
+        InputUser.listenForUnpairedDeviceActivity = 0;
+        InputSystem.onDeviceChange += (d, c) =>
+        {
+            if (c == InputDeviceChange.Added)
+            {
+                // Always pair new devices to the same player
+                if (!playerInput.user.pairedDevices.Contains(d))
+                    InputUser.PerformPairingWithDevice(d, playerInput.user);
+            }
+        };
     }
 }

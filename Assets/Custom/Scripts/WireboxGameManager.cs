@@ -5,7 +5,7 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class WireboxGameManager : SerializedMonoBehaviour
+public class WireboxGameManager : Menu
 {
     [SerializeField] Transform wireContainerObject;
     [SerializeField] List<Wire> requiredBlueWires;

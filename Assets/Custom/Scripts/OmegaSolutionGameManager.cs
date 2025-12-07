@@ -147,7 +147,7 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         }
     }
 
-    public void OnClick(InputValue value)
+    public void OnBoost(InputValue value)
     {
         SetBoosting(value.isPressed);
         if (value.isPressed)
@@ -160,7 +160,7 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         }
     }
 
-    public void OnRightClick(InputValue value)
+    public void OnEject(InputValue value)
     {
         if (value.isPressed)
         {

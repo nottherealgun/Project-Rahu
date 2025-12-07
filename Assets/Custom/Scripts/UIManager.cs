@@ -97,6 +97,7 @@ public class UIManager : SerializedMonoBehaviour
     public void SetControlScheme(string _currentControlScheme, CurrentActiveDeviceManager.ActiveDevice _activeDevice)
     {
         controlScheme = _currentControlScheme;
+        // GetComponent<PlayerInput>().SwitchCurrentControlScheme(controlScheme);
         interactionPromptHUD.GetComponent<InteractionPromptHUD>().SyncPromptIcons(_activeDevice);
     }
 
@@ -257,7 +258,7 @@ public class UIManager : SerializedMonoBehaviour
         }
 
         // 2. Show settings prompt set
-        EnableInteractionHUD(InteractionHUDPreset.CUSTOM, "next,back");
+        EnableInteractionHUD(InteractionHUDPreset.CUSTOM, "next,back,adjust");
     }
 
     public void CloseSettingsMenu()
@@ -394,7 +395,7 @@ public class UIManager : SerializedMonoBehaviour
             }
         }
 
-        PlayerInput[] playerInputs = UnityEngine.Object.FindObjectsByType<PlayerInput>(FindObjectsSortMode.None);
+        PlayerInput[] playerInputs = UnityEngine.Object.FindObjectsByType<PlayerInput>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (PlayerInput pi in playerInputs)
         {
             if (device != null)
