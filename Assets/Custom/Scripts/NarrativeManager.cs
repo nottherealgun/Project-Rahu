@@ -10,7 +10,7 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Collections;
 using UnityEngine.Events;
-using System.Threading.Tasks;
+using UnityEngine.InputSystem;
 
 public class ProjectRahu
 {
@@ -73,6 +73,7 @@ public class NarrativeManager : SerializedMonoBehaviour
     UnityAction choiceChosen;
     UnityAction qteCompleted;
     private UniTaskCompletionSource choiceTcs;
+    PlayerInput playerInput;
 
     void Awake()
     {
@@ -89,6 +90,7 @@ public class NarrativeManager : SerializedMonoBehaviour
 
     void Start()
     {
+        playerInput = GetComponent<PlayerInput>();
         if (testSetup)
         {
             SetupScene(GameManager.Instance.testSceneID, GameManager.Instance.testShotID);
@@ -290,6 +292,7 @@ public class NarrativeManager : SerializedMonoBehaviour
         switch (currentShot.shotType)
         {
             case ShotType.CHOICE:
+                playerInput.SwitchCurrentActionMap("Choice");
                 if (choiceID1 == choiceID2)
                 {
                     Debug.Log("Invalid choice shot setup: both choice IDs are the same.");
@@ -297,9 +300,11 @@ public class NarrativeManager : SerializedMonoBehaviour
                 await EnableChoicePrompt(currentShot, cutscenePlayer, (choiceID1, choiceID2));
                 break;
             case ShotType.QTE:
+                playerInput.SwitchCurrentActionMap("QTE");
                 await EnableQTEPrompt(currentShot, cutscenePlayer, (choiceID1, choiceID2));
                 break;
             default:
+                playerInput.SwitchCurrentActionMap("UI");
                 // Otherwise, simply set next shot ID
                 break;
         }

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
-using UnityEditor;
 using UnityEngine;
 
 public class InteractionPromptHUD : SerializedMonoBehaviour
@@ -55,7 +54,7 @@ public class InteractionPromptHUD : SerializedMonoBehaviour
         resetPrompts = true;
     }
     
-    public void EnablePrompts(UIManager.InteractionHUDPreset preset = UIManager.InteractionHUDPreset.DEFAULT)
+    public void EnablePrompts(UIManager.InteractionHUDPreset preset = UIManager.InteractionHUDPreset.DEFAULT, string customInteractionString = "")
     {
         if(resetPrompts == false)
         {
@@ -79,6 +78,9 @@ public class InteractionPromptHUD : SerializedMonoBehaviour
             case UIManager.InteractionHUDPreset.PUZZLE:
                 promptsToTurnOn = "interact";
                 break;
+            case UIManager.InteractionHUDPreset.CUSTOM:
+                promptsToTurnOn = customInteractionString;
+                break;
             default:
                 // IntereactionHUDPreset.DEFAULT
                 break;
@@ -93,6 +95,15 @@ public class InteractionPromptHUD : SerializedMonoBehaviour
         foreach(string promptName in splitPromptsArray)
         {
             prompts[promptName].SetActive(true);
+        }
+    }
+
+    public void SyncPromptIcons(CurrentActiveDeviceManager.ActiveDevice activeDevice)
+    {
+        foreach(GameObject promptObj in prompts.Values)
+        {
+            Prompt _prompt = promptObj.GetComponent<Prompt>();
+            _prompt.SetPromptMode( (Prompt.PromptMode) activeDevice);
         }
     }
 }

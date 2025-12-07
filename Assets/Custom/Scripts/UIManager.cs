@@ -7,6 +7,10 @@ using Sirenix.Serialization;
 using Sirenix.OdinInspector;
 using TMPro;
 using System.Collections;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem.Users;
+using System;
 
 public class UIManager : SerializedMonoBehaviour
 {
@@ -50,7 +54,16 @@ public class UIManager : SerializedMonoBehaviour
     Stack uiLayers = new Stack();
     Sequence? sequence;
 
-    public enum InteractionHUDPreset { DEFAULT, INTERACTABLE, ROTATABLE, CHOICE, QTE, PUZZLE }
+    public enum InteractionHUDPreset { DEFAULT, INTERACTABLE, ROTATABLE, CHOICE, QTE, PUZZLE, CUSTOM }
+
+    [ReadOnly, OdinSerialize] string controlScheme = "Keyboard&Mouse";
+
+    Stack promptSetLayers = new Stack();
+    UnityAction onSavePromptSet;
+    [OdinSerialize, ReadOnly] Tuple<InteractionHUDPreset, string> lastPromptSet = null;
+
+    public UnityAction onOpenSettings;
+    public UnityAction onCloseSettings;
 
     void Awake()
     {
@@ -75,6 +88,16 @@ public class UIManager : SerializedMonoBehaviour
         }
         PersistentDataManager.Instance.OnPlayerFound += OnPlayerSearchStatus;
         settingsMenu.GetComponent<SettingsMenu>().Initialize();
+
+        SceneManager.sceneLoaded += async (scene, mode) => await OnSceneLoaded();
+        SceneManager.activeSceneChanged += async (oldScene, newScene) => await OnSceneLoaded();
+        SceneManager.sceneUnloaded += async (scene) => await OnSceneLoaded();
+    }
+
+    public void SetControlScheme(string _currentControlScheme, CurrentActiveDeviceManager.ActiveDevice _activeDevice)
+    {
+        controlScheme = _currentControlScheme;
+        interactionPromptHUD.GetComponent<InteractionPromptHUD>().SyncPromptIcons(_activeDevice);
     }
 
     [Button(ButtonSizes.Large)]
@@ -156,9 +179,9 @@ public class UIManager : SerializedMonoBehaviour
         sequence.Value
             .Group(Tween.PositionX(questHUD.GetComponent<RectTransform>(), 0f, 1f))
             .Group(Tween.Alpha(questHUD.GetComponent<CanvasGroup>(), 1f, 1f));
-            // .ChainDelay(7.5f)
-            // .Chain(Tween.PositionX(questHUD.GetComponent<RectTransform>(), -150f, 0.5f))
-            // .Group(Tween.Alpha(questHUD.GetComponent<CanvasGroup>(), 0f, 0.5f));
+        // .ChainDelay(7.5f)
+        // .Chain(Tween.PositionX(questHUD.GetComponent<RectTransform>(), -150f, 0.5f))
+        // .Group(Tween.Alpha(questHUD.GetComponent<CanvasGroup>(), 0f, 0.5f));
     }
     public void DisableQuestHUD()
     {
@@ -220,16 +243,44 @@ public class UIManager : SerializedMonoBehaviour
 
     public void OpenSettingsMenu()
     {
+        onOpenSettings?.Invoke();
+
         settingsMenu.SetActive(true);
         LockCursor(false);
 
         uiLayers.Push("Settings");
+
+        // 1. Save current prompt set
+        if (lastPromptSet != null)
+        {
+            promptSetLayers.Push(lastPromptSet);
+        }
+
+        // 2. Show settings prompt set
+        EnableInteractionHUD(InteractionHUDPreset.CUSTOM, "next,back");
     }
 
     public void CloseSettingsMenu()
     {
+        onCloseSettings?.Invoke();
+
         settingsMenu.SetActive(false);
         LockCursor(false);
+
+        if (promptSetLayers.Count <= 1) { lastPromptSet = null; }
+        if (promptSetLayers.Count == 0)
+        {
+            DisableInteractionHUD();
+            return;
+        }
+
+        // var previousPromptSet = promptSetLayers.Pop();
+        // Tuple<InteractionHUDPreset, string> TpreviousPromptSet = (Tuple<InteractionHUDPreset, string>)previousPromptSet;
+
+        // InteractionHUDPreset item1 = (InteractionHUDPreset)TpreviousPromptSet.Item1;
+        // string item2 = (string)TpreviousPromptSet.Item2;
+        // // Show previous prompt set
+        // EnableInteractionHUD(item1, item2);
     }
 
     public void EnableInteractionHUD()
@@ -243,11 +294,27 @@ public class UIManager : SerializedMonoBehaviour
         interactionPromptHUD.SetActive(false);
     }
 
-    public void EnableInteractionHUD(InteractionHUDPreset preset)
+    public void RevertInteractionHUD()
     {
+        if (lastPromptSet == null)
+        {
+            DisableInteractionHUD();
+            return;
+        }
+
+        InteractionHUDPreset item1 = (InteractionHUDPreset)lastPromptSet.Item1;
+        string item2 = (string)lastPromptSet.Item2;
+        // Show previous prompt set
+        EnableInteractionHUD(item1, item2);
+    }
+
+    public void EnableInteractionHUD(InteractionHUDPreset preset, string customInteractionString = "")
+    {
+        lastPromptSet = new Tuple<InteractionHUDPreset, string>(preset, customInteractionString);
+
         InteractionPromptHUD interactionPromptHUDScript = interactionPromptHUD.GetComponent<InteractionPromptHUD>();
 
-        interactionPromptHUDScript.EnablePrompts(preset);
+        interactionPromptHUDScript.EnablePrompts(preset, customInteractionString);
 
         EnableInteractionHUD();
     }
@@ -266,6 +333,8 @@ public class UIManager : SerializedMonoBehaviour
                 CloseSettingsMenu();
                 break;
         }
+
+        RevertInteractionHUD();
     }
 
     public string PeekUILayer()
@@ -289,6 +358,49 @@ public class UIManager : SerializedMonoBehaviour
             string layer = (string)duplicate.Pop();
             Debug.Log($"{layerIdx}: {layer}");
             layerIdx++;
+        }
+    }
+
+    [Button(ButtonSizes.Large)]
+    void ListPromptSetLayers()
+    {
+        Stack duplicate = (Stack)promptSetLayers.Clone();
+        int layerIdx = 0;
+        while (duplicate.Count > 0)
+        {
+            Tuple<InteractionHUDPreset, string> layer = (Tuple<InteractionHUDPreset, string>) duplicate.Pop();
+            Debug.Log($"{layerIdx} : {layer.Item1}, {layer.Item2}");
+            layerIdx++;
+        }
+    }
+
+    async UniTask OnSceneLoaded()
+    {
+        await UniTask.WaitForSeconds(1.0f);
+        InputUser user = PlayerInput.GetPlayerByIndex(0).user;
+
+        InputDevice device = null;
+        string controlScheme = "Keyboard&Mouse";
+
+        foreach (InputDevice _device in InputSystem.devices)
+        {
+
+            device = _device;
+            if (_device is Gamepad)
+            {
+                InputUser.PerformPairingWithDevice(_device, user);
+                controlScheme = "Xbox";
+                break;
+            }
+        }
+
+        PlayerInput[] playerInputs = UnityEngine.Object.FindObjectsByType<PlayerInput>(FindObjectsSortMode.None);
+        foreach (PlayerInput pi in playerInputs)
+        {
+            if (device != null)
+            {
+                pi.SwitchCurrentControlScheme(controlScheme, device);
+            }
         }
     }
 }

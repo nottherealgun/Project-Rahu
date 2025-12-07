@@ -21,6 +21,8 @@ public class WireboxGameManager : SerializedMonoBehaviour
     public UnityEvent onPuzzleCompleted;
     void Start()
     {
+        EnvironmentalAudioManager.Instance.PlayAmbience("wirebox_ambiance");
+
         foreach (Wire wire in requiredBlueWires)
         {
             wire.onWireTurned.AddListener((w, d) => OnRequiredWireRotated(w, "blue"));
@@ -65,6 +67,8 @@ public class WireboxGameManager : SerializedMonoBehaviour
             Debug.Log("All wires are correct!");
             raycastBlocker.SetActive(true);
             EnvironmentalAudioManager.Instance.PlaySFX("puzzle_complete");
+            EnvironmentalAudioManager.Instance.PlaySFX("wirebox_finish");
+            EnvironmentalAudioManager.Instance.PlaySFX("wirebox_powerup");
 
             UniTask.Delay(3000).ContinueWith(() =>
             {
@@ -78,6 +82,7 @@ public class WireboxGameManager : SerializedMonoBehaviour
     {
         UIManager.LockCursor(true);
         onPuzzleCompleted?.Invoke();
+        EnvironmentalAudioManager.Instance.StopAmbience();
     }
 
     void OnRequiredWireRotated(Wire wire, string color)

@@ -19,6 +19,11 @@ public class MainMenu : Menu
 
         gameVersionText.text = "build " + Application.version;
         gameVersionText.text += "\nUnity: " + Application.unityVersion;
+
+        UIManager.Instance.onCloseSettings += () =>
+        {
+            ReselectFirst();
+        };
     }
 
     public void ButtonPressed(string _button)

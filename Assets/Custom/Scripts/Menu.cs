@@ -16,4 +16,10 @@ public abstract class Menu : SerializedMonoBehaviour
         }
         UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(firstSelected);
     }
+
+    public void ReselectFirst()
+    {
+        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(firstSelected);
+    }
 }

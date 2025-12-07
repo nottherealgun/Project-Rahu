@@ -5,6 +5,7 @@ using PrimeTween;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class OmegaSolutionGameManager : SerializedMonoBehaviour
@@ -27,7 +28,11 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
 
     [OdinSerialize] GameObject yellowFiller;
     [OdinSerialize] Button ejectButton;
+    [OdinSerialize, AssetsOnly] Sprite ejectButtonPressed;
+    [OdinSerialize, AssetsOnly] Sprite ejectButtonNormal;
     [OdinSerialize] Button boostButton;
+    [OdinSerialize, AssetsOnly] Sprite boostButtonPressed;
+    [OdinSerialize, AssetsOnly] Sprite boostButtonNormal;
     [OdinSerialize, ReadOnly] GaugeMode currentGaugeMode = GaugeMode.NONE;
     [Title("Progress Rates")]
     // [OdinSerialize]
@@ -75,10 +80,10 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
             switch (currentGaugeMode)
             {
                 case GaugeMode.FILLING_FAST:
-                    gaugeFiller.fillAmount += progressRiseRate/3;
+                    gaugeFiller.fillAmount += progressRiseRate / 3;
                     break;
                 case GaugeMode.FILLING:
-                    gaugeFiller.fillAmount += progressRiseRate/9;
+                    gaugeFiller.fillAmount += progressRiseRate / 9;
                     break;
                 case GaugeMode.DEPLETING:
                     gaugeFiller.fillAmount -= progressDropRate;
@@ -142,6 +147,28 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         }
     }
 
+    public void OnClick(InputValue value)
+    {
+        SetBoosting(value.isPressed);
+        if (value.isPressed)
+        {
+            boostButton.image.sprite = boostButtonPressed;
+        }
+        else
+        {
+            boostButton.image.sprite = boostButtonNormal;
+        }
+    }
+
+    public void OnRightClick(InputValue value)
+    {
+        if (value.isPressed)
+        {
+            CheckAndFinalizeGame();
+            ejectButton.image.sprite = ejectButtonPressed;
+        }
+    }
+
     public void SetBoosting(bool value)
     {
         boosting = value;
@@ -175,7 +202,7 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         float newY = indicatorLevel * Mathf.Abs(topTransform.anchoredPosition.y - bottomTransformAnchorPos.y) / maxLevel;
         indicator.GetComponent<RectTransform>().anchoredPosition = bottomTransformAnchorPos + new Vector2(0f, newY);
 
-        gaugeFiller.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.1f+gaugeFiller.fillAmount);
+        gaugeFiller.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.1f + gaugeFiller.fillAmount);
         beakerFiller.GetComponent<Image>().color = new Color(1f, gaugeFiller.fillAmount, gaugeFiller.fillAmount, 1f);
     }
 

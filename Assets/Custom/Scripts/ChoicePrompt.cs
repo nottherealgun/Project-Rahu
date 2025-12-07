@@ -119,39 +119,46 @@ public class ChoicePrompt : SerializedMonoBehaviour
         }
     }
 
-    public void OnLeft(InputAction.CallbackContext context)
+    public void OnLeft(InputValue value)
     {
         if (choiceSelected) return;
 
         leftTween?.Stop();
-        if (context.started)
+
+        float v = value.Get<float>();
+
+        if (v > 0.5f) // started
         {
             leftPressed = true;
             choiceStartSelectingSFX.Play();
         }
-        else if (context.canceled)
+        else // canceled
         {
             leftTween = Tween.Scale(leftChoosingCircle.transform, Vector2.zero, 2f);
             leftPressed = false;
         }
     }
 
-    public void OnRight(InputAction.CallbackContext context)
+    public void OnRight(InputValue value)
     {
         if (choiceSelected) return;
 
         rightTween?.Stop();
-        if (context.started)
+
+        float v = value.Get<float>();
+
+        if (v > 0.5f) // started
         {
             rightPressed = true;
             choiceStartSelectingSFX.Play();
         }
-        else if (context.canceled)
+        else // canceled
         {
             rightTween = Tween.Scale(rightChoosingCircle.transform, Vector2.zero, 2f);
             rightPressed = false;
         }
     }
+
 
     async UniTask ResetChoices()
     {

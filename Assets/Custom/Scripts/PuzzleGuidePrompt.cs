@@ -18,6 +18,5 @@ public class PuzzleGuidePrompt : SerializedMonoBehaviour
 
         // UIManager.Instance.DisableInteractionHUD();
         UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.PUZZLE);
-
     }
 }

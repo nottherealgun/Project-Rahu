@@ -65,10 +65,12 @@ public class PuzzleHandler : SerializedMonoBehaviour
         {
             case PuzzleType.CrystalCrush:
                 EnvironmentalAudioManager.Instance.PlayMusic("crystal_puzzle_bgm");
+                UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.CUSTOM, "interact,leave");
                 break;
             case PuzzleType.OmegaSolution:
                 EnvironmentalAudioManager.Instance.PlayMusic("chemical_puzzle_bgm");
                 EnvironmentalAudioManager.Instance.PlayPersistingAmbience("chemical_stirring");
+                UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.CUSTOM, "boost,eject,leave");
                 break;
         }
     }
@@ -77,6 +79,7 @@ public class PuzzleHandler : SerializedMonoBehaviour
     {
         UIManager.OnTransitioned += HidePuzzle;
         UIManager.OnTransitioned += EnvironmentalAudioManager.Instance.StopMusic;
+        UIManager.OnTransitioned += () => UIManager.Instance.RevertInteractionHUD();
         if (!puzzleCompleted)
             UIManager.OnTransitioned += gameObject.GetComponent<InteractableObject>().ActivatePrompt;
         

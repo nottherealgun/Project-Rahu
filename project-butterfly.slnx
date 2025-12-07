@@ -14,8 +14,11 @@
   <Project Path="Uween.Runtime.csproj" />
   <Project Path="UnityChan.csproj" />
   <Project Path="UniTask.Addressables.csproj" />
+  <Project Path="ASP.Editor.csproj" />
   <Project Path="PrimeTween.Demo.csproj" />
   <Project Path="uLipSync.Example.RuntimeProfile.Runtime.csproj" />
+  <Project Path="ASP.csproj" />
+  <Project Path="LWGUIExtend.csproj" />
   <Project Path="BezierSolution.Runtime.csproj" />
   <Project Path="SingularityGroup.HotReload.Runtime.Public.csproj" />
   <Project Path="uLipSync.Samples.VRM.Editor.csproj" />
@@ -23,6 +26,8 @@
   <Project Path="SingularityGroup.HotReload.Runtime.csproj" />
   <Project Path="Sirenix.OdinInspector.Modules.Unity.Addressables.csproj" />
   <Project Path="Unity.StarterAssets.Editor.csproj" />
+  <Project Path="SpringBoneEditor.csproj" />
+  <Project Path="ASPDemo.csproj" />
   <Project Path="uLipSync.Samples.VRM.Runtime.csproj" />
   <Project Path="Unity.StarterAssets.csproj" />
   <Project Path="BezierSolution.Editor.csproj" />

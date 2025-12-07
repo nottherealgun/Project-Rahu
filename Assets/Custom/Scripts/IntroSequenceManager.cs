@@ -29,7 +29,7 @@ public class IntroSequenceManager : SerializedMonoBehaviour
         playableDirector.Play();
     }
 
-    public void OnClick(InputValue _value)
+    public void OnNext(InputValue _value)
     {
         if (videoPlayer.isPaused == false) return;
         playableDirector.Resume();
@@ -45,5 +45,10 @@ public class IntroSequenceManager : SerializedMonoBehaviour
         ScenesManager.Instance.ShowScene();
 
         await UIManager.Instance.ManualFadeOut();
+    }
+
+    public void ShowPrompt()
+    {
+        UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.CUSTOM, "continue");
     }
 }
