@@ -253,15 +253,6 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         PersistentDataManager.Instance.MarkEventAsPassed("chemicalGameFinished");
     }
 
-    // [HorizontalGroup("A"), Button("Reset Values", ButtonSizes.Large), DisableInPlayMode]
-    // void ResetProgressRates()
-    // {
-    //     // boostAccelerationRate = 0.0005f;
-    //     // boostDecelerationRate = 0.002f;
-    //     progressRiseRate = 0.0002f;
-    //     progressDropRate = 0.0006f;
-    // }
-
     void PlayBoilingSFX(int boilingLevel)
     {
         string newBoilingSFX = boilingSFXNames[boilingLevel];
@@ -299,10 +290,5 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         round++;
         SetRandomYellowFillerPos();
         gaugeFiller.fillAmount = 0;
-    }
-
-    void OnControlsChanged()
-    {
-        UIManager.Instance.OnDeviceChanged(GetComponent<PlayerInput>());    
     }
 }

@@ -60,9 +60,9 @@ public class InteractionPrompt : SerializedMonoBehaviour
 
         // fades out the inactive prompt when the player is far away
         float alpha = Mathf.Clamp(1f - (distance / fadeDist), 0f, 1f);
-        Color inactiveColor = inactivePrompt.GetComponent<Image>().color;
-        inactiveColor.a = alpha;
-        inactivePrompt.GetComponent<Image>().color = inactiveColor;
+        // Color inactiveColor = inactivePrompt.GetComponent<Image>().color;
+        // inactiveColor.a = alpha;
+        inactivePrompt.GetComponent<CanvasGroup>().alpha = alpha;
     }
 
     [Button(ButtonSizes.Large)]
