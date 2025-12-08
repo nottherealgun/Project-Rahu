@@ -230,6 +230,14 @@ public class PlayerController : SerializedMonoBehaviour
         }
     }
 
+    void OnReset()
+    {
+        if (interactingObjectMesh == null) return;
+
+        InteractableObject interactingObjScript = interactingObject.GetComponent<InteractableObject>();
+        interactingObjScript.ResetRotation();
+    }
+
     public void OnExitInteraction(InputValue _value)
     {
         if (interactingObject == null) return;
@@ -250,7 +258,7 @@ public class PlayerController : SerializedMonoBehaviour
         if (UIManager.isTransitioning) return;
         if (isInteracting) return;
         
-        // On Windows PC, Menu = ESC
+        // On Windows PC, Menu = ESC/Right Clock
         if (UIManager.isGamePaused)
         {
             // If game was paused, resume it
@@ -264,6 +272,7 @@ public class PlayerController : SerializedMonoBehaviour
             UIManager.Instance.PauseGame();
             // Free cursor as well
             UIManager.LockCursor(false);
+            GetComponent<PlayerInput>().enabled = false;
         }
     }
 

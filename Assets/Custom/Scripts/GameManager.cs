@@ -1,9 +1,9 @@
-using System;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.Events;
 using Cysharp.Threading.Tasks;
+
 public class GameManager : SerializedMonoBehaviour
 {
     public static GameManager Instance { get; private set; }

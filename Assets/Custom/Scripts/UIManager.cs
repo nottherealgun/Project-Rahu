@@ -88,10 +88,6 @@ public class UIManager : SerializedMonoBehaviour
         }
         PersistentDataManager.Instance.OnPlayerFound += OnPlayerSearchStatus;
         settingsMenu.GetComponent<SettingsMenu>().Initialize();
-
-        SceneManager.sceneLoaded += async (scene, mode) => await OnSceneLoaded();
-        SceneManager.activeSceneChanged += async (oldScene, newScene) => await OnSceneLoaded();
-        SceneManager.sceneUnloaded += async (scene) => await OnSceneLoaded();
     }
 
     public void SetControlScheme(string _currentControlScheme, CurrentActiveDeviceManager.ActiveDevice _activeDevice)
@@ -99,6 +95,12 @@ public class UIManager : SerializedMonoBehaviour
         controlScheme = _currentControlScheme;
         // GetComponent<PlayerInput>().SwitchCurrentControlScheme(controlScheme);
         interactionPromptHUD.GetComponent<InteractionPromptHUD>().SyncPromptIcons(_activeDevice);
+
+        InteractionPrompt[] prompts = UnityEngine.Object.FindObjectsByType<InteractionPrompt>( FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (InteractionPrompt prompt in prompts)
+        {
+            prompt.SyncIcon(_activeDevice);
+        }
     }
 
     [Button(ButtonSizes.Large)]
@@ -171,6 +173,7 @@ public class UIManager : SerializedMonoBehaviour
         pauseMenu.SetActive(false);
         _isGamePaused = false;
         Time.timeScale = 1f;
+        PersistentDataManager.Player.GetComponent<PlayerInput>().enabled = true;
     }
 
     public void EnableQuestHUD()
@@ -332,6 +335,10 @@ public class UIManager : SerializedMonoBehaviour
                 break;
             case "Settings":
                 CloseSettingsMenu();
+                if (pauseMenu.activeSelf)
+                {
+                    pauseMenu.GetComponent<PauseMenu>().ReselectFirst();
+                }
                 break;
         }
 
@@ -375,33 +382,19 @@ public class UIManager : SerializedMonoBehaviour
         }
     }
 
-    async UniTask OnSceneLoaded()
+    public void OnDeviceChanged(PlayerInput playerInput)
     {
-        await UniTask.WaitForSeconds(1.0f);
-        InputUser user = PlayerInput.GetPlayerByIndex(0).user;
-
-        InputDevice device = null;
-        string controlScheme = "Keyboard&Mouse";
-
-        foreach (InputDevice _device in InputSystem.devices)
+        switch (playerInput.currentControlScheme)
         {
-
-            device = _device;
-            if (_device is Gamepad)
-            {
-                InputUser.PerformPairingWithDevice(_device, user);
-                controlScheme = "Xbox";
+            case "Keyboard&Mouse":
+                SetControlScheme("Keyboard&Mouse", CurrentActiveDeviceManager.ActiveDevice.Keyboard);
                 break;
-            }
-        }
-
-        PlayerInput[] playerInputs = UnityEngine.Object.FindObjectsByType<PlayerInput>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (PlayerInput pi in playerInputs)
-        {
-            if (device != null)
-            {
-                pi.SwitchCurrentControlScheme(controlScheme, device);
-            }
+            case "Xbox":
+                SetControlScheme("Xbox", CurrentActiveDeviceManager.ActiveDevice.Xbox);
+                break;
+            case "DualShock":
+                SetControlScheme("DualShock", CurrentActiveDeviceManager.ActiveDevice.DualShock);
+                break;
         }
     }
 }

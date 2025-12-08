@@ -28,10 +28,11 @@ public class InputManager : SerializedMonoBehaviour
 
     public void OnLook(InputValue value)
     {
-        if (cursorInputForLook)
-        {
-            LookInput(value.Get<Vector2>());
-        }
+        LookInput(value.Get<Vector2>());
+        // if (cursorInputForLook)
+        // {
+        //     LookInput(value.Get<Vector2>());
+        // }
     }
 
     public void OnJump(InputValue value)

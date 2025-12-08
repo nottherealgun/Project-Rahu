@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using Unity.Cinemachine;
@@ -12,6 +13,9 @@ public class InteractionPrompt : SerializedMonoBehaviour
     [OdinSerialize] GameObject activePrompt;
     GameObject player;
     [OdinSerialize, PropertyRange(1f,20f)] float fadeDist = 2.7f;
+    [OdinSerialize] Image keyboardIcon;
+    [OdinSerialize] Image xboxIcon;
+    [OdinSerialize] Image dualshockIcon;
     void Start()
     {
         HidePrompt();
@@ -66,5 +70,31 @@ public class InteractionPrompt : SerializedMonoBehaviour
     {
         float distance = Vector3.Distance(player.transform.position, transform.position);
         Debug.Log($"Distance from player: {distance}");
+    }
+
+    public void SyncIcon(CurrentActiveDeviceManager.ActiveDevice device)
+    {
+        switch (device)
+        {
+            case CurrentActiveDeviceManager.ActiveDevice.Keyboard:
+                Set(true,false,false);
+                break;
+            case CurrentActiveDeviceManager.ActiveDevice.Xbox:
+                Set(false,true,false);
+                break;
+            case CurrentActiveDeviceManager.ActiveDevice.DualShock:
+                Set(false,false,true);
+                break;
+            default:
+                Set(true,false,false);
+                break;
+        }
+    }
+
+    private void Set(bool k, bool x, bool d)
+    {
+        keyboardIcon.gameObject.SetActive(k);
+        xboxIcon.gameObject.SetActive(x);
+        dualshockIcon.gameObject.SetActive(d);
     }
 }

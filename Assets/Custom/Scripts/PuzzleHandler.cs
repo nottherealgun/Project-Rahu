@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;   
+using Cysharp.Threading.Tasks;
+using UnityEngine.InputSystem;
 
 public enum PuzzleType
 {
@@ -24,6 +25,8 @@ public class PuzzleHandler : SerializedMonoBehaviour
     [OdinSerialize] UnityEvent onPuzzleCompleted;
     [OdinSerialize, ReadOnly] bool puzzleLoaded = false;
     [ReadOnly] public bool puzzleCompleted = false;
+    public UnityAction onEnterPuzzle;
+    public UnityAction onLeavePuzzle;
     void Start()
     {
         onPuzzleCompleted.AddListener(UnloadPuzzle);
@@ -110,6 +113,9 @@ public class PuzzleHandler : SerializedMonoBehaviour
             onPuzzleCompleted?.Invoke();
         });
 
+        onEnterPuzzle += () => currentPuzzleManager.GetComponent<PlayerInput>().enabled = true;
+        onLeavePuzzle += () => currentPuzzleManager.GetComponent<PlayerInput>().enabled = false;
+
         switch (puzzle)
         {
             case PuzzleType.CrystalCrush:
@@ -127,11 +133,13 @@ public class PuzzleHandler : SerializedMonoBehaviour
 
     async void ShowPuzzle()
     {
+        onEnterPuzzle?.Invoke();
         ScenesManager.ShowSceneObjects(puzzleSceneName);
     }
 
     async void HidePuzzle()
     {
+        onLeavePuzzle?.Invoke();
         ScenesManager.HideSceneObjects(puzzleSceneName);
     }
 

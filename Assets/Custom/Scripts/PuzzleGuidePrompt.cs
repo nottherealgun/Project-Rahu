@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 
 public class PuzzleGuidePrompt : SerializedMonoBehaviour
 {
+    [OdinSerialize] PlayerInput puzzleManagerPlayerInput;
     void Start()
     {
         UIManager.Instance.AddUILayer("GuidePrompt");
@@ -18,5 +19,6 @@ public class PuzzleGuidePrompt : SerializedMonoBehaviour
 
         // UIManager.Instance.DisableInteractionHUD();
         UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.PUZZLE);
+        puzzleManagerPlayerInput.enabled = true;
     }
 }

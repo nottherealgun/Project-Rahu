@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 public class SettingsMenu : Menu
@@ -79,19 +80,6 @@ public class SettingsMenu : Menu
         GoToNextPanel();
     }
 
-    // public void OnMenu(InputValue value)
-    // {
-    //     LoadMainMenu();
-    // }
-
-    // public async void LoadMainMenu()
-    // {
-    //     ScenesManager.Instance.ShowLoadingScreen();
-    //     await ScenesManager.Instance.LoadScene("MainMenu");
-    //     ScenesManager.Instance.HideLoadingScreen();
-    //     ScenesManager.Instance.ShowScene();
-    // }
-
     public void SaveSettings()
     {
         string saveJson = JsonUtility.ToJson(settingsData);
@@ -164,6 +152,18 @@ public class SettingsMenu : Menu
         if (currentPanelIdx == panelList.Count) currentPanelIdx = 0;
 
         panelList[currentPanelIdx].SetActive(true);
+    }
+
+    void OnEnable()
+    {
+        UIManager.Instance.onOpenSettings?.Invoke();
+        GetComponent<PlayerInput>().enabled = true;
+    }
+
+    void OnDisable()
+    {
+        UIManager.Instance.onCloseSettings?.Invoke();
+        GetComponent<PlayerInput>().enabled = false;
     }
 }
 

@@ -51,4 +51,9 @@ public class IntroSequenceManager : SerializedMonoBehaviour
     {
         UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.CUSTOM, "continue");
     }
+
+    public void HidePrompt()
+    {
+        UIManager.Instance.DisableInteractionHUD();
+    }
 }

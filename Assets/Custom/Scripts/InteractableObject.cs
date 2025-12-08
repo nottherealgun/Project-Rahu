@@ -139,7 +139,7 @@ public class InteractableObject : SerializedMonoBehaviour
             float rotX = deltaMousePos.y * objectRotationSpeed * Time.deltaTime;
             float rotY = deltaMousePos.x * objectRotationSpeed * Time.deltaTime;
 
-            Quaternion rotation = Quaternion.Euler(rotX, rotY, 0);
+            Quaternion rotation = Quaternion.Euler(rotX, -rotY, 0);
             itemMesh.transform.rotation *= rotation;
 
             previousMousePos = Input.mousePosition;
@@ -149,11 +149,6 @@ public class InteractableObject : SerializedMonoBehaviour
     void SetInspectionCamera(bool val)
     {
         customInspectionCamera.SetActive(val);
-    }
-
-    public void OnReset() // Reset BY the Player instead of when the player leaves the inspection
-    {
-        ResetRotation();
     }
 
     public void ResetRotation()

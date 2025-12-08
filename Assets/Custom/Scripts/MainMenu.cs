@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
 using Cysharp.Threading.Tasks;
+using UnityEngine.InputSystem;
 
 public class MainMenu : Menu
 {
@@ -37,6 +38,7 @@ public class MainMenu : Menu
                 break;
             case "settings":
                 // onButtonPressed += OpenSettingsMenu;
+                // GetComponent<PlayerInput>().enabled = false;
                 onButtonPressed += UIManager.Instance.OpenSettingsMenu;
                 break;
             case "quit":

@@ -97,6 +97,11 @@ public class NarrativeManager : SerializedMonoBehaviour
         }
     }
 
+    public void OnControlsChanged()
+    {
+        UIManager.Instance.OnDeviceChanged(playerInput);
+    }
+
     public IEnumerator RemoveAllCutscenes()
     {
         yield return new WaitForEndOfFrame();
@@ -292,7 +297,7 @@ public class NarrativeManager : SerializedMonoBehaviour
         switch (currentShot.shotType)
         {
             case ShotType.CHOICE:
-                playerInput.SwitchCurrentActionMap("Choice");
+                playerInput.enabled = true;
                 if (choiceID1 == choiceID2)
                 {
                     Debug.Log("Invalid choice shot setup: both choice IDs are the same.");
@@ -300,11 +305,11 @@ public class NarrativeManager : SerializedMonoBehaviour
                 await EnableChoicePrompt(currentShot, cutscenePlayer, (choiceID1, choiceID2));
                 break;
             case ShotType.QTE:
-                playerInput.SwitchCurrentActionMap("QTE");
+                playerInput.enabled = true;
                 await EnableQTEPrompt(currentShot, cutscenePlayer, (choiceID1, choiceID2));
                 break;
             default:
-                playerInput.SwitchCurrentActionMap("UI");
+                if (playerInput.enabled == true) playerInput.enabled = false;
                 // Otherwise, simply set next shot ID
                 break;
         }

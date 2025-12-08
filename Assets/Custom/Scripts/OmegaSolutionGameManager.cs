@@ -300,4 +300,9 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         SetRandomYellowFillerPos();
         gaugeFiller.fillAmount = 0;
     }
+
+    void OnControlsChanged()
+    {
+        UIManager.Instance.OnDeviceChanged(GetComponent<PlayerInput>());    
+    }
 }

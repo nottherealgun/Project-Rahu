@@ -8,6 +8,7 @@ using UnityEngine.InputSystem.Users;
 using UnityEngine.InputSystem.XInput;
 using Cysharp.Threading.Tasks;
 using System.Linq;
+using PixelCrushers.DialogueSystem;
 
 public class CurrentActiveDeviceManager : SerializedMonoBehaviour
 {
