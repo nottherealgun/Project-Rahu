@@ -3,7 +3,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
 using Cysharp.Threading.Tasks;
-using UnityEngine.InputSystem;
+using UnityEngine.UI;
+using PrimeTween;
 
 public class MainMenu : Menu
 {
@@ -51,4 +52,19 @@ public class MainMenu : Menu
         onButtonPressed?.Invoke();
         onButtonPressed = null;
     }
+
+    public void ButtonOnHover(HorizontalLayoutGroup lg)
+    {
+        Tween.Custom(lg.padding.left, 50f, 0.5f, (val) => lg.padding.left = (int) val);
+    }
+
+    public void ButtonOnUnhover(HorizontalLayoutGroup lg)
+    {
+        Tween.Custom(lg.padding.left, 0, 0.5f, (val) => lg.padding.left = (int) val);
+    }
+
+    private void OnDestroy() {
+        Tween.StopAll(this);    
+    }
+
 }
