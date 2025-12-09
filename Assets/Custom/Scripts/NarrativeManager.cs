@@ -316,11 +316,13 @@ public class NarrativeManager : SerializedMonoBehaviour
 
         while (cutscenePlayer.isPlaying) 
         {
-            Debug.Log($"{currentShotID}: {cutscenePlayer.frame} / { cutscenePlayer.clip.frameCount}");
-            string vl = cutsceneStore.GetVoicelineAt(currentShotID, (int)cutscenePlayer.frame);
-            if(vl != "")
+            if (UIManager.Instance.subtitlesOn)
             {
-                UIManager.Instance.DisplaySubtitle(vl);
+                string vl = cutsceneStore.GetVoicelineAt(currentShotID, (int)cutscenePlayer.frame);
+                if(vl != "")
+                {
+                    UIManager.Instance.DisplaySubtitle(vl);
+                }   
             }
             await UniTask.Yield();
         }

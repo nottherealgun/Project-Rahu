@@ -40,11 +40,12 @@ public class UIManager : SerializedMonoBehaviour
     void SetSubtitles(bool value)
     {
         _subtitlesOn = value;
-        if (!value) subtitleText.gameObject.SetActive(false);
-        else subtitleText.gameObject.SetActive(true);
+        if (!value) subtitleContainer.SetActive(false);
+        else subtitleContainer.SetActive(true);
     }
     [OdinSerialize] TMP_Text subtitleText;
-    [OdinSerialize] CanvasGroup subtitleContainer;
+    [OdinSerialize] CanvasGroup subtitleCanvasGroup;
+    [OdinSerialize] GameObject subtitleContainer;
 
     [Title("Interaction Prompt HUD")]
     [OdinSerialize] GameObject interactionPromptHUD;
@@ -233,13 +234,13 @@ public class UIManager : SerializedMonoBehaviour
     {
         subtitleText.text = text;
         subtitleText.color = new Color(subtitleText.color.r, subtitleText.color.g, subtitleText.color.b, 1f);
-        subtitleContainer.alpha = 1f;
+        subtitleCanvasGroup.alpha = 1f;
 
         // Tween out the text opacity after 5 seconds
         subtitleSeq?.Stop();
         subtitleSeq = Sequence.Create()
             .ChainDelay(5f)
-            .Chain(Tween.Alpha(subtitleContainer, 0f, duration: 5f))
+            .Chain(Tween.Alpha(subtitleCanvasGroup, 0f, duration: 5f))
             // .Chain(
             //     Tween.Custom(1f, 0f, duration: 5f, onValueChange: newVal => subtitleText.color = new Color(subtitleText.color.r, subtitleText.color.g, subtitleText.color.b, newVal)))
             .OnComplete(() =>
