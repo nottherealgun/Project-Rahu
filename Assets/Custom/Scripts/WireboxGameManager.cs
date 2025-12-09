@@ -67,7 +67,6 @@ public class WireboxGameManager : Menu
             Debug.Log("All wires are correct!");
             raycastBlocker.SetActive(true);
             EnvironmentalAudioManager.Instance.PlaySFX("puzzle_complete");
-            EnvironmentalAudioManager.Instance.PlaySFX("wirebox_finish");
             EnvironmentalAudioManager.Instance.PlaySFX("wirebox_powerup");
 
             UniTask.Delay(3000).ContinueWith(() =>
@@ -83,6 +82,7 @@ public class WireboxGameManager : Menu
         UIManager.LockCursor(true);
         onPuzzleCompleted?.Invoke();
         EnvironmentalAudioManager.Instance.StopAmbience();
+        UIManager.Instance.DisableInteractionHUD();
     }
 
     void OnRequiredWireRotated(Wire wire, string color)
@@ -120,6 +120,7 @@ public class WireboxGameManager : Menu
                 doneYellowWires.Add(wire);
                 break;
         }
+        EnvironmentalAudioManager.Instance.PlaySFX("wirebox_finish");
     }
 
     void RemoveWireFromDoneList(Wire wire, string color)

@@ -184,9 +184,13 @@ public class ChoicePrompt : SerializedMonoBehaviour
             unchosenCanvasGroup = leftCanvasGroup;
         }
 
-        await Tween.Alpha(unchosenCanvasGroup, 0f, 1f);
-        await UniTask.Delay(1500);
-        await Tween.Alpha(chosenCanvasGroup, 0f, 1f);
+        // await Tween.Alpha(unchosenCanvasGroup, 0f, 1f);
+        // await UniTask.Delay(1500);
+        await Sequence.Create()
+            .Group(Tween.Alpha(unchosenCanvasGroup, 0f, 1f))
+            .Group(Tween.Scale(chosenCanvasGroup.transform, 1.3f, 5f))
+            .Group(Tween.Alpha(chosenCanvasGroup, 0f, 5f));
+        // await Tween.Alpha(chosenCanvasGroup, 0f, 1f);
 
         UIManager.RevertCursorState();
         PersistentDataManager.Player?.GetComponent<PlayerController>().UnlockCamera();

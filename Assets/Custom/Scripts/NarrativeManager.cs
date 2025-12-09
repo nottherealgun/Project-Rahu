@@ -148,7 +148,7 @@ public class NarrativeManager : SerializedMonoBehaviour
         ScenesManager.Instance.ShowLoadingScreen();
         SetupScene("12", "01");
         ScenesManager.Instance.HideLoadingScreen();
-        
+
         HideCutsceneContainer();
         UIManager.LockCursor(true);
         await UIManager.Instance.ManualFadeIn();
@@ -229,12 +229,12 @@ public class NarrativeManager : SerializedMonoBehaviour
                 );
                 continue;
             }
-            
+
             GameObject newCutscene = CreateBlankCutscene();
             shotDict[nextShotID] = new Cutscene(nextShotID, currentShot, newCutscene);
             newCutscene.name = newName;
             VideoPlayer cutscenePlayer = newCutscene.transform.Find("CutscenePlayer").GetComponent<VideoPlayer>();
-            
+
             PrepareShot(currentShot, cutscenePlayer);
 
             if (currentShot.shotType == ShotType.CHOICE)
@@ -298,10 +298,25 @@ public class NarrativeManager : SerializedMonoBehaviour
         {
             case ShotType.CHOICE:
                 playerInput.enabled = true;
+
                 if (choiceID1 == choiceID2)
                 {
                     Debug.Log("Invalid choice shot setup: both choice IDs are the same.");
                 }
+
+                while (cutscenePlayer.isPlaying)
+                {
+                    if (UIManager.Instance.subtitlesOn)
+                    {
+                        string vl = cutsceneStore.GetVoicelineAt(currentShotID, (int)cutscenePlayer.frame);
+                        if (vl != "")
+                        {
+                            UIManager.Instance.DisplaySubtitle(vl);
+                        }
+                    }
+                    await UniTask.Yield();
+                }
+
                 await EnableChoicePrompt(currentShot, cutscenePlayer, (choiceID1, choiceID2));
                 break;
             case ShotType.QTE:
@@ -310,21 +325,21 @@ public class NarrativeManager : SerializedMonoBehaviour
                 break;
             default:
                 if (playerInput.enabled == true) playerInput.enabled = false;
-                // Otherwise, simply set next shot ID
-                break;
-        }
 
-        while (cutscenePlayer.isPlaying) 
-        {
-            if (UIManager.Instance.subtitlesOn)
-            {
-                string vl = cutsceneStore.GetVoicelineAt(currentShotID, (int)cutscenePlayer.frame);
-                if(vl != "")
+                while (cutscenePlayer.isPlaying)
                 {
-                    UIManager.Instance.DisplaySubtitle(vl);
-                }   
-            }
-            await UniTask.Yield();
+                    if (UIManager.Instance.subtitlesOn)
+                    {
+                        string vl = cutsceneStore.GetVoicelineAt(currentShotID, (int)cutscenePlayer.frame);
+                        if (vl != "")
+                        {
+                            UIManager.Instance.DisplaySubtitle(vl);
+                        }
+                    }
+                    await UniTask.Yield();
+                }
+
+                break;
         }
 
         // When cutscene player stops playing
@@ -332,7 +347,7 @@ public class NarrativeManager : SerializedMonoBehaviour
         {
             currentShotID = currentShot.nextShotID;
         }
-        else if(currentShot.shotType == ShotType.CHOICE)
+        else if (currentShot.shotType == ShotType.CHOICE)
         {
             // Wait until choiceChosen event is called
             await WaitForChoice();
@@ -377,7 +392,7 @@ public class NarrativeManager : SerializedMonoBehaviour
 
             // disable HUD and hide prompt
             try { UIManager.Instance.DisableInteractionHUD(); } catch { }
-            try { if (choicePrompt != null) choicePrompt.gameObject.SetActive(false); } catch { }
+            // try { if (choicePrompt != null) choicePrompt.gameObject.SetActive(false); } catch { }
 
             // resolve the tcs (defensive)
             choiceTcs?.TrySetResult();
@@ -479,7 +494,7 @@ public class NarrativeManager : SerializedMonoBehaviour
                 needFallback = true;
             }
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             Debug.Log($"Failed to find clip at {targetPath} with error {e}. Trying fallback path...");
             needFallback = true;
@@ -490,7 +505,7 @@ public class NarrativeManager : SerializedMonoBehaviour
             // try fallback path
             targetPath = $"{AnimaticsPath}{nextfilePath}.mp4";
         }
-        
+
         AsyncOperationHandle<VideoClip> handle;
         try
         {

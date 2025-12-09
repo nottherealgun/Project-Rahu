@@ -79,33 +79,33 @@ public class QTEPrompt : SerializedMonoBehaviour
         onQTEVanished?.Invoke();
     }
 
-    public void OnQTE1(InputAction.CallbackContext context)
+    public void OnQTE1(InputValue value)
     {
-        if (context.started)
+        if (value.isPressed)
         {
             OnQTEPress(KeyPrompt.QTE1);
         }
     }
 
-    public void OnQTE2(InputAction.CallbackContext context)
+    public void OnQTE2(InputValue value)
     {
-        if (context.started)
+        if (value.isPressed)
         {
             OnQTEPress(KeyPrompt.QTE2);
         }
     }
 
-    public void OnQTE3(InputAction.CallbackContext context)
+    public void OnQTE3(InputValue value)
     {
-        if (context.started)
+        if (value.isPressed)
         {
             OnQTEPress(KeyPrompt.QTE3);
         }
     }
 
-    public void OnQTE4(InputAction.CallbackContext context)
+    public void OnQTE4(InputValue value)
     {
-        if (context.started)
+        if (value.isPressed)
         {
             OnQTEPress(KeyPrompt.QTE4);
         }
