@@ -314,7 +314,16 @@ public class NarrativeManager : SerializedMonoBehaviour
                 break;
         }
 
-        while (cutscenePlayer.isPlaying) { await UniTask.Yield(); }
+        while (cutscenePlayer.isPlaying) 
+        {
+            Debug.Log($"{currentShotID}: {cutscenePlayer.frame} / { cutscenePlayer.clip.frameCount}");
+            string vl = cutsceneStore.GetVoicelineAt(currentShotID, (int)cutscenePlayer.frame);
+            if(vl != "")
+            {
+                UIManager.Instance.DisplaySubtitle(vl);
+            }
+            await UniTask.Yield();
+        }
 
         // When cutscene player stops playing
         if (currentShot.shotType == ShotType.LINEAR)

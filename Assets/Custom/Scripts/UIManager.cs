@@ -44,6 +44,7 @@ public class UIManager : SerializedMonoBehaviour
         else subtitleText.gameObject.SetActive(true);
     }
     [OdinSerialize] TMP_Text subtitleText;
+    [OdinSerialize] CanvasGroup subtitleContainer;
 
     [Title("Interaction Prompt HUD")]
     [OdinSerialize] GameObject interactionPromptHUD;
@@ -96,7 +97,7 @@ public class UIManager : SerializedMonoBehaviour
         // GetComponent<PlayerInput>().SwitchCurrentControlScheme(controlScheme);
         interactionPromptHUD.GetComponent<InteractionPromptHUD>().SyncPromptIcons(_activeDevice);
 
-        InteractionPrompt[] prompts = UnityEngine.Object.FindObjectsByType<InteractionPrompt>( FindObjectsInactive.Include, FindObjectsSortMode.None);
+        InteractionPrompt[] prompts = UnityEngine.Object.FindObjectsByType<InteractionPrompt>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (InteractionPrompt prompt in prompts)
         {
             prompt.SyncIcon(_activeDevice);
@@ -232,16 +233,19 @@ public class UIManager : SerializedMonoBehaviour
     {
         subtitleText.text = text;
         subtitleText.color = new Color(subtitleText.color.r, subtitleText.color.g, subtitleText.color.b, 1f);
+        subtitleContainer.alpha = 1f;
 
         // Tween out the text opacity after 5 seconds
         subtitleSeq?.Stop();
         subtitleSeq = Sequence.Create()
             .ChainDelay(5f)
-            .Chain(Tween.Custom(1f, 0f, duration: 5f, onValueChange: newVal => subtitleText.color = new Color(subtitleText.color.r, subtitleText.color.g, subtitleText.color.b, newVal)))
+            .Chain(Tween.Alpha(subtitleContainer, 0f, duration: 5f))
+            // .Chain(
+            //     Tween.Custom(1f, 0f, duration: 5f, onValueChange: newVal => subtitleText.color = new Color(subtitleText.color.r, subtitleText.color.g, subtitleText.color.b, newVal)))
             .OnComplete(() =>
             {
                 subtitleText.text = "";
-                subtitleText.color = new Color(subtitleText.color.r, subtitleText.color.g, subtitleText.color.b, 1f);
+                // subtitleText.color = new Color(subtitleText.color.r, subtitleText.color.g, subtitleText.color.b, 1f);
             });
     }
 
@@ -376,7 +380,7 @@ public class UIManager : SerializedMonoBehaviour
         int layerIdx = 0;
         while (duplicate.Count > 0)
         {
-            Tuple<InteractionHUDPreset, string> layer = (Tuple<InteractionHUDPreset, string>) duplicate.Pop();
+            Tuple<InteractionHUDPreset, string> layer = (Tuple<InteractionHUDPreset, string>)duplicate.Pop();
             Debug.Log($"{layerIdx} : {layer.Item1}, {layer.Item2}");
             layerIdx++;
         }

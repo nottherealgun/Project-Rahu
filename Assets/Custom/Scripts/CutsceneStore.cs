@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using PixelCrushers.DialogueSystem;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
@@ -27,7 +28,16 @@ public class CutsceneStore : SerializedScriptableObject
             this.isFinalShot = isFinalShot;
         }
     }
-
+    public struct FrameData
+    {
+        [DictionaryDrawerSettings(KeyLabel = "Frame", ValueLabel = "Dialogue")]
+        public Dictionary<int, string> voiceLines;
+        public FrameData(Dictionary<int, string> voiceLines)
+        {
+            this.voiceLines = voiceLines;
+        }
+    }
+    # region Cutscenes
     [OdinSerialize, ReadOnly, DictionaryDrawerSettings(KeyLabel = "Shot Reference", ValueLabel = "Cinematic Shot Data")]
     Dictionary<string, Shot> shotStore = new Dictionary<string, Shot>
     {   // testShotID       nextShotID      fileName     shotType         isFinalShot
@@ -200,10 +210,120 @@ public class CutsceneStore : SerializedScriptableObject
 
         { "ENDING", new Shot("","CH02_ENDING", ShotType.LINEAR, true ) }
     };
-
+    # endregion
+    # region Voicelines
+    [OdinSerialize, ReadOnly, DictionaryDrawerSettings(KeyLabel = "Shot Reference", ValueLabel = "Dialogue Data")]
+    Dictionary<string, FrameData> voiceLineStore = new Dictionary<string, FrameData>
+    {               // Frame     | Dialogue Text
+        { "10_04", new FrameData(new Dictionary<int, string>
+            {
+                { 87, "FASAI: Oh, let\'s see what I can do here." }
+            })
+        },
+        { "10_06", new FrameData(new Dictionary<int, string>
+            {
+                { 3, "FASAI: Okay, where was I?" },
+                { 87, "FASAI: Oh, should I call Ajarn Somchai?" }
+            })
+        },
+        { "10_06A", new FrameData(new Dictionary<int, string>
+            {
+                { 3, "FASAI: Ajarn Somchai." },
+                { 35, "FASAI: Do you copy? Fasai's here." },
+                { 111, "FASAI: Ajarn Somchai." }
+            })
+        },
+        { "10_07A", new FrameData(new Dictionary<int, string>
+            {
+                { 87, "FASAI: Who's there?!" }
+            })
+        },
+        { "10_08B", new FrameData(new Dictionary<int, string>
+            {
+                { 5, "FASAI: Who's that?!" }
+            })
+        },
+        { "11_01", new FrameData(new Dictionary<int, string>
+            {
+                { 121, "FASAI: Nate?!" }
+            })
+        },
+        { "11_02", new FrameData(new Dictionary<int, string>
+            {
+                { 69, "FASAI: Nate! Nate! Get a grip!" },
+                { 137, "NATE: Fasai. Thank god you are here." },
+                { 197, "NATE: There\'s something out there." },
+                { 243, "NATE: It\'s lurking in the dark." },
+                { 302, "NATE: Please tell me you noticed that too." },
+                { 362, "NATE: Please tell me that there\'s-" },
+                { 398, "NATE: something going wrong and it\'s not just me." },
+                { 479, "FASAI: I noticed that." },
+                { 532, "NATE: Thank god. I thought I was going crazy." }
+            })
+        },
+        { "11_04", new FrameData(new Dictionary<int, string>
+            {
+                { 22, "SOMCHAI: Attention, everyone." },
+                { 68, "SOMCHAI: I would like everyone to report where you are right now." }
+            })
+        },
+        { "11_05", new FrameData(new Dictionary<int, string>
+            {
+                { 42, "FASAI: I\'m at the lab right now,-" },
+                { 98, "FASAI: with Nate." }
+            })
+        },
+        { "11_06", new FrameData(new Dictionary<int, string>
+            {
+                { 23, "GIGI: I'm with this pervert,-" },
+                { 65, "GIGI: Oak." },
+                { 118, "OAK: Pervert?!" },
+                { 144, "OAK: You were literally in the guy\'s restroom!" },
+                { 217, "GIGI: Nonsense." },
+                { 271, "JENNY: I\'m at the dorm right now." },
+                { 352, "SOMCHAI: OK." },
+                { 375, "SOMCHAI: I\'m assigning P\'Pon with Jenny." }
+            })
+        },
+        { "11_07", new FrameData(new Dictionary<int, string>
+            {
+                { 10, "SOMCHAI: Just wait there." },
+                { 64, "FASAI: What\'s happening, sir?" },
+                { 100, "SOMCHAI: There\'s no time to explain." }
+            })
+        },
+        { "11_08", new FrameData(new Dictionary<int, string>
+            {
+                { 32, "SOMCHAI: Just go get the listed items." },
+                { 112, "SOMCHAI: I have sent you the list of materials for your PDAs." },
+                { 222, "SOMCHAI: Head back to my research lab once you've gathered everything." },
+                { 329, "SOMCHAI: You two, dismissed." },
+                { 406, "SOMCHAI: Now Oak and Gigi-" }
+            })
+        },
+        { "12_02", new FrameData(new Dictionary<int, string>
+            {
+                { 6, "FASAI: That should be the last one." },
+                { 75, "NATE: Well,-" },
+                { 97, "NATE: that wasn\'t so hard." },
+                { 156, "FASAI: Yeah, let\'s go back to Ajarn Somchai." },
+                { 232, "FASAI: It must have been pretty urgent if we need this kind of stuff." },
+                { 337, "NATE: Let\'s get out of here." },
+            })
+        },
+    };
+    # endregion
     public Shot GetShot(string shotID)
     {
         return shotStore[shotID];
+    }
+    public string GetVoicelineAt(string shotID, int frame)
+    {
+        if(!voiceLineStore.ContainsKey(shotID) || !voiceLineStore[shotID].voiceLines.ContainsKey(frame))
+        {
+            return "";
+        }
+        return voiceLineStore[shotID].voiceLines[frame];
     }
 
     public struct ChoicePromptData
