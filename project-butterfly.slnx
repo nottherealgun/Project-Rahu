@@ -10,6 +10,7 @@
   <Project Path="UniTask.Linq.csproj" />
   <Project Path="MagicaClothV2.Editor.csproj" />
   <Project Path="IngameDebugConsole.Runtime.csproj" />
+  <Project Path="SingularityGroup.HotReload.Runtime.csproj" />
   <Project Path="uLipSync.Runtime.csproj" />
   <Project Path="Uween.Runtime.csproj" />
   <Project Path="UnityChan.csproj" />
@@ -23,7 +24,6 @@
   <Project Path="SingularityGroup.HotReload.Runtime.Public.csproj" />
   <Project Path="uLipSync.Samples.VRM.Editor.csproj" />
   <Project Path="UniTask.TextMeshPro.csproj" />
-  <Project Path="SingularityGroup.HotReload.Runtime.csproj" />
   <Project Path="Sirenix.OdinInspector.Modules.Unity.Addressables.csproj" />
   <Project Path="Unity.StarterAssets.Editor.csproj" />
   <Project Path="SpringBoneEditor.csproj" />

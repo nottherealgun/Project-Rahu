@@ -60,7 +60,7 @@ public class VoicelineManager : SerializedMonoBehaviour
     {
         TextAsset jsonFile;
 
-        AsyncOperationHandle<TextAsset> loadOp = Addressables.LoadAssetAsync<TextAsset>("SC" + sceneName + "VoicelineStore");
+        AsyncOperationHandle<TextAsset> loadOp = Addressables.LoadAssetAsync<TextAsset>("Voiceover/SC" + sceneName + "VoicelineStore");
 
         loadOp.Completed += handle =>
         {

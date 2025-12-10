@@ -10,6 +10,7 @@ public class MainMenu : Menu
 {
     UnityAction onButtonPressed;
     [OdinSerialize] TMP_Text gameVersionText;
+    [OdinSerialize] CreditsMenu credits;
     async void Start()
     {
         UIManager.LockCursor(false);
@@ -45,8 +46,12 @@ public class MainMenu : Menu
             case "quit":
                 Application.Quit();
                 break;
+            case "credits":
+                credits.gameObject.SetActive(true);
+                credits.Show();
+                break;
             case "feedback":
-                Application.OpenURL("https://forms.gle/BxbxsNNHqJg1quaq5");
+                Application.OpenURL("https://forms.gle/YviHiZ2nrchY9Exm9");
                 break;
         }
         onButtonPressed?.Invoke();
@@ -66,5 +71,4 @@ public class MainMenu : Menu
     private void OnDestroy() {
         Tween.StopAll(this);    
     }
-
 }
