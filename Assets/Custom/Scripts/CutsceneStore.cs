@@ -257,8 +257,8 @@ public class CutsceneStore : SerializedScriptableObject
                 { 302, "NATE: Please tell me you noticed that too." },
                 { 362, "NATE: Please tell me that there\'s-" },
                 { 398, "NATE: something going wrong and it\'s not just me." },
-                { 479, "FASAI: I noticed that." },
-                { 532, "NATE: Thank god. I thought I was going crazy." }
+                { 452, "FASAI: I noticed that." },
+                { 513, "NATE: Thank god. I thought I was going crazy." }
             })
         },
         { "11_04", new FrameData(new Dictionary<int, string>

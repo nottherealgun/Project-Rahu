@@ -20,10 +20,10 @@ public class CreditsMenu : SerializedMonoBehaviour
     public void Hide()
     {
         isVisible = false;
+        Tween.StopAll(this);
         UIManager.Instance.DisableInteractionHUD();
         Tween.Alpha(GetComponent<CanvasGroup>(), 1f, 0f, 1f).OnComplete(() =>
         {
-            Tween.StopAll(this);
             StopAllCoroutines();
             gameObject.SetActive(false);
         });
@@ -36,7 +36,7 @@ public class CreditsMenu : SerializedMonoBehaviour
             Hide();
         }
     }
-    
+
     public void ShowScroll()
     {
         UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.CUSTOM, "leave,scroll");
