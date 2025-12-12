@@ -12,8 +12,10 @@ public class MainMenu : Menu
     UnityAction onButtonPressed;
     [OdinSerialize] TMP_Text gameVersionText;
     [OdinSerialize] CreditsMenu credits;
+    [OdinSerialize] Button newGameButton;
     async void Start()
     {
+        if (PersistentDataManager.GameOver) newGameButton.interactable = false;
         UIManager.LockCursor(false);
         UIManager.Instance.DisableInteractionHUD();
         EnvironmentalAudioManager.Instance.PlayMusic("main_menu_music");
@@ -41,8 +43,6 @@ public class MainMenu : Menu
                 onButtonPressed += NarrativeManager.Instance.StartNewGame;
                 break;
             case "settings":
-                // onButtonPressed += OpenSettingsMenu;
-                // GetComponent<PlayerInput>().enabled = false;
                 onButtonPressed += UIManager.Instance.OpenSettingsMenu;
                 break;
             case "quit":

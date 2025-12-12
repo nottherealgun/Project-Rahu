@@ -21,8 +21,5 @@ public class QTETester : SerializedMonoBehaviour
 
         PersistentDataManager.Instance.FindPlayer();
         await NarrativeManager.Instance.LateSetup();
-
-        // UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.QTE);
-        // qtePrompt?.gameObject.SetActive(true);
     }
 }

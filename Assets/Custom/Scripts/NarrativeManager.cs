@@ -98,11 +98,6 @@ public class NarrativeManager : SerializedMonoBehaviour
         }
     }
 
-    public void OnControlsChanged()
-    {
-        UIManager.Instance.OnDeviceChanged(playerInput);
-    }
-
     public IEnumerator RemoveAllCutscenes()
     {
         yield return new WaitForEndOfFrame();
@@ -393,7 +388,6 @@ public class NarrativeManager : SerializedMonoBehaviour
 
             // disable HUD and hide prompt
             try { UIManager.Instance.DisableInteractionHUD(); } catch { }
-            // try { if (choicePrompt != null) choicePrompt.gameObject.SetActive(false); } catch { }
 
             // resolve the tcs (defensive)
             choiceTcs?.TrySetResult();
@@ -481,7 +475,6 @@ public class NarrativeManager : SerializedMonoBehaviour
     async Task<AsyncOperationHandle<VideoClip>> PrepareShot(CutsceneStore.Shot nextShot, VideoPlayer vp)
     {
         string nextfilePath = nextShot.fileName;
-        // AsyncOperationHandle<VideoClip> handle = Addressables.LoadAssetAsync<VideoClip>($"{AnimationsPath}{nextfilePath}.mp4");
         string targetPath = $"{AnimationsPath}{nextfilePath}.mp4";
         bool needFallback = false;
 

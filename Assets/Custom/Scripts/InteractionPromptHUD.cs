@@ -46,17 +46,17 @@ public class InteractionPromptHUD : SerializedMonoBehaviour
 
     public void DisablePrompts()
     {
-        foreach(string promptName in prompts.Keys)
+        foreach (string promptName in prompts.Keys)
         {
             if (prompts[promptName].activeInHierarchy == false) continue;
             prompts[promptName].SetActive(false);
         }
         resetPrompts = true;
     }
-    
+
     public void EnablePrompts(UIManager.InteractionHUDPreset preset = UIManager.InteractionHUDPreset.DEFAULT, string customInteractionString = "")
     {
-        if(resetPrompts == false)
+        if (resetPrompts == false)
         {
             DisablePrompts();
         }
@@ -82,7 +82,7 @@ public class InteractionPromptHUD : SerializedMonoBehaviour
                 promptsToTurnOn = customInteractionString;
                 break;
             default:
-                // IntereactionHUDPreset.DEFAULT
+                // InteractionHUDPreset.DEFAULT
                 break;
         }
 
@@ -92,18 +92,9 @@ public class InteractionPromptHUD : SerializedMonoBehaviour
         }
 
         string[] splitPromptsArray = promptsToTurnOn.Split(",");
-        foreach(string promptName in splitPromptsArray)
+        foreach (string promptName in splitPromptsArray)
         {
             prompts[promptName].SetActive(true);
-        }
-    }
-
-    public void SyncPromptIcons(CurrentActiveDeviceManager.ActiveDevice activeDevice)
-    {
-        foreach(GameObject promptObj in prompts.Values)
-        {
-            Prompt _prompt = promptObj.GetComponent<Prompt>();
-            _prompt.SetPromptMode( (Prompt.PromptMode) activeDevice);
         }
     }
 }

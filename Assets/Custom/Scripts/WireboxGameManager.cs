@@ -56,7 +56,6 @@ public class WireboxGameManager : Menu
         {
             if (!wire.IsInValidDirection())
             {
-                // Debug.Log(wire.name + " is in invalid direction");
                 allWiresCorrect = false;
                 break;
             }

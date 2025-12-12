@@ -15,8 +15,6 @@ public abstract class Menu : SerializedMonoBehaviour
         {
             firstSelected = GameObject.FindFirstObjectByType<GameObject>();
         }
-
-        // SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     void Start()

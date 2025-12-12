@@ -43,12 +43,6 @@ public class PasscodePanel : SerializedMonoBehaviour
             playerController.DisconnectFromInteractingObject();
         });
     }
-
-    // public void Close()
-    // {
-    //     onUnlocked.RemoveAllListeners();
-    // }
-
     public void OnPanelButtonPressed(int number)
     {
         EnvironmentalAudioManager.Instance.PlaySFX("passcode_button_pressed");

@@ -71,7 +71,7 @@ public class Crystal : SerializedMonoBehaviour
     {
         selectingVisual.gameObject.SetActive(true);
     }
-    
+
     public void Unmark()
     {
         selectingVisual.gameObject.SetActive(false);
@@ -85,10 +85,5 @@ public class Crystal : SerializedMonoBehaviour
     void Start()
     {
         gameObject.name = $"Crystal {UnityEngine.Random.Range(0, 1000)}";
-    }
-
-    void Update()
-    {
-        // testText.text = $"({crystalPosition.x}, {crystalPosition.y})";
     }
 }

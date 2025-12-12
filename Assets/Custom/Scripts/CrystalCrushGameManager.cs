@@ -74,7 +74,6 @@ class CrystalGameGrid : SerializedMonoBehaviour
             }
             grid.Add(row);
         }
-        // GenerateUnplayableGame();
         barrier.SetActive(true);
         await UpdateGrid();
         await AnimateVisuals();
@@ -198,7 +197,7 @@ class CrystalGameGrid : SerializedMonoBehaviour
             await UpdateGrid();
             barrier.SetActive(false);
         }
-        else if(selectedCrystals.Count >= 2)
+        else if (selectedCrystals.Count >= 2)
         {
             UnmarkSelectedCrystals();
         }
@@ -385,14 +384,14 @@ class CrystalGameGrid : SerializedMonoBehaviour
             Tween.CompleteAll(crystal.transform);
             grid[crystalPos.x][crystalPos.y] = null;
 
-            
+
             Destroy(crystal);
         }
-        if(matchedCrystals.Count > 0)
+        if (matchedCrystals.Count > 0)
         {
             UnmarkSelectedCrystals();
             selectedCrystals.Clear();
-            EnvironmentalAudioManager.Instance.PlaySFX("crystal_crush",true);
+            EnvironmentalAudioManager.Instance.PlaySFX("crystal_crush", true);
         }
     }
 
@@ -445,7 +444,7 @@ class CrystalGameGrid : SerializedMonoBehaviour
                     float steps = Mathf.Floor(distance / CellSize.y);
                     sequence = Sequence.Create()
                         .Group(Tween.Position(crystal.transform, targetPos, swapSpeed, fallEaseType));
-                        
+
                 }
             }
         }

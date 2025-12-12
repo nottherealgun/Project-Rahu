@@ -68,7 +68,6 @@ public class VoicelineManager : SerializedMonoBehaviour
             {
                 jsonFile = loadOp.Result;
                 currentRawVoicepackData = jsonFile.text;
-                // currentVoicelinePack = JsonUtility.FromJson<VoicelinePack>(currentRawVoicepackData);
                 currentVoicelinePack = JsonConvert.DeserializeObject<VoicelinePack>(currentRawVoicepackData);
             }
         };

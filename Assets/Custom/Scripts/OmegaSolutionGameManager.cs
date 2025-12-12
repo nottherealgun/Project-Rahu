@@ -36,10 +36,6 @@ public class OmegaSolutionGameManager : PuzzleGameManager
     [OdinSerialize, AssetsOnly] Sprite boostButtonNormal;
     [OdinSerialize, ReadOnly] GaugeMode currentGaugeMode = GaugeMode.NONE;
     [Title("Progress Rates")]
-    // [OdinSerialize]
-    // [InfoBox("How fast the Right Bar\'s indicator accelerates per frame")]
-    // float boostAccelerationRate = 0.0005f;
-    // [OdinSerialize]
     [InfoBox("How fast the Right Bar\'s indicator decelerates per frame")]
     [OdinSerialize] float boostDecelerationRate = 0.02f;
     [InfoBox("How fast the Left Bar\'s progress RISES per frame (Max prog. is 1.0)")]
@@ -109,12 +105,8 @@ public class OmegaSolutionGameManager : PuzzleGameManager
             {
                 newPos = startingFillerPos + Vector2.down * UnityEngine.Random.Range(100, 340);
             }
-            // yellowFiller.GetComponent<RectTransform>().anchoredPosition
             RectTransform rt = yellowFiller.GetComponent<RectTransform>();
             tween = Tween.Custom(rt.anchoredPosition, newPos, 5.0f, t => rt.anchoredPosition = t, Ease.OutSine);
-
-            // currentGaugeMode = GaugeMode.DEPLETING;
-
             yield return tween;
         }
     }
@@ -138,37 +130,13 @@ public class OmegaSolutionGameManager : PuzzleGameManager
     {
         if (boosting)
         {
-            // boostAcceleration += boostAccelerationRate;
             boostAcceleration = 0.2f;
         }
         else if (indicatorLevel > 0f)
         {
             boostAcceleration -= boostDecelerationRate;
-            // boostAcceleration = -0.35f;
         }
     }
-
-    // public void OnBoost(InputValue value)
-    // {
-    //     SetBoosting(value.isPressed);
-    //     if (value.isPressed)
-    //     {
-    //         boostButton.image.sprite = boostButtonPressed;
-    //     }
-    //     else
-    //     {
-    //         boostButton.image.sprite = boostButtonNormal;
-    //     }
-    // }
-
-    // public void OnEject(InputValue value)
-    // {
-    //     if (value.isPressed)
-    //     {
-    //         CheckAndFinalizeGame();
-    //         ejectButton.image.sprite = ejectButtonPressed;
-    //     }
-    // }
 
     public void SetBoosting(bool value)
     {

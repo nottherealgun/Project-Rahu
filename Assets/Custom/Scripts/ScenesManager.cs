@@ -27,12 +27,6 @@ public class ScenesManager : SerializedMonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
-    void Start()
-    {
-        // SceneManager.LoadScene("Loading Screen", LoadSceneMode.Additive);
-        // loadingScreen = SceneManager.GetSceneByName("Loading Screen");
-    }
-
     public async UniTask LoadScene(string sceneName)
     {
         // 1. Load loading screen
@@ -67,19 +61,11 @@ public class ScenesManager : SerializedMonoBehaviour
     public void ShowLoadingScreen()
     {
         loadingScreen.SetActive(true);
-        // foreach (GameObject o in loadingScreen.GetRootGameObjects())
-        // {
-        //     o.SetActive(true);
-        // }
     }
 
     public void HideLoadingScreen()
     {
         loadingScreen.SetActive(false);
-        // foreach (GameObject o in loadingScreen.GetRootGameObjects())
-        // {
-        //     o.SetActive(false);
-        // }
     }
 
     public void ShowScene()

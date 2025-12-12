@@ -44,7 +44,6 @@ public class RenderTextureUIRaycaster : MonoBehaviour
                         {
                             ExecuteEvents.Execute(btn.gameObject, pointerData, ExecuteEvents.pointerDownHandler);
                             ExecuteEvents.Execute(btn.gameObject, pointerData, ExecuteEvents.pointerClickHandler);
-                            // btn.onClick.Invoke();
                             Debug.Log(btn.name + " clicked!");
                         }
                         else

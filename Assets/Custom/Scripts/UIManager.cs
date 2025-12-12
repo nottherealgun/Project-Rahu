@@ -88,19 +88,6 @@ public class UIManager : SerializedMonoBehaviour
         settingsMenu.GetComponent<SettingsMenu>().Initialize();
     }
 
-    public void SetControlScheme(string _currentControlScheme, CurrentActiveDeviceManager.ActiveDevice _activeDevice)
-    {
-        controlScheme = _currentControlScheme;
-        // GetComponent<PlayerInput>().SwitchCurrentControlScheme(controlScheme);
-        interactionPromptHUD.GetComponent<InteractionPromptHUD>().SyncPromptIcons(_activeDevice);
-
-        InteractionPrompt[] prompts = UnityEngine.Object.FindObjectsByType<InteractionPrompt>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (InteractionPrompt prompt in prompts)
-        {
-            prompt.SyncIcon(_activeDevice);
-        }
-    }
-
     [Button(ButtonSizes.Large)]
     public static void LockCursor(bool newState)
     {
@@ -181,9 +168,6 @@ public class UIManager : SerializedMonoBehaviour
         sequence.Value
             .Group(Tween.PositionX(questHUD.GetComponent<RectTransform>(), 0f, 1f))
             .Group(Tween.Alpha(questHUD.GetComponent<CanvasGroup>(), 1f, 1f));
-        // .ChainDelay(7.5f)
-        // .Chain(Tween.PositionX(questHUD.GetComponent<RectTransform>(), -150f, 0.5f))
-        // .Group(Tween.Alpha(questHUD.GetComponent<CanvasGroup>(), 0f, 0.5f));
     }
     public void DisableQuestHUD()
     {
@@ -237,12 +221,9 @@ public class UIManager : SerializedMonoBehaviour
         subtitleSeq = Sequence.Create()
             .ChainDelay(5f)
             .Chain(Tween.Alpha(subtitleCanvasGroup, 0f, duration: 5f))
-            // .Chain(
-            //     Tween.Custom(1f, 0f, duration: 5f, onValueChange: newVal => subtitleText.color = new Color(subtitleText.color.r, subtitleText.color.g, subtitleText.color.b, newVal)))
             .OnComplete(() =>
             {
                 subtitleText.text = "";
-                // subtitleText.color = new Color(subtitleText.color.r, subtitleText.color.g, subtitleText.color.b, 1f);
             });
     }
 
@@ -264,6 +245,7 @@ public class UIManager : SerializedMonoBehaviour
 
         settingsMenu.SetActive(false);
         LockCursor(false);
+        DisableInteractionHUD();
     }
 
     public void EnableInteractionHUD()
@@ -326,22 +308,6 @@ public class UIManager : SerializedMonoBehaviour
             string layer = (string)duplicate.Pop();
             Debug.Log($"{layerIdx}: {layer}");
             layerIdx++;
-        }
-    }
-
-    public void OnDeviceChanged(PlayerInput playerInput)
-    {
-        switch (playerInput.currentControlScheme)
-        {
-            case "Keyboard&Mouse":
-                SetControlScheme("Keyboard&Mouse", CurrentActiveDeviceManager.ActiveDevice.Keyboard);
-                break;
-            case "Xbox":
-                SetControlScheme("Xbox", CurrentActiveDeviceManager.ActiveDevice.Xbox);
-                break;
-            case "DualShock":
-                SetControlScheme("DualShock", CurrentActiveDeviceManager.ActiveDevice.DualShock);
-                break;
         }
     }
 }

@@ -12,7 +12,7 @@ public class InteractionPrompt : SerializedMonoBehaviour
     [OdinSerialize] GameObject inactivePrompt;
     [OdinSerialize] GameObject activePrompt;
     GameObject player;
-    [OdinSerialize, PropertyRange(1f,20f)] float fadeDist = 2.7f;
+    [OdinSerialize, PropertyRange(1f, 20f)] float fadeDist = 2.7f;
     [OdinSerialize] Image keyboardIcon;
     [OdinSerialize] Image xboxIcon;
     [OdinSerialize] Image dualshockIcon;
@@ -22,9 +22,10 @@ public class InteractionPrompt : SerializedMonoBehaviour
         player = PersistentDataManager.Instance.FindPlayer();
     }
 
-    void OnDrawGizmos() {
-        Gizmos.color = new Color(1f,0f,0f,0.25f);
-        Gizmos.DrawSphere(transform.position, fadeDist);    
+    void OnDrawGizmos()
+    {
+        Gizmos.color = new Color(1f, 0f, 0f, 0.25f);
+        Gizmos.DrawSphere(transform.position, fadeDist);
     }
 
     [Button(ButtonSizes.Large)]
@@ -60,8 +61,6 @@ public class InteractionPrompt : SerializedMonoBehaviour
 
         // fades out the inactive prompt when the player is far away
         float alpha = Mathf.Clamp(1f - (distance / fadeDist), 0f, 1f);
-        // Color inactiveColor = inactivePrompt.GetComponent<Image>().color;
-        // inactiveColor.a = alpha;
         inactivePrompt.GetComponent<CanvasGroup>().alpha = alpha;
     }
 
@@ -70,25 +69,6 @@ public class InteractionPrompt : SerializedMonoBehaviour
     {
         float distance = Vector3.Distance(player.transform.position, transform.position);
         Debug.Log($"Distance from player: {distance}");
-    }
-
-    public void SyncIcon(CurrentActiveDeviceManager.ActiveDevice device)
-    {
-        switch (device)
-        {
-            case CurrentActiveDeviceManager.ActiveDevice.Keyboard:
-                Set(true,false,false);
-                break;
-            case CurrentActiveDeviceManager.ActiveDevice.Xbox:
-                Set(false,true,false);
-                break;
-            case CurrentActiveDeviceManager.ActiveDevice.DualShock:
-                Set(false,false,true);
-                break;
-            default:
-                Set(true,false,false);
-                break;
-        }
     }
 
     private void Set(bool k, bool x, bool d)

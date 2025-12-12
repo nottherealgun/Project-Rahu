@@ -124,9 +124,6 @@ public class SettingsMenu : Menu
         Screen.fullScreen = settingsData.isFullscreen;
         UIManager.Instance.subtitlesOn = settingsData.subtitlesOn;
 
-        // Debug.Log(settingsData.masterVolume);
-        // Debug.Log(Mathf.Log10(Mathf.Clamp(settingsData.masterVolume, 0.0001f, 100f) / 100f) * 20f);
-
         audioMixer.SetFloat("Master", Mathf.Log10(Mathf.Clamp(settingsData.masterVolume, 0.0001f, 100f) / 100f) * 20f);
         audioMixer.SetFloat("Dialogue", Mathf.Log10(Mathf.Clamp(settingsData.dialogueVolume, 0.0001f, 100f) / 100f) * 20f);
         audioMixer.SetFloat("Music", Mathf.Log10(Mathf.Clamp(settingsData.musicVolume, 0.0001f, 100f) / 100f) * 20f);

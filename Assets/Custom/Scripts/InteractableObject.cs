@@ -67,7 +67,6 @@ public class InteractableObject : SerializedMonoBehaviour
 
             if (canBeRotated)
             {
-                // Tween.PositionY(itemMesh.transform, endValue: initialPosition.y + 0.15f, duration: 1, ease: Ease.OutCubic);
                 Tween.PositionY(transform, endValue: initialPosition.y + 0.15f, duration: 1, ease: Ease.OutCubic);
             }
             if (thisOpensPDA) pdaInitializer.OpenPDA();
@@ -124,11 +123,6 @@ public class InteractableObject : SerializedMonoBehaviour
 
     void UpdateInteractingObjectRotation()
     {
-        // if (this.isBeingInteractedWith && this.canBeRotated)
-        // {
-        //     deltaRotation = mouseRotator.UpdateRotation(Input.mousePosition, holdingMouse);
-        //     itemMesh.transform.rotation = initialRotation * deltaRotation;
-        // }
         if (Input.GetMouseButtonDown(0))
         {
             previousMousePos = Input.mousePosition;

@@ -3,7 +3,7 @@ using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.Events;
 using Cysharp.Threading.Tasks;
-
+using UnityEngine.SceneManagement;
 public class GameManager : SerializedMonoBehaviour
 {
     public static GameManager Instance { get; private set; }
@@ -72,12 +72,16 @@ public class GameManager : SerializedMonoBehaviour
             NarrativeManager.Instance.SetupScene("12", "02");
             UIManager.OnTransitioned += StartFinalCutscene;
             UIManager.Instance.ToggleTransitionPanel();
-            // StartFinalCutscene();
         }
     }
 
     async void StartFinalCutscene()
     {
+        PersistentDataManager.GameOver = true;
+        ScenesManager.Instance.ShowLoadingScreen();
+        await ScenesManager.Instance.LoadScene("Empty");
+        ScenesManager.Instance.HideLoadingScreen();
+
         await NarrativeManager.Instance.PlayCutsceneSequence();
         ScenesManager.Instance.ShowLoadingScreen();
         await ScenesManager.Instance.LoadScene("MainMenu");

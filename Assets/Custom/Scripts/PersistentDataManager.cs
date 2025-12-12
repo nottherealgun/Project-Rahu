@@ -9,6 +9,7 @@ using PixelCrushers.DialogueSystem;
 public class PersistentDataManager : SerializedMonoBehaviour
 {
     public static PersistentDataManager Instance { get; private set; }
+    public static bool GameOver = false;
     void Awake()
     {
         if (Instance != null && Instance != this)

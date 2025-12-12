@@ -125,7 +125,7 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
 
     public void StopLoopingSFX(string trackName)
     {
-        if(!LoopingSFXExists(trackName)) return;
+        if (!LoopingSFXExists(trackName)) return;
         GameObject newSource = transform.Find("SFX_" + trackName).gameObject;
         if (newSource != null)
         {
@@ -178,7 +178,7 @@ public class EnvironmentalAudioManager : SerializedMonoBehaviour
         newSource.GetComponent<AudioSource>().Stop();
         Destroy(newSource);
     }
-    
+
     bool PersistingAmbienceExists(string trackName)
     {
         return transform.Find("AMB_" + trackName) != null;

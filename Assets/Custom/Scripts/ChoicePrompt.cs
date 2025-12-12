@@ -48,7 +48,7 @@ public class ChoicePrompt : SerializedMonoBehaviour
         leftChoiceBody.text = leftChoiceTextBody;
         rightChoiceBody.text = rightChoiceTextBody;
     }
-    
+
     public void SetupTexts(string leftHeader, string leftBody, string rightHeader, string rightBody)
     {
         leftChoiceTextHeader = leftHeader;
@@ -69,7 +69,7 @@ public class ChoicePrompt : SerializedMonoBehaviour
             PersistentDataManager.Player.GetComponent<PlayerController>().LockCamera();
             choiceCamera.Target.TrackingTarget = PersistentDataManager.Player.transform.Find("PlayerCameraRoot").transform;
         }
-        
+
         UIManager.LockCursor(true);
 
         onLeftChosen.AddListener(choiceSelectedSFX.Play);
@@ -81,39 +81,41 @@ public class ChoicePrompt : SerializedMonoBehaviour
         if (choiceSelected) return;
         if (leftPressed)
         {
-            Vector3 newScale = new Vector3 ();
+            Vector3 newScale = new Vector3();
             newScale.x = Mathf.Clamp(leftChoosingCircle.transform.localScale.x + scalingSpeed, min.x, max.x);
             newScale.y = Mathf.Clamp(leftChoosingCircle.transform.localScale.y + scalingSpeed, min.y, max.y);
             newScale.z = Mathf.Clamp(leftChoosingCircle.transform.localScale.z + scalingSpeed, min.z, max.z);
             leftChoosingCircle.transform.localScale = newScale;
 
-            if (newScale.x == 1f) {
+            if (newScale.x == 1f)
+            {
                 choice = ChoiceType.LEFT;
-                onLeftChosen.AddListener(async () => await ResetChoices()); 
+                onLeftChosen.AddListener(async () => await ResetChoices());
                 onLeftChosen.AddListener(async () =>
                 {
-                    await Tween.Scale(leftChoosingCircle.transform,1.3f,0.1f);
+                    await Tween.Scale(leftChoosingCircle.transform, 1.3f, 0.1f);
                     await Tween.Scale(leftChoosingCircle.transform, 1f, 1f);
-                }); 
+                });
                 onLeftChosen?.Invoke();
             }
         }
         else if (rightPressed)
         {
-            Vector3 newScale = new Vector3 ();
+            Vector3 newScale = new Vector3();
             newScale.x = Mathf.Clamp(rightChoosingCircle.transform.localScale.x + scalingSpeed, min.x, max.x);
             newScale.y = Mathf.Clamp(rightChoosingCircle.transform.localScale.y + scalingSpeed, min.y, max.y);
             newScale.z = Mathf.Clamp(rightChoosingCircle.transform.localScale.z + scalingSpeed, min.z, max.z);
             rightChoosingCircle.transform.localScale = newScale;
 
-            if (newScale.x == 1f) {
+            if (newScale.x == 1f)
+            {
                 choice = ChoiceType.RIGHT;
-                onRightChosen.AddListener(async () => await ResetChoices()); 
+                onRightChosen.AddListener(async () => await ResetChoices());
                 onRightChosen.AddListener(async () =>
                 {
-                    await Tween.Scale(rightChoosingCircle.transform,1.3f,0.1f);
-                    await Tween.Scale(rightChoosingCircle.transform,1f,1f);
-                }); 
+                    await Tween.Scale(rightChoosingCircle.transform, 1.3f, 0.1f);
+                    await Tween.Scale(rightChoosingCircle.transform, 1f, 1f);
+                });
                 onRightChosen?.Invoke();
             }
         }
@@ -168,7 +170,6 @@ public class ChoicePrompt : SerializedMonoBehaviour
         rightTween?.Stop();
 
         choiceCamera.gameObject.SetActive(false);
-        // await sequence.Chain(Tween.Alpha(GetComponent<CanvasGroup>(), 0f, 2f));
 
         CanvasGroup chosenCanvasGroup;
         CanvasGroup unchosenCanvasGroup;
@@ -184,13 +185,10 @@ public class ChoicePrompt : SerializedMonoBehaviour
             unchosenCanvasGroup = leftCanvasGroup;
         }
 
-        // await Tween.Alpha(unchosenCanvasGroup, 0f, 1f);
-        // await UniTask.Delay(1500);
         await Sequence.Create()
             .Group(Tween.Alpha(unchosenCanvasGroup, 0f, 1f))
             .Group(Tween.Scale(chosenCanvasGroup.transform, 1.3f, 5f))
             .Group(Tween.Alpha(chosenCanvasGroup, 0f, 5f));
-        // await Tween.Alpha(chosenCanvasGroup, 0f, 1f);
 
         UIManager.RevertCursorState();
         PersistentDataManager.Player?.GetComponent<PlayerController>().UnlockCamera();
