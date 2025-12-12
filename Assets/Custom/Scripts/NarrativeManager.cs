@@ -11,6 +11,7 @@ using Cysharp.Threading.Tasks;
 using System.Collections;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using System.Threading.Tasks;
 
 public class ProjectRahu
 {
@@ -206,7 +207,7 @@ public class NarrativeManager : SerializedMonoBehaviour
         return newCutscene;
     }
 
-    public void PrepareCutsceneSequence()
+    public async UniTask PrepareCutsceneSequence()
     {
         Queue<string> shotsToPrepare = new Queue<string>();
 
@@ -235,7 +236,7 @@ public class NarrativeManager : SerializedMonoBehaviour
             newCutscene.name = newName;
             VideoPlayer cutscenePlayer = newCutscene.transform.Find("CutscenePlayer").GetComponent<VideoPlayer>();
 
-            PrepareShot(currentShot, cutscenePlayer);
+            await PrepareShot(currentShot, cutscenePlayer);
 
             if (currentShot.shotType == ShotType.CHOICE)
             {
@@ -477,7 +478,7 @@ public class NarrativeManager : SerializedMonoBehaviour
         PrepareCutsceneSequence();
     }
 
-    AsyncOperationHandle<VideoClip> PrepareShot(CutsceneStore.Shot nextShot, VideoPlayer vp)
+    async Task<AsyncOperationHandle<VideoClip>> PrepareShot(CutsceneStore.Shot nextShot, VideoPlayer vp)
     {
         string nextfilePath = nextShot.fileName;
         // AsyncOperationHandle<VideoClip> handle = Addressables.LoadAssetAsync<VideoClip>($"{AnimationsPath}{nextfilePath}.mp4");
@@ -487,6 +488,9 @@ public class NarrativeManager : SerializedMonoBehaviour
         try
         {
             AsyncOperationHandle<IList<IResourceLocation>> validateAddress = Addressables.LoadResourceLocationsAsync(targetPath);
+
+            await validateAddress.Task;
+
             if (validateAddress.Status != AsyncOperationStatus.Succeeded || validateAddress.Result == null || validateAddress.Result.Count == 0)
             {
                 // fallback 1

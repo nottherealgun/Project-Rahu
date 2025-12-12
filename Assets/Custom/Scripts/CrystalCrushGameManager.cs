@@ -593,7 +593,7 @@ class CrystalGameGrid : SerializedMonoBehaviour
     }
 }
 
-public class CrystalCrushGameManager : SerializedMonoBehaviour
+public class CrystalCrushGameManager : PuzzleGameManager
 {
     CrystalGameGrid grid;
     [OdinSerialize, TabGroup("tab1", "General", SdfIconType.GearFill), AssetsOnly] GameObject crystalPrefab;

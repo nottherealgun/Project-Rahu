@@ -5,6 +5,7 @@ using TMPro;
 using Cysharp.Threading.Tasks;
 using UnityEngine.UI;
 using PrimeTween;
+using System.Threading.Tasks;
 
 public class MainMenu : Menu
 {
@@ -36,6 +37,7 @@ public class MainMenu : Menu
             case "continue":
                 break;
             case "new_game":
+                ScenesManager.Instance.ShowLoadingScreen();
                 onButtonPressed += NarrativeManager.Instance.StartNewGame;
                 break;
             case "settings":
@@ -60,7 +62,7 @@ public class MainMenu : Menu
 
     public void ButtonOnHover(HorizontalLayoutGroup lg)
     {
-        Tween.Custom(lg.padding.left, 50f, 0.5f, (val) => lg.padding.left = (int) val);
+        Tween.Custom(lg.padding.left, 30f, 0.5f, (val) => lg.padding.left = (int) val);
     }
 
     public void ButtonOnUnhover(HorizontalLayoutGroup lg)

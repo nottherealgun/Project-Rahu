@@ -21,8 +21,5 @@ public class ChoiceTester : SerializedMonoBehaviour
 
         PersistentDataManager.Instance.FindPlayer();
         await NarrativeManager.Instance.LateSetup();
-
-        // UIManager.Instance.EnableInteractionHUD(UIManager.InteractionHUDPreset.CHOICE);
-        // choicePrompt?.gameObject.SetActive(true);
     }
 }

@@ -5,10 +5,11 @@ using PrimeTween;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class OmegaSolutionGameManager : SerializedMonoBehaviour
+public class OmegaSolutionGameManager : PuzzleGameManager
 {
     [OdinSerialize] Image gaugeFiller;
     [OdinSerialize] Image beakerFiller;
@@ -147,27 +148,27 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
         }
     }
 
-    public void OnBoost(InputValue value)
-    {
-        SetBoosting(value.isPressed);
-        if (value.isPressed)
-        {
-            boostButton.image.sprite = boostButtonPressed;
-        }
-        else
-        {
-            boostButton.image.sprite = boostButtonNormal;
-        }
-    }
+    // public void OnBoost(InputValue value)
+    // {
+    //     SetBoosting(value.isPressed);
+    //     if (value.isPressed)
+    //     {
+    //         boostButton.image.sprite = boostButtonPressed;
+    //     }
+    //     else
+    //     {
+    //         boostButton.image.sprite = boostButtonNormal;
+    //     }
+    // }
 
-    public void OnEject(InputValue value)
-    {
-        if (value.isPressed)
-        {
-            CheckAndFinalizeGame();
-            ejectButton.image.sprite = ejectButtonPressed;
-        }
-    }
+    // public void OnEject(InputValue value)
+    // {
+    //     if (value.isPressed)
+    //     {
+    //         CheckAndFinalizeGame();
+    //         ejectButton.image.sprite = ejectButtonPressed;
+    //     }
+    // }
 
     public void SetBoosting(bool value)
     {
@@ -229,24 +230,35 @@ public class OmegaSolutionGameManager : SerializedMonoBehaviour
                 isGaugeFilled = true;
                 ejectButton.interactable = true;
                 boostButton.interactable = false;
+                boostButton.GetComponent<EventTrigger>().enabled = false;
+                StartEjectBtnBlinkingAnimation();
                 return;
             }
         }
     }
+
+    [Button(ButtonSizes.Large)]
+    void StartEjectBtnBlinkingAnimation()
+    {
+        Sequence sequence = Sequence.Create(-1,Sequence.SequenceCycleMode.Yoyo)
+            .Chain(Tween.Alpha(ejectButton.image,0.5f, 0.25f))
+            .Chain(Tween.Alpha(ejectButton.image,1f, 0.25f));
+    }
+
 
     void LeaveGame()
     {
         UIManager.LockCursor(true);
         StopBoilingSFX();
         EnvironmentalAudioManager.Instance.StopMusic();
+        Tween.StopAll(this);
     }
 
     [HorizontalGroup("A"), Button(ButtonSizes.Large), LabelText("Instant Win"), DisableInEditorMode]
     void EndGame()
     {
         gameObject.GetComponent<PuzzleCompletionEmitter>().onPuzzleCompleted?.Invoke();
-        UIManager.LockCursor(true);
-        StopBoilingSFX();
+        LeaveGame();
 
         if (PersistentDataManager.Instance.HasEventPassed("chemicalGameFinished")) return;
         NarrativeManager.Instance.CharacterSpeak("SC12_Fasai_Chemical_Finish");

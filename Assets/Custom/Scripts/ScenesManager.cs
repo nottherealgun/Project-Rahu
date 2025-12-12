@@ -9,6 +9,7 @@ public class ScenesManager : SerializedMonoBehaviour
 {
     public static ScenesManager Instance { get; private set; }
     public static UnityAction OnSceneLoaded;
+    public bool isLoadingScreenVisible = false;
     [HideInInspector] public AsyncOperation LoadOperation;
     Scene currentScene;
     // Scene loadingScreen;

@@ -250,15 +250,15 @@ public class CutsceneStore : SerializedScriptableObject
         },
         { "11_02", new FrameData(new Dictionary<int, string>
             {
-                { 69, "FASAI: Nate! Nate! Get a grip!" },
-                { 137, "NATE: Fasai. Thank god you are here." },
-                { 197, "NATE: There\'s something out there." },
-                { 243, "NATE: It\'s lurking in the dark." },
-                { 302, "NATE: Please tell me you noticed that too." },
-                { 362, "NATE: Please tell me that there\'s-" },
-                { 398, "NATE: something going wrong and it\'s not just me." },
-                { 452, "FASAI: I noticed that." },
-                { 513, "NATE: Thank god. I thought I was going crazy." }
+                { 69-40, "FASAI: Nate! Nate! Get a grip!" },
+                { 137-40, "NATE: Fasai. Thank god you are here." },
+                { 197-40, "NATE: There\'s something out there." },
+                { 243-40, "NATE: It\'s lurking in the dark." },
+                { 302-40, "NATE: Please tell me you noticed that too." },
+                { 362-40, "NATE: Please tell me that there\'s-" },
+                { 398-40, "NATE: something going wrong and it\'s not just me." },
+                { 452-40, "FASAI: I noticed that." },
+                { 513-40, "NATE: Thank god. I thought I was going crazy." }
             })
         },
         { "11_04", new FrameData(new Dictionary<int, string>

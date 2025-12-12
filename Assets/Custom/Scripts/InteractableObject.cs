@@ -218,4 +218,9 @@ public class InteractableObject : SerializedMonoBehaviour
         if (interactionPrompt == null) return;
         interactionPrompt.GetComponent<InteractionPrompt>().HidePrompt();
     }
+
+    public void PlaySFX(string sfxName)
+    {
+        EnvironmentalAudioManager.Instance.PlaySFX(sfxName);
+    }
 }

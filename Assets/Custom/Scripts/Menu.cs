@@ -3,6 +3,7 @@ using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public abstract class Menu : SerializedMonoBehaviour
 {
@@ -14,7 +15,13 @@ public abstract class Menu : SerializedMonoBehaviour
         {
             firstSelected = GameObject.FindFirstObjectByType<GameObject>();
         }
-        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(firstSelected);
+
+        // SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void Start()
+    {
+        ReselectFirst();
     }
 
     public void ReselectFirst()

@@ -7,6 +7,7 @@ using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.InputSystem.Users;
 
 public class PlayerController : SerializedMonoBehaviour
 {
@@ -89,7 +90,7 @@ public class PlayerController : SerializedMonoBehaviour
     LayerMask interactionMask;
     #endregion
     // player
-    private bool isInteracting = false;
+    [OdinSerialize, ReadOnly] bool isInteracting = false;
     bool hasActiveChoicePrompt { get { return ActiveChoicePromptExists(); } }
     private float _speed;
     private float _animationBlend;
@@ -341,6 +342,8 @@ public class PlayerController : SerializedMonoBehaviour
 
         // Camera transition out (fade)
         UIManager.Instance.ToggleTransitionPanel(false);
+
+        RePairDevices();
     }
 
     public void DisconnectFromInteractingObject()
@@ -640,5 +643,15 @@ public class PlayerController : SerializedMonoBehaviour
     bool ActiveChoicePromptExists()
     {
         return FindAnyObjectByType<ChoicePrompt>() != null;
+    }
+
+    [Button(ButtonSizes.Large)]
+    public void RePairDevices()
+    {
+        PlayerInput pi = GetComponent<PlayerInput>();
+        foreach(InputDevice device in InputSystem.devices)
+        {
+            InputUser.PerformPairingWithDevice(device,pi.user);
+        }
     }
 }

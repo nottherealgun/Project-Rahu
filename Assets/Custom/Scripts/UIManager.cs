@@ -11,6 +11,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem.Users;
 using System;
+using System.Linq;
 
 public class UIManager : SerializedMonoBehaviour
 {
@@ -59,11 +60,6 @@ public class UIManager : SerializedMonoBehaviour
     public enum InteractionHUDPreset { DEFAULT, INTERACTABLE, ROTATABLE, CHOICE, QTE, PUZZLE, CUSTOM }
 
     [ReadOnly, OdinSerialize] string controlScheme = "Keyboard&Mouse";
-
-    Stack promptSetLayers = new Stack();
-    UnityAction onSavePromptSet;
-    [OdinSerialize, ReadOnly] Tuple<InteractionHUDPreset, string> lastPromptSet = null;
-
     public UnityAction onOpenSettings;
     public UnityAction onCloseSettings;
 
@@ -258,14 +254,7 @@ public class UIManager : SerializedMonoBehaviour
         LockCursor(false);
 
         uiLayers.Push("Settings");
-
-        // 1. Save current prompt set
-        if (lastPromptSet != null)
-        {
-            promptSetLayers.Push(lastPromptSet);
-        }
-
-        // 2. Show settings prompt set
+        
         EnableInteractionHUD(InteractionHUDPreset.CUSTOM, "next,back,adjust");
     }
 
@@ -275,21 +264,6 @@ public class UIManager : SerializedMonoBehaviour
 
         settingsMenu.SetActive(false);
         LockCursor(false);
-
-        if (promptSetLayers.Count <= 1) { lastPromptSet = null; }
-        if (promptSetLayers.Count == 0)
-        {
-            DisableInteractionHUD();
-            return;
-        }
-
-        // var previousPromptSet = promptSetLayers.Pop();
-        // Tuple<InteractionHUDPreset, string> TpreviousPromptSet = (Tuple<InteractionHUDPreset, string>)previousPromptSet;
-
-        // InteractionHUDPreset item1 = (InteractionHUDPreset)TpreviousPromptSet.Item1;
-        // string item2 = (string)TpreviousPromptSet.Item2;
-        // // Show previous prompt set
-        // EnableInteractionHUD(item1, item2);
     }
 
     public void EnableInteractionHUD()
@@ -302,25 +276,8 @@ public class UIManager : SerializedMonoBehaviour
         interactionPromptHUD.GetComponent<InteractionPromptHUD>().DisablePrompts();
         interactionPromptHUD.SetActive(false);
     }
-
-    public void RevertInteractionHUD()
-    {
-        if (lastPromptSet == null)
-        {
-            DisableInteractionHUD();
-            return;
-        }
-
-        InteractionHUDPreset item1 = (InteractionHUDPreset)lastPromptSet.Item1;
-        string item2 = (string)lastPromptSet.Item2;
-        // Show previous prompt set
-        EnableInteractionHUD(item1, item2);
-    }
-
     public void EnableInteractionHUD(InteractionHUDPreset preset, string customInteractionString = "")
     {
-        lastPromptSet = new Tuple<InteractionHUDPreset, string>(preset, customInteractionString);
-
         InteractionPromptHUD interactionPromptHUDScript = interactionPromptHUD.GetComponent<InteractionPromptHUD>();
 
         interactionPromptHUDScript.EnablePrompts(preset, customInteractionString);
@@ -346,8 +303,6 @@ public class UIManager : SerializedMonoBehaviour
                 }
                 break;
         }
-
-        RevertInteractionHUD();
     }
 
     public string PeekUILayer()
@@ -370,19 +325,6 @@ public class UIManager : SerializedMonoBehaviour
         {
             string layer = (string)duplicate.Pop();
             Debug.Log($"{layerIdx}: {layer}");
-            layerIdx++;
-        }
-    }
-
-    [Button(ButtonSizes.Large)]
-    void ListPromptSetLayers()
-    {
-        Stack duplicate = (Stack)promptSetLayers.Clone();
-        int layerIdx = 0;
-        while (duplicate.Count > 0)
-        {
-            Tuple<InteractionHUDPreset, string> layer = (Tuple<InteractionHUDPreset, string>)duplicate.Pop();
-            Debug.Log($"{layerIdx} : {layer.Item1}, {layer.Item2}");
             layerIdx++;
         }
     }
