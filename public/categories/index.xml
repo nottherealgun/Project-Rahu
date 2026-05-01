@@ -1,8 +1,8 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>My New Hugo Project – Categories</title>
+    <title>Project Rahu – Categories</title>
     <link>http://localhost:1313/categories/</link>
-    <description>Recent content in Categories on My New Hugo Project</description>
+    <description>Recent content in Categories on Project Rahu</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     

@@ -1,0 +1,32 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Project Rahu – Docs</title>
+    <link>http://localhost:1313/docs/</link>
+    <description>Recent content in Docs on Project Rahu</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 01 May 2026 15:46:45 +0700</lastBuildDate>
+    
+	  <atom:link href="http://localhost:1313/docs/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+      
+        
+      
+    
+    
+    <item>
+      <title>Timeline</title>
+      <link>http://localhost:1313/docs/timeline/</link>
+      <pubDate>Fri, 01 May 2026 15:46:45 +0700</pubDate>
+      
+      <guid>http://localhost:1313/docs/timeline/</guid>
+      <description>
+        
+        
+        
+      </description>
+    </item>
+    
+  </channel>
+</rss>
