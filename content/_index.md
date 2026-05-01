@@ -1,6 +1,6 @@
 ---
 date: '2026-05-01T15:30:16+07:00'
-draft: true
+draft: false
 title: 'What is Project Rahu?'
 cascade:
     type: "docs"
